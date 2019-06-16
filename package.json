@@ -44,7 +44,6 @@
     ]
   },
   "scripts": {
-    "precommit": "lint-staged",
     "start": "react-scripts start",
     "build": "react-scripts build && sw-precache-cra --config sw-config.js --no-minify",
     "test": "react-scripts test --env=jsdom",
@@ -63,5 +62,10 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  }
 }
