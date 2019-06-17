@@ -5,19 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import withStyles from '@material-ui/core/styles/withStyles';
-import ChatTileControl from './ChatTileControl';
-import DialogContentControl from './DialogContentControl';
-import DialogBadgeControl from './DialogBadgeControl';
-import DialogTitleControl from './DialogTitleControl';
-import DialogMetaControl from './DialogMetaControl';
-import { openChat } from '../../Actions/Client';
-import ChatStore from '../../Stores/ChatStore';
-import ApplicationStore from '../../Stores/ApplicationStore';
-import './DialogControl.css';
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import classNames from 'classnames'
+import withStyles from '@material-ui/core/styles/withStyles'
+import ChatTileControl from './ChatTileControl'
+import DialogContentControl from './DialogContentControl'
+import DialogBadgeControl from './DialogBadgeControl'
+import DialogTitleControl from './DialogTitleControl'
+import DialogMetaControl from './DialogMetaControl'
+import { openChat } from '../../Actions/Client'
+import ChatStore from '../../Stores/ChatStore'
+import ApplicationStore from '../../Stores/ApplicationStore'
+import './DialogControl.css'
+import VolumeOffIcon from '@material-ui/icons/VolumeOff'
 
 const styles = theme => ({
     statusRoot: {
@@ -50,64 +51,79 @@ const styles = theme => ({
                 background: theme.palette.primary.main + '22'
             }
         }
+    },
+    titleAndIcons: {
+        display: 'flex',
+        flexGrow: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start'
+    },
+    titleIcon: {
+        marginLeft: 5
+    },
+    volumeOffIconSmall: {
+        fontSize: 15
     }
-});
+})
 
 class DialogControl extends Component {
     constructor(props) {
-        super(props);
+        super(props)
 
-        this.dialog = React.createRef();
+        this.dialog = React.createRef()
 
-        const chat = ChatStore.get(this.props.chatId);
+        const chat = ChatStore.get(this.props.chatId)
         this.state = {
-            chat: chat
-        };
+            chat
+        }
     }
 
     shouldComponentUpdate(nextProps, nextState) {
         if (nextProps.chatId !== this.props.chatId) {
-            return true;
+            return true
         }
 
         if (nextProps.theme !== this.props.theme) {
-            return true;
+            return true
         }
 
         if (nextProps.hidden !== this.props.hidden) {
-            return true;
+            return true
         }
 
-        return false;
+        return false
     }
 
     componentDidMount() {
-        ApplicationStore.on('clientUpdateChatId', this.onClientUpdateChatId);
+        ApplicationStore.on('clientUpdateChatId', this.onClientUpdateChatId)
     }
 
     componentWillUnmount() {
-        ApplicationStore.removeListener('clientUpdateChatId', this.onClientUpdateChatId);
+        ApplicationStore.removeListener('clientUpdateChatId', this.onClientUpdateChatId)
     }
 
     onClientUpdateChatId = update => {
-        const { chatId } = this.props;
+        const { chatId } = this.props
 
         if (chatId === update.previousChatId || chatId === update.nextChatId) {
-            this.forceUpdate();
+            this.forceUpdate()
         }
-    };
+    }
 
     handleSelect = () => {
-        openChat(this.props.chatId);
-    };
+        openChat(this.props.chatId)
+    }
 
     render() {
-        const { classes, chatId, showSavedMessages, hidden } = this.props;
+        const { classes, chatId, showSavedMessages, hidden } = this.props
 
-        if (hidden) return null;
+        if (hidden) return null
 
-        const currentChatId = ApplicationStore.getChatId();
-        const isSelected = currentChatId === chatId;
+        const currentChatId = ApplicationStore.getChatId()
+        const isSelected = currentChatId === chatId
+
+        const { chat } = this.state
 
         return (
             <div
@@ -126,7 +142,19 @@ class DialogControl extends Component {
                     />
                     <div className='dialog-inner-wrapper'>
                         <div className='tile-first-row'>
-                            <DialogTitleControl chatId={chatId} />
+                            <div className={classes.titleAndIcons}>
+                                <DialogTitleControl chatId={chatId} />
+                                {chat.notification_settings.mute_for ? (
+                                    <VolumeOffIcon
+                                        color='disabled'
+                                        fontSize='small'
+                                        className={classes.titleIcon}
+                                        classes={{ fontSizeSmall: classes.volumeOffIconSmall }}
+                                    />
+                                ) : (
+                                    void 0
+                                )}
+                            </div>
                             <DialogMetaControl chatId={chatId} />
                         </div>
                         <div className='tile-second-row'>
@@ -136,7 +164,7 @@ class DialogControl extends Component {
                     </div>
                 </div>
             </div>
-        );
+        )
     }
 }
 
@@ -144,11 +172,11 @@ DialogControl.propTypes = {
     chatId: PropTypes.number.isRequired,
     hidden: PropTypes.bool,
     showSavedMessages: PropTypes.bool
-};
+}
 
 DialogControl.defaultProps = {
     hidden: false,
     showSavedMessages: true
-};
+}
 
-export default withStyles(styles, { withTheme: true })(DialogControl);
+export default withStyles(styles, { withTheme: true })(DialogControl)

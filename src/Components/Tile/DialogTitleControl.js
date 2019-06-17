@@ -5,64 +5,64 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import { withTranslation } from 'react-i18next';
-import { getChatTitle } from '../../Utils/Chat';
-import ChatStore from '../../Stores/ChatStore';
-import './DialogTitleControl.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import { withTranslation } from 'react-i18next'
+import { getChatTitle } from '../../Utils/Chat'
+import ChatStore from '../../Stores/ChatStore'
+import './DialogTitleControl.css'
 
 class DialogTitleControl extends React.Component {
     shouldComponentUpdate(nextProps, nextState) {
         if (nextProps.chatId !== this.props.chatId) {
-            return true;
+            return true
         }
 
         if (nextProps.t !== this.props.t) {
-            return true;
+            return true
         }
 
-        return false;
+        return false
     }
 
     componentDidMount() {
-        ChatStore.on('clientUpdateFastUpdatingComplete', this.onFastUpdatingComplete);
-        ChatStore.on('updateChatTitle', this.onUpdateChatTitle);
+        ChatStore.on('clientUpdateFastUpdatingComplete', this.onFastUpdatingComplete)
+        ChatStore.on('updateChatTitle', this.onUpdateChatTitle)
     }
 
     componentWillUnmount() {
-        ChatStore.removeListener('clientUpdateFastUpdatingComplete', this.onFastUpdatingComplete);
-        ChatStore.removeListener('updateChatTitle', this.onUpdateChatTitle);
+        ChatStore.removeListener('clientUpdateFastUpdatingComplete', this.onFastUpdatingComplete)
+        ChatStore.removeListener('updateChatTitle', this.onUpdateChatTitle)
     }
 
     onFastUpdatingComplete = update => {
-        this.forceUpdate();
-    };
+        this.forceUpdate()
+    }
 
     onUpdateChatTitle = update => {
-        const { chatId } = this.props;
+        const { chatId } = this.props
 
-        if (update.chat_id !== chatId) return;
+        if (update.chat_id !== chatId) return
 
-        this.forceUpdate();
-    };
+        this.forceUpdate()
+    }
 
     render() {
-        const { t, chatId, showSavedMessages } = this.props;
+        const { t, chatId, showSavedMessages } = this.props
 
-        const title = getChatTitle(chatId, showSavedMessages, t);
+        const title = getChatTitle(chatId, showSavedMessages, t)
 
-        return <div className='dialog-title'>{title}</div>;
+        return <div className='dialog-title'>{title}</div>
     }
 }
 
 DialogTitleControl.propTypes = {
     chatId: PropTypes.number.isRequired,
     showSavedMessages: PropTypes.bool
-};
+}
 
 DialogTitleControl.defaultProps = {
     showSavedMessages: true
-};
+}
 
-export default withTranslation()(DialogTitleControl);
+export default withTranslation()(DialogTitleControl)

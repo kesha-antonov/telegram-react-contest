@@ -37,6 +37,7 @@
 
 .tile-first-row {
     display: flex;
+    justify-content: space-between;
 }
 
 .tile-second-row {
