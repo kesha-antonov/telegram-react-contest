@@ -1,0 +1,46 @@
+diff a/src/Theme.js b/src/Theme.js	(rejected hunks)
+@@ -17,3 +17,2 @@ import ApplicationStore from './Stores/ApplicationStore';
+-
+-const SECONDARY = { main: '#FF5555' }
+-const TYPE_LIGHT = 'light'
++const SECONDARY = { main: '#FF5555' };
++const TYPE_LIGHT = 'light';
+@@ -23,6 +22,6 @@ function createLightTheme() {
+-       palette: {
+-           type: TYPE_LIGHT,
+-           primary: blue,
+-           secondary: SECONDARY,
+-       }
+-   });
++        palette: {
++            type: TYPE_LIGHT,
++            primary: blue,
++            secondary: SECONDARY
++        }
++    });
+@@ -43 +42 @@ export default function withTheme(WrappedComponent) {
+-                    secondary: SECONDARY,
++                    secondary: SECONDARY
+@@ -49 +48 @@ export default function withTheme(WrappedComponent) {
+-                theme,
++                theme
+@@ -70 +69 @@ export default function withTheme(WrappedComponent) {
+-                    secondary: SECONDARY,
++                    secondary: SECONDARY
+@@ -87,2 +86,2 @@ export default function withTheme(WrappedComponent) {
+-                        theme: createLightTheme(),
+-                    })
++                        theme: createLightTheme()
++                    });
+@@ -91 +90 @@ export default function withTheme(WrappedComponent) {
+-                    if( this.state.prevTheme && this.state.theme.type !== this.state.prevTheme.type ) {
++                    if (this.state.prevTheme && this.state.theme.type !== this.state.prevTheme.type) {
+@@ -93,2 +92,2 @@ export default function withTheme(WrappedComponent) {
+-                            theme: this.state.prevTheme,
+-                        })
++                            theme: this.state.prevTheme
++                        });
+@@ -97,2 +96 @@ export default function withTheme(WrappedComponent) {
+-
+-        }
++        };
