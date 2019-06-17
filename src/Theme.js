@@ -14,33 +14,49 @@ import { getDisplayName } from './Utils/HOC';
 import Cookies from 'universal-cookie';
 import ApplicationStore from './Stores/ApplicationStore';
 
-function withTheme(WrappedComponent) {
+const SECONDARY = { main: '#FF5555' };
+const TYPE_LIGHT = 'light';
+
+function createLightTheme() {
+    return createMuiTheme({
+        palette: {
+            type: TYPE_LIGHT,
+            primary: blue,
+            secondary: SECONDARY
+        }
+    });
+}
+
+export default function withTheme(WrappedComponent) {
     class ThemeWrapper extends React.Component {
         constructor(props) {
             super(props);
 
             const cookies = new Cookies();
-            const { type, primary } = cookies.get('themeOptions') || { type: 'light', primary: blue };
+            const { type, primary } = cookies.get('themeOptions') || { type: TYPE_LIGHT, primary: blue };
 
             let theme = createMuiTheme({
                 palette: {
                     type,
                     primary,
-                    secondary: { main: '#FF5555' }
+                    secondary: SECONDARY
                 }
             });
 
             this.state = {
+                prevTheme: theme,
                 theme
             };
         }
 
         componentDidMount() {
             ApplicationStore.on('clientUpdateThemeChanging', this.onClientUpdateThemeChanging);
+            ApplicationStore.on('updateAuthorizationState', this.onUpdateAuthorizationState);
         }
 
         componentWillUnmount() {
             ApplicationStore.removeListener('clientUpdateThemeChanging', this.onClientUpdateThemeChanging);
+            ApplicationStore.removeListener('updateAuthorizationState', this.onUpdateAuthorizationState);
         }
 
         onClientUpdateThemeChanging = update => {
@@ -50,7 +66,7 @@ function withTheme(WrappedComponent) {
                 palette: {
                     type,
                     primary,
-                    secondary: { main: '#FF5555' }
+                    secondary: SECONDARY
                 }
             });
 
@@ -58,6 +74,25 @@ function withTheme(WrappedComponent) {
             cookies.set('themeOptions', { type, primary });
 
             this.setState({ theme }, () => ApplicationStore.emit('clientUpdateThemeChange'));
+        };
+
+        onUpdateAuthorizationState = update => {
+            switch (update.authorization_state['@type']) {
+                case 'authorizationStateWaitPhoneNumber':
+                case 'authorizationStateWaitCode':
+                case 'authorizationStateWaitPassword':
+                    this.setState({
+                        prevTheme: this.state.theme,
+                        theme: createLightTheme()
+                    });
+                    break;
+                default:
+                    if (this.state.prevTheme && this.state.theme.type !== this.state.prevTheme.type) {
+                        this.setState({
+                            theme: this.state.prevTheme
+                        });
+                    }
+            }
         };
 
         render() {
@@ -76,5 +111,3 @@ function withTheme(WrappedComponent) {
 
     return ThemeWrapper;
 }
-
-export default withTheme;

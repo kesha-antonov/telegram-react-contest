@@ -191,7 +191,7 @@ class SignInControl extends React.Component {
 
 const enhance = compose(
     withTranslation(),
-    withStyles(styles, { withTheme: true })
+    withStyles(styles)
 );
 
 export default enhance(SignInControl);
