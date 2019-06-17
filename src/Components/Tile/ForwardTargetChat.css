@@ -13,6 +13,7 @@
     align-items: center;
     cursor: pointer;
     padding: 6px 0;
+    margin-bottom: 6px;
 }
 
 .forward-target-chat-tile {
@@ -83,9 +84,9 @@
 .forward-target-chat-title {
     max-width: 80px;
     font-size: 12px;
-    line-height: normal;
+    line-height: 17px;
     margin: 6px 0 0;
-    height: 32px;
+    max-height: 34px;
     text-align: center;
     text-overflow: ellipsis;
     overflow: hidden;
