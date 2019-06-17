@@ -29,6 +29,7 @@ import ApplicationStore from '../../Stores/ApplicationStore';
 import PlayerStore from '../../Stores/PlayerStore';
 import TdLibController from '../../Controllers/TdLibController';
 import './MessagesList.css';
+import Typing from './Typing';
 
 const ScrollBehaviorEnum = Object.freeze({
     NONE: 'NONE',
@@ -1048,6 +1049,7 @@ class MessagesList extends React.Component {
                     <div className='messages-list-top' />
                     <div ref={this.itemsRef} className='messages-list-items'>
                         {this.messages}
+                        <Typing />
                     </div>
                 </div>
                 <PinnedMessage chatId={chatId} />
