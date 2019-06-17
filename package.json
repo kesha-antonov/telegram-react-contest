@@ -4,8 +4,8 @@
   "version": "0.0.340",
   "private": true,
   "engines": {
-    "node": "^10.15.0",
-    "yarn": "^1.16.0"
+    "node": "^8.12.0",
+    "yarn": "^1.13.0"
   },
   "dependencies": {
     "tdweb": "^1.4.3",
