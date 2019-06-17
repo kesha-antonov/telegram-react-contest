@@ -36,7 +36,7 @@ class SharedMedia extends React.Component {
                     textColor='primary'
                     scrollable
                     scrollButtons='off'
-                    fullWidth>
+                    variant='scrollable'>
                     <Tab label='Media' style={{ minWidth: '40px' }} />
                     <Tab label='Docs' style={{ minWidth: '40px' }} />
                     <Tab label='Links' style={{ minWidth: '40px' }} />

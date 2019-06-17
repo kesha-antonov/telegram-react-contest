@@ -8,11 +8,10 @@
     "yarn": "^1.13.0"
   },
   "dependencies": {
-    "tdweb": "^1.4.3",
-    "@material-ui/core": "^3.9.2",
-    "@material-ui/icons": "^3.0.2",
-    "@material-ui/lab": "^3.0.0-alpha.30",
-    "@material-ui/styles": "^3.0.0-alpha.9",
+    "@material-ui/core": "^4.1.1",
+    "@material-ui/icons": "^4.2.0",
+    "@material-ui/lab": "^4.0.0-alpha.16",
+    "@material-ui/styles": "^4.1.1",
     "classnames": "^2.2.6",
     "copy-to-clipboard": "^3.0.8",
     "dateformat": "^3.0.3",
@@ -39,6 +38,7 @@
     "react-scripts": "^2.1.8",
     "recompose": "^0.30.0",
     "sw-precache-cra": "^1.0.0-alpha.2",
+    "tdweb": "^1.4.3",
     "universal-cookie": "^3.1.0"
   },
   "lint-staged": {

@@ -27,9 +27,6 @@ function withTheme(WrappedComponent) {
                     type: type,
                     primary: primary,
                     secondary: { main: '#FF5555' }
-                },
-                typography: {
-                    useNextVariants: true
                 }
             });
 
@@ -53,10 +50,7 @@ function withTheme(WrappedComponent) {
                 palette: {
                     type: type,
                     primary: primary,
-                    secondary: { main: '#FF5555' },
-                    typography: {
-                        useNextVariants: true
-                    }
+                    secondary: { main: '#FF5555' }
                 }
             });
 

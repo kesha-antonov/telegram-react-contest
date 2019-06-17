@@ -49,7 +49,7 @@ const styles = theme => ({
         to: { backgroundColor: 'transparent' }
     },
     messageHighlighted: {
-        animation: 'highlighted 4s ease-out'
+        animation: '$highlighted 4s ease-out'
     }
 });
 

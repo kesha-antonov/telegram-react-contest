@@ -66,10 +66,10 @@ const styles = theme => ({
         margin: '8px -2px 8px 12px'
     },
     nested: {
-        // paddingLeft: theme.spacing.unit * 4,
+        // paddingLeft: theme.spacing(4),
     },
     close: {
-        padding: theme.spacing.unit / 2
+        padding: theme.spacing(0.5)
     },
     listItem: {
         padding: '11px 22px'
@@ -149,15 +149,11 @@ class ChatDetails extends React.Component {
         const list = this.chatDetailsListRef.current;
         const { scrollTop, scrollHeight, offsetHeight } = snapshot;
         console.log(
-            `[ChatDetails] componentDidUpdate before chatId=${chatId} list.scrollTop=${
-                list.scrollTop
-            } list.offsetHeight=${list.offsetHeight} list.scrollHeight=${list.scrollHeight}`
+            `[ChatDetails] componentDidUpdate before chatId=${chatId} list.scrollTop=${list.scrollTop} list.offsetHeight=${list.offsetHeight} list.scrollHeight=${list.scrollHeight}`
         );
         list.scrollTop = scrollTop + (list.scrollHeight - scrollHeight);
         console.log(
-            `[ChatDetails] componentDidUpdate after chatId=${chatId} list.scrollTop=${
-                list.scrollTop
-            } list.offsetHeight=${list.offsetHeight} list.scrollHeight=${list.scrollHeight}`
+            `[ChatDetails] componentDidUpdate after chatId=${chatId} list.scrollTop=${list.scrollTop} list.offsetHeight=${list.offsetHeight} list.scrollHeight=${list.scrollHeight}`
         );
     }
 
