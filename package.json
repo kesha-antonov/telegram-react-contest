@@ -3,6 +3,10 @@
   "name": "telegram_react",
   "version": "0.0.340",
   "private": true,
+  "engines": {
+    "node": "^10.15.0",
+    "yarn": "^1.16.0"
+  },
   "dependencies": {
     "tdweb": "^1.4.3",
     "@material-ui/core": "^3.9.2",
@@ -45,7 +49,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && sw-precache-cra --config sw-config.js --no-minify",
+    "build": "react-scripts build && sw-precache-cra --config sw-config.js --no-minify && mv build telegram-react && mkdir build && mv telegram-react build/",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
