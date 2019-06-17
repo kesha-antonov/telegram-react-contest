@@ -30,7 +30,7 @@ const ru = {
         Custom: 'Пользовательские'
     },
     translation: {
-        AppName: 'Телеграм',
+        AppTitle: 'Телеграм',
         Loading: 'Загрузка',
         Connecting: 'Соединение',
         Updating: 'Обновление'

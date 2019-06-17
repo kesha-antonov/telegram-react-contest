@@ -882,7 +882,7 @@ class MediaViewer extends React.Component {
                 open={deleteConfirmationOpened}
                 onClose={this.handleDialogClose}
                 aria-labelledby='form-dialog-title'>
-                <DialogTitle id='form-dialog-title'>{t('AppName')}</DialogTitle>
+                <DialogTitle id='form-dialog-title'>{t('AppTitle')}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>{deleteConfirmationContent}</DialogContentText>
                     {can_be_deleted_for_all_users && (

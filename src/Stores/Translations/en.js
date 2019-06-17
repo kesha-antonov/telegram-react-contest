@@ -30,7 +30,7 @@ const en = {
         Custom: 'Custom'
     },
     translation: {
-        AppName: 'Telegram',
+        AppTitle: 'Telegram',
         Loading: 'Loading',
         Connecting: 'Connecting',
         Updating: 'Updating'

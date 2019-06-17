@@ -56,7 +56,7 @@ class StubPage extends React.Component {
                                 <MenuIcon />
                             </IconButton>
                             <div className='header-status grow cursor-pointer'>
-                                <span className='header-status-content'>{t('AppName')}</span>
+                                <span className='header-status-content'>{t('AppTitle')}</span>
                             </div>
                             <IconButton className={classes.headerIconButton} aria-label={t('Search')}>
                                 <SearchIcon />
@@ -89,7 +89,7 @@ class StubPage extends React.Component {
 }
 
 StubPage.propTypes = {
-    title: PropTypes.string
+    title: PropTypes.string.isRequired
 };
 
 const enhance = compose(

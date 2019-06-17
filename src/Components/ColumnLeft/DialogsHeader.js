@@ -125,7 +125,7 @@ class DialogsHeader extends React.Component {
 
         const confirmLogoutDialog = open ? (
             <Dialog transitionDuration={0} open={open} onClose={this.handleClose} aria-labelledby='form-dialog-title'>
-                <DialogTitle id='form-dialog-title'>{t('AppName')}</DialogTitle>
+                <DialogTitle id='form-dialog-title'>{t('AppTitle')}</DialogTitle>
                 <DialogContent>
                     <DialogContentText className={classes.dialogText}>{t('AreYouSureLogout')}</DialogContentText>
                 </DialogContent>
@@ -147,7 +147,7 @@ class DialogsHeader extends React.Component {
                         <MainMenuButton onLogOut={this.handleLogOut} />
                         {confirmLogoutDialog}
                         <div className='header-status grow cursor-pointer' onClick={onClick}>
-                            <span className='header-status-content'>{t('AppName')}</span>
+                            <span className='header-status-content'>{t('AppTitle')}</span>
                         </div>
                     </>
                 ) : (

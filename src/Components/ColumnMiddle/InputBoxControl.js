@@ -673,7 +673,7 @@ class InputBoxControl extends Component {
                     open={openPasteDialog}
                     onClose={this.handleClosePaste}
                     aria-labelledby='delete-dialog-title'>
-                    <DialogTitle id='delete-dialog-title'>{t('AppName')}</DialogTitle>
+                    <DialogTitle id='delete-dialog-title'>{t('AppTitle')}</DialogTitle>
                     <DialogContent>
                         <DialogContentText>
                             {this.files && this.files.length > 1
