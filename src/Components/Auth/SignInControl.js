@@ -81,18 +81,6 @@ class SignInControl extends React.Component {
         });
     };
 
-    handleNext = () => {
-        const { phone } = this.props;
-
-        const phoneNumber = this.phoneNumber || phone;
-
-        if (isValidPhoneNumber(phoneNumber)) {
-            this.setState({ error: null, openConfirmation: true });
-        } else {
-            this.setState({ error: { code: 'InvalidPhoneNumber' } });
-        }
-    };
-
     handleChange = event => {
         this.phoneNumber = event.target.value;
     };
@@ -100,7 +88,7 @@ class SignInControl extends React.Component {
     handleKeyPress = event => {
         if (event.key === 'Enter') {
             event.preventDefault();
-            this.handleNext();
+            this.handleDone();
         }
     };
 
