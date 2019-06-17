@@ -57,7 +57,8 @@ const styles = theme => ({
         flexGrow: 1,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'flex-start'
+        justifyContent: 'flex-start',
+        overflow: 'hidden'
     },
     titleIcon: {
         marginLeft: 5
