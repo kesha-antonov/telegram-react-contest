@@ -24,14 +24,14 @@ function withTheme(WrappedComponent) {
 
             let theme = createMuiTheme({
                 palette: {
-                    type: type,
-                    primary: primary,
+                    type,
+                    primary,
                     secondary: { main: '#FF5555' }
                 }
             });
 
             this.state = {
-                theme: theme
+                theme
             };
         }
 
@@ -48,16 +48,16 @@ function withTheme(WrappedComponent) {
 
             const theme = createMuiTheme({
                 palette: {
-                    type: type,
-                    primary: primary,
+                    type,
+                    primary,
                     secondary: { main: '#FF5555' }
                 }
             });
 
             const cookies = new Cookies();
-            cookies.set('themeOptions', { type: type, primary: primary });
+            cookies.set('themeOptions', { type, primary });
 
-            this.setState({ theme: theme }, () => ApplicationStore.emit('clientUpdateThemeChange'));
+            this.setState({ theme }, () => ApplicationStore.emit('clientUpdateThemeChange'));
         };
 
         render() {
