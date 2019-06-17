@@ -1,0 +1,6 @@
+.select-chat-placeholder {
+    display: flex;
+    flex: auto;
+    justify-content: center;
+    align-items: center;
+}

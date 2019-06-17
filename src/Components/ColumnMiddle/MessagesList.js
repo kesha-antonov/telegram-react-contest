@@ -30,6 +30,7 @@ import PlayerStore from '../../Stores/PlayerStore';
 import TdLibController from '../../Controllers/TdLibController';
 import './MessagesList.css';
 import Typing from './Typing';
+import SelectChatPlaceholder from './SelectChatPlaceholder';
 
 const ScrollBehaviorEnum = Object.freeze({
     NONE: 'NONE',
@@ -1039,6 +1040,8 @@ class MessagesList extends React.Component {
                   )
               );
 
+        const isChatChosed = chatId !== 0;
+
         return (
             <div
                 className={classNames(classes.background, 'messages-list', {
@@ -1046,11 +1049,17 @@ class MessagesList extends React.Component {
                 })}
                 onDragEnter={this.handleListDragEnter}>
                 <div ref={this.listRef} className='messages-list-wrapper' onScroll={this.handleScroll}>
-                    <div className='messages-list-top' />
-                    <div ref={this.itemsRef} className='messages-list-items'>
-                        {this.messages}
-                        <Typing />
-                    </div>
+                    {isChatChosed ? (
+                        <>
+                            <div className='messages-list-top' />
+                            <div ref={this.itemsRef} className='messages-list-items'>
+                                {this.messages}
+                                <Typing />
+                            </div>
+                        </>
+                    ) : (
+                        <SelectChatPlaceholder />
+                    )}
                 </div>
                 <PinnedMessage chatId={chatId} />
                 <FilesDropTarget />
