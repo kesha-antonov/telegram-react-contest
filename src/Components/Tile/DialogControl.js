@@ -19,6 +19,10 @@ import ChatStore from '../../Stores/ChatStore'
 import ApplicationStore from '../../Stores/ApplicationStore'
 import './DialogControl.css'
 import VolumeOffIcon from '@material-ui/icons/VolumeOff'
+import CheckDecagramIcon from 'mdi-material-ui/CheckDecagram'
+import blue from '@material-ui/core/colors/blue'
+
+const OFFICIAL_TELEGRAM_CHATS_IDS = [796917078, -1001038976893, 777000, -1001322215945, -1001416855018]
 
 const styles = theme => ({
     statusRoot: {
@@ -63,8 +67,20 @@ const styles = theme => ({
     titleIcon: {
         marginLeft: 5
     },
-    volumeOffIconSmall: {
+    iconSmall: {
         fontSize: 15
+    },
+    verifiedBadgeIconUnselectedColor: {
+        color: blue[400]
+    },
+    verifiedBadgeIconSelectedColor: {
+        color: '#fff'
+    },
+    volumeOffIconUnselectedColor: {
+        color: theme.palette.grey[400]
+    },
+    volumeOffIconSelectedColor: {
+        color: theme.palette.grey[300]
     }
 })
 
@@ -125,6 +141,7 @@ class DialogControl extends Component {
         const isSelected = currentChatId === chatId
 
         const { chat } = this.state
+        console.log('chat', chat)
 
         return (
             <div
@@ -145,12 +162,30 @@ class DialogControl extends Component {
                         <div className='tile-first-row'>
                             <div className={classes.titleAndIcons}>
                                 <DialogTitleControl chatId={chatId} />
+                                {OFFICIAL_TELEGRAM_CHATS_IDS.indexOf(chat.id) > -1 ? (
+                                    <CheckDecagramIcon
+                                        className={classes.titleIcon}
+                                        color={isSelected ? 'action' : 'primary'}
+                                        fontSize='small'
+                                        classes={{
+                                            fontSizeSmall: classes.iconSmall,
+                                            colorPrimary: classes.verifiedBadgeIconUnselectedColor,
+                                            colorAction: classes.verifiedBadgeIconSelectedColor
+                                        }}
+                                    />
+                                ) : (
+                                    void 0
+                                )}
                                 {chat.notification_settings.mute_for ? (
                                     <VolumeOffIcon
-                                        color='disabled'
+                                        color={isSelected ? 'action' : 'primary'}
                                         fontSize='small'
                                         className={classes.titleIcon}
-                                        classes={{ fontSizeSmall: classes.volumeOffIconSmall }}
+                                        classes={{
+                                            fontSizeSmall: classes.iconSmall,
+                                            colorPrimary: classes.volumeOffIconUnselectedColor,
+                                            colorAction: classes.volumeOffIconSelectedColor
+                                        }}
                                     />
                                 ) : (
                                     void 0
