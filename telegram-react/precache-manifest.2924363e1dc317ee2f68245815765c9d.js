@@ -4,7 +4,7 @@ self.__precacheManifest = [
     "url": "/telegram-react-contest/static/css/6.c36f4b23.chunk.css"
   },
   {
-    "revision": "57185e68ac5f1e9641c7",
+    "revision": "6ba61b79b54bc4c42e5b",
     "url": "/telegram-react-contest/static/css/main.c30bddef.chunk.css"
   },
   {
@@ -36,8 +36,8 @@ self.__precacheManifest = [
     "url": "/telegram-react-contest/static/js/5.7a48ec4d.chunk.js"
   },
   {
-    "revision": "57185e68ac5f1e9641c7",
-    "url": "/telegram-react-contest/static/js/main.85d97e9b.chunk.js"
+    "revision": "6ba61b79b54bc4c42e5b",
+    "url": "/telegram-react-contest/static/js/main.23425daf.chunk.js"
   },
   {
     "revision": "a5d15a120d31e8670d93",
@@ -68,7 +68,7 @@ self.__precacheManifest = [
     "url": "/telegram-react-contest/static/css/3.0482cd03.chunk.css"
   },
   {
-    "revision": "bf2b4e646fc31fa453d899f666fbc4b0",
+    "revision": "fcbd90071c9938a50ebfefa8d1e3d9a9",
     "url": "/telegram-react-contest/index.html"
   }
 ];
