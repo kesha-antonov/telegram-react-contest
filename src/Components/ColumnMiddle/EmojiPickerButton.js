@@ -23,6 +23,7 @@ import FileStore from '../../Stores/FileStore'
 import LocalizationStore from '../../Stores/LocalizationStore'
 import TdLibController from '../../Controllers/TdLibController'
 import './EmojiPickerButton.css'
+import './emojiMart.css'
 
 const styles = theme => ({
     iconButton: {
