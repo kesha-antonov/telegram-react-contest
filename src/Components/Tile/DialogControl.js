@@ -141,7 +141,7 @@ class DialogControl extends Component {
         const isSelected = currentChatId === chatId
 
         const { chat } = this.state
-        console.log('chat', chat)
+        // console.log('chat', chat)
 
         return (
             <div

@@ -5,139 +5,149 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { EventEmitter } from 'events';
-import TdLibController from '../Controllers/TdLibController';
-import ActionScheduler from '../Utils/ActionScheduler';
+import { EventEmitter } from 'events'
+import TdLibController from '../Controllers/TdLibController'
+import ActionScheduler from '../Utils/ActionScheduler'
+import { setCurrentChatId } from './ReduxStore/actions'
 
 class ApplicationStore extends EventEmitter {
     constructor() {
-        super();
+        super()
 
-        this.chatId = 0;
-        this.dialogChatId = 0;
-        this.messageId = null;
-        this.statistics = new Map();
-        this.scopeNotificationSettings = new Map();
-        this.authorizationState = null;
-        this.connectionState = null;
-        this.isChatDetailsVisible = false;
-        this.mediaViewerContent = null;
-        this.profileMediaViewerContent = null;
-        this.dragging = false;
-        this.actionScheduler = new ActionScheduler(this.handleScheduledAction, this.handleCancelScheduledAction);
+        this.chatId = 0
+        this.dialogChatId = 0
+        this.messageId = null
+        this.statistics = new Map()
+        this.scopeNotificationSettings = new Map()
+        this.authorizationState = null
+        this.connectionState = null
+        this.isChatDetailsVisible = false
+        this.mediaViewerContent = null
+        this.profileMediaViewerContent = null
+        this.dragging = false
+        this.actionScheduler = new ActionScheduler(this.handleScheduledAction, this.handleCancelScheduledAction)
 
-        this.addTdLibListener();
-        this.addStatistics();
-        this.setMaxListeners(Infinity);
+        this.addTdLibListener()
+        this.addStatistics()
+        this.setMaxListeners(Infinity)
+    }
+
+    setReduxStore = reduxStore => {
+        this.reduxStore = reduxStore
     }
 
     addScheduledAction = (key, timeout, action, cancel) => {
-        return this.actionScheduler.add(key, timeout, action, cancel);
-    };
+        return this.actionScheduler.add(key, timeout, action, cancel)
+    }
 
     invokeScheduledAction = async key => {
-        await this.actionScheduler.invoke(key);
-    };
+        await this.actionScheduler.invoke(key)
+    }
 
     removeScheduledAction = key => {
-        this.actionScheduler.remove(key);
-    };
+        this.actionScheduler.remove(key)
+    }
 
     handleScheduledAction = item => {
-        console.log('Invoked scheduled action key=', item.key);
-    };
+        console.log('Invoked scheduled action key=', item.key)
+    }
 
     handleCancelScheduledAction = item => {
-        console.log('Cancel scheduled action key=', item.key);
-    };
+        console.log('Cancel scheduled action key=', item.key)
+    }
 
     onUpdate = update => {
         switch (update['@type']) {
             case 'updateAuthorizationState': {
-                this.authorizationState = update.authorization_state;
+                this.authorizationState = update.authorization_state
 
                 switch (update.authorization_state['@type']) {
                     case 'authorizationStateLoggingOut':
-                        this.loggingOut = true;
-                        break;
+                        this.loggingOut = true
+                        break
                     case 'authorizationStateWaitTdlibParameters':
-                        TdLibController.sendTdParameters();
-                        break;
+                        TdLibController.sendTdParameters()
+                        break
                     case 'authorizationStateWaitEncryptionKey':
-                        TdLibController.send({ '@type': 'checkDatabaseEncryptionKey' });
-                        break;
+                        TdLibController.send({ '@type': 'checkDatabaseEncryptionKey' })
+                        break
                     case 'authorizationStateWaitPhoneNumber':
-                        break;
+                        break
                     case 'authorizationStateWaitCode':
-                        break;
+                        break
                     case 'authorizationStateWaitPassword':
-                        break;
+                        break
                     case 'authorizationStateReady':
-                        this.loggingOut = false;
-                        break;
+                        this.loggingOut = false
+                        break
                     case 'authorizationStateClosing':
-                        break;
+                        break
                     case 'authorizationStateClosed':
                         if (!this.loggingOut) {
-                            document.title += ': Zzz…';
-                            this.emit('clientUpdateAppInactive');
+                            document.title += ': Zzz…'
+                            this.emit('clientUpdateAppInactive')
                         } else {
-                            TdLibController.init();
+                            TdLibController.init()
                         }
-                        break;
+                        break
                     default:
-                        break;
+                        break
                 }
 
-                this.emit(update['@type'], update);
-                break;
+                this.emit(update['@type'], update)
+                break
             }
             case 'updateConnectionState': {
-                this.connectionState = update.state;
+                this.connectionState = update.state
 
-                this.emit(update['@type'], update);
-                break;
+                this.emit(update['@type'], update)
+                break
             }
             case 'updateScopeNotificationSettings': {
-                this.setNotificationSettings(update.scope['@type'], update.notification_settings);
+                this.setNotificationSettings(update.scope['@type'], update.notification_settings)
 
-                this.emit(update['@type'], update);
-                break;
+                this.emit(update['@type'], update)
+                break
             }
             case 'updateFatalError': {
-                this.emit(update['@type'], update);
+                this.emit(update['@type'], update)
 
-                break;
+                break
             }
             case 'updateServiceNotification': {
-                const { type, content } = update;
+                const { type, content } = update
 
-                if (!content) return;
+                if (!content) return
                 if (content['@type'] === 'messageText') {
-                    const { text } = content;
-                    if (!text) return;
+                    const { text } = content
+                    if (!text) return
 
                     if (text['@type'] === 'formattedText' && text.text) {
                         switch (type) {
                             case 'AUTH_KEY_DROP_DUPLICATE':
-                                let result = window.confirm(text.text);
+                                let result = window.confirm(text.text)
                                 if (result) {
-                                    TdLibController.logOut();
+                                    TdLibController.logOut()
                                 }
-                                break;
+                                break
                             default:
-                                alert(text.text);
-                                break;
+                                alert(text.text)
+                                break
                         }
                     }
                 }
 
-                break;
+                break
             }
             default:
-                break;
+                break
         }
-    };
+    }
+
+    setCurrentChatId = chatId => {
+        this.chatId = chatId
+        this.reduxStore && this.reduxStore.dispatch(setCurrentChatId(chatId))
+    }
 
     onClientUpdate = update => {
         switch (update['@type']) {
@@ -148,70 +158,71 @@ class ApplicationStore extends EventEmitter {
                     nextMessageId: update.messageId,
                     previousChatId: this.chatId,
                     previousMessageId: this.messageId
-                };
+                }
 
-                this.chatId = update.chatId;
-                this.messageId = update.messageId;
+                this.setCurrentChatId(update.chatId)
 
-                this.emit('clientUpdateChatId', extendedUpdate);
-                break;
+                this.messageId = update.messageId
+
+                this.emit('clientUpdateChatId', extendedUpdate)
+                break
             }
             case 'clientUpdateDialogChatId': {
-                const { chatId } = update;
-                this.dialogChatId = chatId;
+                const { chatId } = update
+                this.dialogChatId = chatId
 
-                this.emit('clientUpdateDialogChatId', update);
-                break;
+                this.emit('clientUpdateDialogChatId', update)
+                break
             }
             case 'clientUpdateFocusWindow': {
                 TdLibController.send({
                     '@type': 'setOption',
                     name: 'online',
                     value: { '@type': 'optionValueBoolean', value: update.focused }
-                });
+                })
 
-                this.emit('clientUpdateFocusWindow', update);
-                break;
+                this.emit('clientUpdateFocusWindow', update)
+                break
             }
             case 'clientUpdateForward': {
-                this.emit('clientUpdateForward', update);
-                break;
+                this.emit('clientUpdateForward', update)
+                break
             }
             case 'clientUpdateLeaveChat': {
                 if (update.inProgress && this.chatId === update.chatId) {
-                    TdLibController.setChatId(0);
+                    TdLibController.setChatId(0)
                 }
 
-                break;
+                break
             }
         }
-    };
+    }
 
     onUpdateStatistics = update => {
-        if (!update) return;
+        if (!update) return
 
         if (this.statistics.has(update['@type'])) {
-            const count = this.statistics.get(update['@type']);
+            const count = this.statistics.get(update['@type'])
 
-            this.statistics.set(update['@type'], count + 1);
+            this.statistics.set(update['@type'], count + 1)
         } else {
-            this.statistics.set(update['@type'], 1);
+            this.statistics.set(update['@type'], 1)
         }
-    };
+    }
 
     addTdLibListener = () => {
-        TdLibController.addListener('update', this.onUpdate);
-        TdLibController.addListener('clientUpdate', this.onClientUpdate);
-    };
+        TdLibController.addListener('update', this.onUpdate)
+        TdLibController.addListener('clientUpdate', this.onClientUpdate)
+    }
 
     removeTdLibListener = () => {
-        TdLibController.removeListener('update', this.onUpdate);
-        TdLibController.removeListener('clientUpdate', this.onClientUpdate);
-    };
+        TdLibController.removeListener('update', this.onUpdate)
+        TdLibController.removeListener('clientUpdate', this.onClientUpdate)
+    }
 
     addStatistics = () => {
-        TdLibController.addListener('update', this.onUpdateStatistics);
-    };
+        TdLibController.addListener('update', this.onUpdateStatistics)
+    }
 
     setChatId = (chatId, messageId = null) => {
         const update = {
@@ -220,71 +231,73 @@ class ApplicationStore extends EventEmitter {
             nextMessageId: messageId,
             previousChatId: this.chatId,
             previousMessageId: this.messageId
-        };
+        }
 
-        this.chatId = chatId;
-        this.messageId = messageId;
-        this.emit(update['@type'], update);
-    };
+        this.setCurrentChatId(chatId)
+
+        this.messageId = messageId
+
+        this.emit(update['@type'], update)
+    }
 
     getChatId() {
-        return this.chatId;
+        return this.chatId
     }
 
     getMessageId() {
-        return this.messageId;
+        return this.messageId
     }
 
     searchChat(chatId) {
-        this.emit('clientUpdateSearchChat', { chatId: chatId });
+        this.emit('clientUpdateSearchChat', { chatId: chatId })
     }
 
     changeChatDetailsVisibility(visibility) {
-        this.isChatDetailsVisible = visibility;
-        this.emit('clientUpdateChatDetailsVisibility', visibility);
+        this.isChatDetailsVisible = visibility
+        this.emit('clientUpdateChatDetailsVisibility', visibility)
     }
 
     setMediaViewerContent(content) {
-        this.mediaViewerContent = content;
-        this.emit('clientUpdateMediaViewerContent', content);
+        this.mediaViewerContent = content
+        this.emit('clientUpdateMediaViewerContent', content)
     }
 
     setProfileMediaViewerContent(content) {
-        this.profileMediaViewerContent = content;
-        this.emit('clientUpdateProfileMediaViewerContent', content);
+        this.profileMediaViewerContent = content
+        this.emit('clientUpdateProfileMediaViewerContent', content)
     }
 
     getConnectionState() {
-        return this.connectionState;
+        return this.connectionState
     }
 
     getAuthorizationState() {
-        return this.authorizationState;
+        return this.authorizationState
     }
 
     getNotificationSettings(scope) {
-        return this.scopeNotificationSettings.get(scope);
+        return this.scopeNotificationSettings.get(scope)
     }
 
     setNotificationSettings(scope, notificationSettings) {
-        return this.scopeNotificationSettings.set(scope, notificationSettings);
+        return this.scopeNotificationSettings.set(scope, notificationSettings)
     }
 
     getDragging = () => {
-        return this.dragging;
-    };
+        return this.dragging
+    }
 
     setDragging = value => {
-        this.dragging = value;
-        this.emit('clientUpdateDragging', value);
-    };
+        this.dragging = value
+        this.emit('clientUpdateDragging', value)
+    }
 
     assign(source1, source2) {
-        Object.assign(source1, source2);
+        Object.assign(source1, source2)
         //this.set(Object.assign({}, source1, source2));
     }
 }
 
-const store = new ApplicationStore();
-window.application = store;
-export default store;
+const store = new ApplicationStore()
+window.application = store
+export default store

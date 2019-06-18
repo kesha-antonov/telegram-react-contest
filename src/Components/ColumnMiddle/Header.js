@@ -5,24 +5,26 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component } from 'react';
-import classNames from 'classnames';
-import IconButton from '@material-ui/core/IconButton';
-import SearchIcon from '@material-ui/icons/Search';
-import withStyles from '@material-ui/core/styles/withStyles';
-import { withTranslation } from 'react-i18next';
-import { compose } from 'recompose';
-import MainMenuButton from './MainMenuButton';
-import HeaderCommand from './HeaderCommand';
-import { getChatSubtitle, getChatTitle, isAccentChatSubtitle, isMeChat } from '../../Utils/Chat';
-import { borderStyle } from '../Theme';
-import ChatStore from '../../Stores/ChatStore';
-import UserStore from '../../Stores/UserStore';
-import BasicGroupStore from '../../Stores/BasicGroupStore';
-import SupergroupStore from '../../Stores/SupergroupStore';
-import MessageStore from '../../Stores/MessageStore';
-import ApplicationStore from '../../Stores/ApplicationStore';
-import './Header.css';
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import classNames from 'classnames'
+import IconButton from '@material-ui/core/IconButton'
+import SearchIcon from '@material-ui/icons/Search'
+import withStyles from '@material-ui/core/styles/withStyles'
+import { withTranslation } from 'react-i18next'
+import { compose } from 'recompose'
+import MainMenuButton from './MainMenuButton'
+import HeaderCommand from './HeaderCommand'
+import { getChatSubtitle, getChatTitle, isAccentChatSubtitle } from '../../Utils/Chat'
+import { borderStyle } from '../Theme'
+import ChatStore from '../../Stores/ChatStore'
+import UserStore from '../../Stores/UserStore'
+import BasicGroupStore from '../../Stores/BasicGroupStore'
+import SupergroupStore from '../../Stores/SupergroupStore'
+import MessageStore from '../../Stores/MessageStore'
+import ApplicationStore from '../../Stores/ApplicationStore'
+import './Header.css'
+import { connect } from 'react-redux'
 
 const styles = theme => ({
     button: {
@@ -44,310 +46,291 @@ const styles = theme => ({
         color: theme.palette.primary.dark + '!important'
     },
     ...borderStyle(theme)
-});
+})
 
 class Header extends Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         this.state = {
             authorizationState: ApplicationStore.getAuthorizationState(),
             connectionState: ApplicationStore.getConnectionState()
-        };
+        }
     }
 
     shouldComponentUpdate(nextProps, nextState) {
         if (nextState !== this.state) {
-            return true;
+            return true
         }
 
         if (nextProps.theme !== this.props.theme) {
-            return true;
+            return true
+        }
+
+        if (nextProps.chat !== this.props.chat) {
+            return true
         }
 
         if (nextProps.t !== this.props.t) {
-            return true;
+            return true
         }
 
-        return false;
+        return false
     }
 
     componentDidMount() {
-        ApplicationStore.on('updateConnectionState', this.onUpdateConnectionState);
-        ApplicationStore.on('updateAuthorizationState', this.onUpdateAuthorizationState);
-        ApplicationStore.on('clientUpdateChatId', this.onClientUpdateChatId);
+        ApplicationStore.on('updateConnectionState', this.onUpdateConnectionState)
+        ApplicationStore.on('updateAuthorizationState', this.onUpdateAuthorizationState)
+        ApplicationStore.on('clientUpdateChatId', this.onClientUpdateChatId)
 
-        MessageStore.on('clientUpdateMessageSelected', this.onClientUpdateMessageSelected);
-        MessageStore.on('clientUpdateClearSelection', this.onClientUpdateMessageSelected);
+        MessageStore.on('clientUpdateMessageSelected', this.onClientUpdateMessageSelected)
+        MessageStore.on('clientUpdateClearSelection', this.onClientUpdateMessageSelected)
 
-        ChatStore.on('updateChatOnlineMemberCount', this.onUpdateChatOnlineMemberCount);
-        ChatStore.on('updateChatTitle', this.onUpdateChatTitle);
-        UserStore.on('updateUserStatus', this.onUpdateUserStatus);
-        ChatStore.on('updateUserChatAction', this.onUpdateUserChatAction);
-        UserStore.on('updateUserFullInfo', this.onUpdateUserFullInfo);
-        BasicGroupStore.on('updateBasicGroupFullInfo', this.onUpdateBasicGroupFullInfo);
-        SupergroupStore.on('updateSupergroupFullInfo', this.onUpdateSupergroupFullInfo);
-        BasicGroupStore.on('updateBasicGroup', this.onUpdateBasicGroup);
-        SupergroupStore.on('updateSupergroup', this.onUpdateSupergroup);
+        ChatStore.on('updateChatOnlineMemberCount', this.onUpdateChatOnlineMemberCount)
+        UserStore.on('updateUserStatus', this.onUpdateUserStatus)
+        UserStore.on('updateUserFullInfo', this.onUpdateUserFullInfo)
+        BasicGroupStore.on('updateBasicGroupFullInfo', this.onUpdateBasicGroupFullInfo)
+        SupergroupStore.on('updateSupergroupFullInfo', this.onUpdateSupergroupFullInfo)
+        BasicGroupStore.on('updateBasicGroup', this.onUpdateBasicGroup)
+        SupergroupStore.on('updateSupergroup', this.onUpdateSupergroup)
     }
 
     componentWillUnmount() {
-        ApplicationStore.removeListener('updateConnectionState', this.onUpdateConnectionState);
-        ApplicationStore.removeListener('updateAuthorizationState', this.onUpdateAuthorizationState);
-        ApplicationStore.removeListener('clientUpdateChatId', this.onClientUpdateChatId);
+        ApplicationStore.removeListener('updateConnectionState', this.onUpdateConnectionState)
+        ApplicationStore.removeListener('updateAuthorizationState', this.onUpdateAuthorizationState)
+        ApplicationStore.removeListener('clientUpdateChatId', this.onClientUpdateChatId)
 
-        MessageStore.removeListener('clientUpdateMessageSelected', this.onClientUpdateMessageSelected);
-        MessageStore.removeListener('clientUpdateClearSelection', this.onClientUpdateMessageSelected);
+        MessageStore.removeListener('clientUpdateMessageSelected', this.onClientUpdateMessageSelected)
+        MessageStore.removeListener('clientUpdateClearSelection', this.onClientUpdateMessageSelected)
 
-        ChatStore.removeListener('updateChatOnlineMemberCount', this.onUpdateChatOnlineMemberCount);
-        ChatStore.removeListener('updateChatTitle', this.onUpdateChatTitle);
-        UserStore.removeListener('updateUserStatus', this.onUpdateUserStatus);
-        ChatStore.removeListener('updateUserChatAction', this.onUpdateUserChatAction);
-        UserStore.removeListener('updateUserFullInfo', this.onUpdateUserFullInfo);
-        BasicGroupStore.removeListener('updateBasicGroupFullInfo', this.onUpdateBasicGroupFullInfo);
-        SupergroupStore.removeListener('updateSupergroupFullInfo', this.onUpdateSupergroupFullInfo);
-        BasicGroupStore.removeListener('updateBasicGroup', this.onUpdateBasicGroup);
-        SupergroupStore.removeListener('updateSupergroup', this.onUpdateSupergroup);
+        ChatStore.removeListener('updateChatOnlineMemberCount', this.onUpdateChatOnlineMemberCount)
+        UserStore.removeListener('updateUserStatus', this.onUpdateUserStatus)
+        UserStore.removeListener('updateUserFullInfo', this.onUpdateUserFullInfo)
+        BasicGroupStore.removeListener('updateBasicGroupFullInfo', this.onUpdateBasicGroupFullInfo)
+        SupergroupStore.removeListener('updateSupergroupFullInfo', this.onUpdateSupergroupFullInfo)
+        BasicGroupStore.removeListener('updateBasicGroup', this.onUpdateBasicGroup)
+        SupergroupStore.removeListener('updateSupergroup', this.onUpdateSupergroup)
     }
 
     onUpdateChatOnlineMemberCount = update => {
-        const chat = ChatStore.get(ApplicationStore.getChatId());
-        if (!chat) return;
-        if (chat.id !== update.chat_id) return;
+        const { chat } = this.props
+        if (!chat) return
+        if (chat.id !== update.chat_id) return
 
-        this.forceUpdate();
-    };
+        this.forceUpdate()
+    }
 
     onClientUpdateMessageSelected = update => {
-        this.setState({ selectionCount: MessageStore.selectedItems.size });
-    };
+        this.setState({ selectionCount: MessageStore.selectedItems.size })
+    }
 
     onClientUpdateChatId = update => {
-        this.forceUpdate();
-    };
+        this.forceUpdate()
+    }
 
     onUpdateConnectionState = update => {
-        this.setState({ connectionState: update.state });
-    };
+        this.setState({ connectionState: update.state })
+    }
 
     onUpdateAuthorizationState = update => {
-        this.setState({ authorizationState: update.authorization_state });
-    };
-
-    onUpdateChatTitle = update => {
-        const chat = ChatStore.get(ApplicationStore.getChatId());
-        if (!chat) return;
-        if (chat.id !== update.chat_id) return;
-
-        this.forceUpdate();
-    };
+        this.setState({ authorizationState: update.authorization_state })
+    }
 
     onUpdateUserStatus = update => {
-        const chat = ChatStore.get(ApplicationStore.getChatId());
-        if (!chat) return;
-        if (!chat.type) return;
+        const { chat } = this.props
+        if (!chat) return
+        if (!chat.type) return
 
         switch (chat.type['@type']) {
             case 'chatTypeBasicGroup': {
-                const fullInfo = BasicGroupStore.getFullInfo(chat.type.basic_group_id);
+                const fullInfo = BasicGroupStore.getFullInfo(chat.type.basic_group_id)
                 if (fullInfo && fullInfo.members) {
-                    const member = fullInfo.members.find(x => x.user_id === update.user_id);
+                    const member = fullInfo.members.find(x => x.user_id === update.user_id)
                     if (member) {
-                        this.forceUpdate();
+                        this.forceUpdate()
                     }
                 }
-                break;
+                break
             }
             case 'chatTypePrivate': {
                 if (chat.type.user_id === update.user_id) {
-                    this.forceUpdate();
+                    this.forceUpdate()
                 }
-                break;
+                break
             }
             case 'chatTypeSecret': {
                 if (chat.type.user_id === update.user_id) {
-                    this.forceUpdate();
+                    this.forceUpdate()
                 }
-                break;
+                break
             }
             case 'chatTypeSupergroup': {
-                break;
+                break
             }
         }
-    };
-
-    onUpdateUserChatAction = update => {
-        const currentChatId = ApplicationStore.getChatId();
-
-        if (currentChatId === update.chat_id) {
-            this.forceUpdate();
-        }
-    };
+    }
 
     onUpdateBasicGroup = update => {
-        const chat = ChatStore.get(ApplicationStore.getChatId());
-        if (!chat) return;
+        const { chat } = this.props
+        if (!chat) return
 
         if (
             chat.type &&
             chat.type['@type'] === 'chatTypeBasicGroup' &&
             chat.type.basic_group_id === update.basic_group.id
         ) {
-            this.forceUpdate();
+            this.forceUpdate()
         }
-    };
+    }
 
     onUpdateSupergroup = update => {
-        const chat = ChatStore.get(ApplicationStore.getChatId());
-        if (!chat) return;
+        const { chat } = this.props
+        if (!chat) return
 
         if (
             chat.type &&
             chat.type['@type'] === 'chatTypeSupergroup' &&
             chat.type.supergroup_id === update.supergroup.id
         ) {
-            this.forceUpdate();
+            this.forceUpdate()
         }
-    };
+    }
 
     onUpdateBasicGroupFullInfo = update => {
-        const chat = ChatStore.get(ApplicationStore.getChatId());
-        if (!chat) return;
+        const { chat } = this.props
+        if (!chat) return
 
         if (
             chat.type &&
             chat.type['@type'] === 'chatTypeBasicGroup' &&
             chat.type.basic_group_id === update.basic_group_id
         ) {
-            this.forceUpdate();
+            this.forceUpdate()
         }
-    };
+    }
 
     onUpdateSupergroupFullInfo = update => {
-        const chat = ChatStore.get(ApplicationStore.getChatId());
-        if (!chat) return;
+        const { chat } = this.props
+        if (!chat) return
 
         if (
             chat.type &&
             chat.type['@type'] === 'chatTypeSupergroup' &&
             chat.type.supergroup_id === update.supergroup_id
         ) {
-            this.forceUpdate();
+            this.forceUpdate()
         }
-    };
+    }
 
     onUpdateUserFullInfo = update => {
-        const chat = ChatStore.get(ApplicationStore.getChatId());
-        if (!chat) return;
+        const { chat } = this.props
+        if (!chat) return
 
         if (
             chat.type &&
             (chat.type['@type'] === 'chatTypePrivate' || chat.type['@type'] === 'chatTypeSecret') &&
             chat.type.user_id === update.user_id
         ) {
-            this.forceUpdate();
+            this.forceUpdate()
         }
-    };
+    }
 
     openChatDetails = () => {
-        const chatId = ApplicationStore.getChatId();
-        const chat = ChatStore.get(chatId);
-        if (!chat) return;
+        const { chat } = this.props
+        if (!chat) return
 
-        ApplicationStore.changeChatDetailsVisibility(true);
-    };
+        ApplicationStore.changeChatDetailsVisibility(true)
+    }
 
     handleSearchChat = () => {
-        const chatId = ApplicationStore.getChatId();
-        const chat = ChatStore.get(chatId);
-        if (!chat) return;
+        const { chat } = this.props
+        if (!chat) return
 
-        ApplicationStore.searchChat(chatId);
-    };
+        ApplicationStore.searchChat(chat.id)
+    }
 
     localize = str => {
-        const { t } = this.props;
+        const { t } = this.props
 
         return t(str)
             .replace('...', '')
-            .replace('…', '');
-    };
+            .replace('…', '')
+    }
 
     render() {
-        const { classes, t } = this.props;
-        const { authorizationState, connectionState, selectionCount } = this.state;
+        const { classes, t, chat } = this.props
+        const { authorizationState, connectionState, selectionCount } = this.state
 
         if (selectionCount) {
-            return <HeaderCommand count={selectionCount} />;
+            return <HeaderCommand count={selectionCount} />
         }
 
-        const chatId = ApplicationStore.getChatId();
-        const chat = ChatStore.get(chatId);
+        const chatId = chat ? chat.id : null
 
-        const isAccentSubtitle = isAccentChatSubtitle(chatId);
-        let title = getChatTitle(chatId, true, t);
-        let subtitle = getChatSubtitle(chatId, true);
-        let showProgressAnimation = false;
+        const isAccentSubtitle = isAccentChatSubtitle(chatId)
+        let title = getChatTitle(chatId, true, t)
+        let subtitle = getChatSubtitle(chat, true)
+        let showProgressAnimation = false
 
         if (connectionState) {
             switch (connectionState['@type']) {
                 case 'connectionStateConnecting':
-                    title = this.localize('Connecting');
-                    subtitle = '';
-                    showProgressAnimation = true;
-                    break;
+                    title = this.localize('Connecting')
+                    subtitle = ''
+                    showProgressAnimation = true
+                    break
                 case 'connectionStateConnectingToProxy':
-                    title = this.localize('Connecting to proxy');
-                    subtitle = '';
-                    showProgressAnimation = true;
-                    break;
+                    title = this.localize('Connecting to proxy')
+                    subtitle = ''
+                    showProgressAnimation = true
+                    break
                 case 'connectionStateReady':
-                    break;
+                    break
                 case 'connectionStateUpdating':
-                    title = this.localize('Updating');
-                    subtitle = '';
-                    showProgressAnimation = true;
-                    break;
+                    title = this.localize('Updating')
+                    subtitle = ''
+                    showProgressAnimation = true
+                    break
                 case 'connectionStateWaitingForNetwork':
-                    title = this.localize('Waiting for network');
-                    subtitle = '';
-                    showProgressAnimation = true;
-                    break;
+                    title = this.localize('Waiting for network')
+                    subtitle = ''
+                    showProgressAnimation = true
+                    break
             }
         } else if (authorizationState) {
             switch (authorizationState['@type']) {
                 case 'authorizationStateClosed':
-                    break;
+                    break
                 case ' authorizationStateClosing':
-                    break;
+                    break
                 case 'authorizationStateLoggingOut':
-                    title = this.localize('Logging out');
-                    subtitle = '';
-                    showProgressAnimation = true;
-                    break;
+                    title = this.localize('Logging out')
+                    subtitle = ''
+                    showProgressAnimation = true
+                    break
                 case 'authorizationStateReady':
-                    break;
+                    break
                 case 'authorizationStateWaitCode':
-                    break;
+                    break
                 case 'authorizationStateWaitEncryptionKey':
-                    title = this.localize('Loading');
-                    subtitle = '';
-                    showProgressAnimation = true;
-                    break;
+                    title = this.localize('Loading')
+                    subtitle = ''
+                    showProgressAnimation = true
+                    break
                 case 'authorizationStateWaitPassword':
-                    break;
+                    break
                 case 'authorizationStateWaitPhoneNumber':
-                    break;
+                    break
                 case 'authorizationStateWaitTdlibParameters':
-                    title = this.localize('Loading');
-                    subtitle = '';
-                    showProgressAnimation = true;
-                    break;
+                    title = this.localize('Loading')
+                    subtitle = ''
+                    showProgressAnimation = true
+                    break
             }
         } else {
-            title = this.localize('Loading');
-            subtitle = '';
-            showProgressAnimation = true;
+            title = this.localize('Loading')
+            subtitle = ''
+            showProgressAnimation = true
         }
 
         return (
@@ -383,13 +366,24 @@ class Header extends Component {
                     </>
                 )}
             </div>
-        );
+        )
     }
 }
 
+const mapStateToProps = state => {
+    return {
+        chat: state.currentChatId ? state.chats.get(state.currentChatId.toString()) : null
+    }
+}
+
+Header.propTypes = {
+    chat: PropTypes.object
+}
+
 const enhance = compose(
+    connect(mapStateToProps),
     withTranslation(),
     withStyles(styles, { withTheme: true })
-);
+)
 
-export default enhance(Header);
+export default enhance(Header)

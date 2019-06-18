@@ -5,32 +5,33 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component } from 'react';
-import Cookies from 'universal-cookie';
-import { compose } from 'recompose';
-import withStyles from '@material-ui/core/styles/withStyles';
-import { withTranslation } from 'react-i18next';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import packageJson from '../package.json';
-import withLanguage from './Language';
-import withTheme from './Theme';
-import AuthFormControl from './Components/Auth/AuthFormControl';
-import InactivePage from './Components/InactivePage';
-import StubPage from './Components/StubPage';
-import registerServiceWorker from './registerServiceWorker';
-import { OPTIMIZATIONS_FIRST_START } from './Constants';
-import ChatStore from './Stores/ChatStore';
-import UserStore from './Stores/UserStore';
-import ApplicationStore from './Stores/ApplicationStore';
-import TdLibController from './Controllers/TdLibController';
-import './TelegramApp.css';
+import React, { Component } from 'react'
+import Cookies from 'universal-cookie'
+import { compose } from 'recompose'
+import withStyles from '@material-ui/core/styles/withStyles'
+import { withTranslation } from 'react-i18next'
+import Button from '@material-ui/core/Button'
+import Dialog from '@material-ui/core/Dialog'
+import DialogActions from '@material-ui/core/DialogActions'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogContentText from '@material-ui/core/DialogContentText'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import packageJson from '../package.json'
+import withLanguage from './Language'
+import withTheme from './Theme'
+import AuthFormControl from './Components/Auth/AuthFormControl'
+import InactivePage from './Components/InactivePage'
+import StubPage from './Components/StubPage'
+import registerServiceWorker from './registerServiceWorker'
+import { OPTIMIZATIONS_FIRST_START } from './Constants'
+import ChatStore from './Stores/ChatStore'
+import UserStore from './Stores/UserStore'
+import ApplicationStore from './Stores/ApplicationStore'
+import TdLibController from './Controllers/TdLibController'
+import './TelegramApp.css'
+import { connect } from 'react-redux'
 
-const MainPage = React.lazy(() => import('./Components/MainPage'));
+const MainPage = React.lazy(() => import('./Components/MainPage'))
 
 const styles = theme => ({
     '@global': {
@@ -41,123 +42,132 @@ const styles = theme => ({
             color: theme.palette.primary.dark
         }
     }
-});
+})
 
 class TelegramApp extends Component {
     constructor(props) {
-        super(props);
+        super(props)
 
-        console.log(`Start Telegram Web ${packageJson.version}`);
+        console.log(`Start Telegram Web ${packageJson.version}`)
 
         this.state = {
             authorizationState: null,
             inactive: false,
             fatalError: false
-        };
+        }
+
+        ApplicationStore.setReduxStore({
+            currentChatId: props.currentChatId,
+            dispatch: props.dispatch
+        })
+        ChatStore.setReduxStore({
+            chats: props.chats,
+            dispatch: props.dispatch
+        })
     }
 
     componentWillMount() {
-        const { location } = this.props;
+        const { location } = this.props
 
-        TdLibController.init(location);
+        TdLibController.init(location)
     }
 
     componentDidMount() {
-        TdLibController.addListener('update', this.onUpdate);
+        TdLibController.addListener('update', this.onUpdate)
 
-        ApplicationStore.on('updateAuthorizationState', this.onUpdateAuthorizationState);
-        ApplicationStore.on('clientUpdateAppInactive', this.onClientUpdateAppInactive);
-        ApplicationStore.on('updateFatalError', this.onUpdateFatalError);
+        ApplicationStore.on('updateAuthorizationState', this.onUpdateAuthorizationState)
+        ApplicationStore.on('clientUpdateAppInactive', this.onClientUpdateAppInactive)
+        ApplicationStore.on('updateFatalError', this.onUpdateFatalError)
     }
 
     componentWillUnmount() {
-        TdLibController.removeListener('update', this.onUpdate);
+        TdLibController.removeListener('update', this.onUpdate)
 
-        ApplicationStore.removeListener('updateAuthorizationState', this.onUpdateAuthorizationState);
-        ApplicationStore.removeListener('clientUpdateAppInactive', this.onClientUpdateAppInactive);
-        ApplicationStore.removeListener('updateFatalError', this.onUpdateFatalError);
+        ApplicationStore.removeListener('updateAuthorizationState', this.onUpdateAuthorizationState)
+        ApplicationStore.removeListener('clientUpdateAppInactive', this.onClientUpdateAppInactive)
+        ApplicationStore.removeListener('updateFatalError', this.onUpdateFatalError)
     }
 
     onUpdate = update => {
         if (OPTIMIZATIONS_FIRST_START) {
             if (!this.checkServiceWorker) {
-                this.checkServiceWorker = true;
+                this.checkServiceWorker = true
 
-                const cookieEnabled = navigator.cookieEnabled;
+                const cookieEnabled = navigator.cookieEnabled
                 if (cookieEnabled) {
-                    const cookies = new Cookies();
-                    const register = cookies.get('register');
+                    const cookies = new Cookies()
+                    const register = cookies.get('register')
                     if (!register) {
-                        registerServiceWorker();
+                        registerServiceWorker()
                     }
                 }
             }
         }
-    };
+    }
 
     onUpdateFatalError = update => {
-        this.setState({ fatalError: true });
-    };
+        this.setState({ fatalError: true })
+    }
 
     onUpdateAuthorizationState = update => {
-        const { authorization_state } = update;
+        const { authorization_state } = update
 
-        this.setState({ authorizationState: authorization_state });
+        this.setState({ authorizationState: authorization_state })
 
-        if (!window.hasFocus) return;
-        if (!authorization_state) return;
-        if (authorization_state['@type'] !== 'authorizationStateReady') return;
+        if (!window.hasFocus) return
+        if (!authorization_state) return
+        if (authorization_state['@type'] !== 'authorizationStateReady') return
 
         TdLibController.send({
             '@type': 'setOption',
             name: 'online',
             value: { '@type': 'optionValueBoolean', value: true }
-        });
-    };
+        })
+    }
 
     onClientUpdateAppInactive = update => {
-        this.setState({ inactive: true });
-    };
+        this.setState({ inactive: true })
+    }
 
     handleChangePhone = () => {
         this.setState({
             authorizationState: { '@type': 'authorizationStateWaitPhoneNumber' }
-        });
-    };
+        })
+    }
 
     handleDragOver = event => {
-        event.preventDefault();
-        event.stopPropagation();
-    };
+        event.preventDefault()
+        event.stopPropagation()
+    }
 
     handleDrop = event => {
-        event.preventDefault();
-        event.stopPropagation();
-    };
+        event.preventDefault()
+        event.stopPropagation()
+    }
 
     handleRefresh = () => {
-        this.setState({ fatalError: false });
-        window.location.reload();
-    };
+        this.setState({ fatalError: false })
+        window.location.reload()
+    }
 
     handleDestroy = () => {
-        this.setState({ fatalError: false });
-        TdLibController.send({ '@type': 'destroy' });
-    };
+        this.setState({ fatalError: false })
+        TdLibController.send({ '@type': 'destroy' })
+    }
 
     handleKeyDown = event => {
         //console.log('KeyDown', event);
-    };
+    }
 
     render() {
-        const { t } = this.props;
-        const { inactive, authorizationState, fatalError } = this.state;
+        const { t } = this.props
+        const { inactive, authorizationState, fatalError } = this.state
 
-        const loading = t('Loading').replace('...', '');
-        let page = <StubPage title={loading} />;
+        const loading = t('Loading').replace('...', '')
+        let page = <StubPage title={loading} />
 
         if (inactive) {
-            page = <InactivePage />;
+            page = <InactivePage />
         } else if (authorizationState) {
             switch (authorizationState['@type']) {
                 case 'authorizationStateClosed':
@@ -168,8 +178,8 @@ class TelegramApp extends Component {
                         <React.Suspense fallback={<StubPage title='' />}>
                             <MainPage />
                         </React.Suspense>
-                    );
-                    break;
+                    )
+                    break
                 }
                 case 'authorizationStateWaitCode':
                 case 'authorizationStateWaitPassword':
@@ -179,13 +189,13 @@ class TelegramApp extends Component {
                             authorizationState={authorizationState}
                             onChangePhone={this.handleChangePhone}
                         />
-                    );
-                    break;
+                    )
+                    break
                 case 'authorizationStateWaitEncryptionKey': {
-                    break;
+                    break
                 }
                 case 'authorizationStateWaitTdlibParameters': {
-                    break;
+                    break
                 }
             }
         }
@@ -215,12 +225,12 @@ class TelegramApp extends Component {
                     </DialogActions>
                 </Dialog>
             </div>
-        );
+        )
     }
 }
 
-const keyMap = new Map();
-window.keyMap = keyMap;
+const keyMap = new Map()
+window.keyMap = keyMap
 
 async function openPinnedChat(index) {
     const chats = await TdLibController.send({
@@ -228,142 +238,152 @@ async function openPinnedChat(index) {
         offset_order: '9223372036854775807',
         offset_chat_id: 0,
         limit: 10
-    });
+    })
 
     if (chats) {
-        let pinnedIndex = -1;
+        let pinnedIndex = -1
         for (let i = 0; i < chats.chat_ids.length; i++) {
-            const chat = ChatStore.get(chats.chat_ids[i]);
+            const chat = ChatStore.get(chats.chat_ids[i])
             if (chat && chat.is_pinned) {
-                pinnedIndex++;
+                pinnedIndex++
             }
 
             if (pinnedIndex === index) {
-                TdLibController.setChatId(chat.id);
-                return;
+                TdLibController.setChatId(chat.id)
+                return
             }
         }
     }
 }
 
 document.addEventListener('keyup', event => {
-    keyMap.delete(event.key);
+    keyMap.delete(event.key)
     //console.log('keyup key=' + event.key, keyMap);
-});
+})
 
 document.addEventListener('keydown', async event => {
-    keyMap.set(event.key, event.key);
+    keyMap.set(event.key, event.key)
     //console.log('keydown key=' + event.key, event.altKey, event.ctrlKey, event, keyMap);
 
-    const { authorizationState } = ApplicationStore;
-    if (!authorizationState) return;
-    if (authorizationState['@type'] !== 'authorizationStateReady') return;
-    if (keyMap.size > 3) return;
+    const { authorizationState } = ApplicationStore
+    if (!authorizationState) return
+    if (authorizationState['@type'] !== 'authorizationStateReady') return
+    if (keyMap.size > 3) return
 
     if (event.altKey && event.ctrlKey) {
         switch (event.key) {
             case '0': {
-                event.preventDefault();
-                event.stopPropagation();
+                event.preventDefault()
+                event.stopPropagation()
 
                 const chat = await TdLibController.send({
                     '@type': 'createPrivateChat',
                     user_id: UserStore.getMyId(),
                     force: true
-                });
+                })
 
                 if (chat) {
-                    TdLibController.setChatId(chat.id);
+                    TdLibController.setChatId(chat.id)
                 }
-                break;
+                break
             }
             case '1': {
-                event.preventDefault();
-                event.stopPropagation();
+                event.preventDefault()
+                event.stopPropagation()
 
-                openPinnedChat(0);
-                break;
+                openPinnedChat(0)
+                break
             }
             case '2': {
-                event.preventDefault();
-                event.stopPropagation();
+                event.preventDefault()
+                event.stopPropagation()
 
-                openPinnedChat(1);
-                break;
+                openPinnedChat(1)
+                break
             }
             case '3': {
-                event.preventDefault();
-                event.stopPropagation();
+                event.preventDefault()
+                event.stopPropagation()
 
-                openPinnedChat(2);
-                break;
+                openPinnedChat(2)
+                break
             }
             case '4': {
-                event.preventDefault();
-                event.stopPropagation();
+                event.preventDefault()
+                event.stopPropagation()
 
-                openPinnedChat(3);
-                break;
+                openPinnedChat(3)
+                break
             }
             case '5': {
-                event.preventDefault();
-                event.stopPropagation();
+                event.preventDefault()
+                event.stopPropagation()
 
-                openPinnedChat(4);
-                break;
+                openPinnedChat(4)
+                break
             }
         }
     }
-});
+})
 
-window.hasFocus = true;
+window.hasFocus = true
 
 // set offline on page lost focus
 window.onblur = function() {
-    keyMap.clear();
+    keyMap.clear()
     //console.log('window.blur key', keyMap);
 
-    const { authorizationState } = ApplicationStore;
+    const { authorizationState } = ApplicationStore
 
-    if (!authorizationState) return;
-    if (authorizationState['@type'] !== 'authorizationStateReady') return;
+    if (!authorizationState) return
+    if (authorizationState['@type'] !== 'authorizationStateReady') return
 
-    window.hasFocus = false;
+    window.hasFocus = false
 
     TdLibController.clientUpdate({
         '@type': 'clientUpdateFocusWindow',
         focused: false
-    });
-};
+    })
+}
 
 // set online on page get focus
 window.onfocus = function() {
-    keyMap.clear();
+    keyMap.clear()
     //console.log('window.focus key', keyMap);
-    const { authorizationState } = ApplicationStore;
+    const { authorizationState } = ApplicationStore
 
-    if (!authorizationState) return;
-    if (authorizationState['@type'] !== 'authorizationStateReady') return;
+    if (!authorizationState) return
+    if (authorizationState['@type'] !== 'authorizationStateReady') return
 
-    window.hasFocus = true;
+    window.hasFocus = true
 
     TdLibController.clientUpdate({
         '@type': 'clientUpdateFocusWindow',
         focused: true
-    });
-};
+    })
+}
 
 // disable back navigation
-window.history.pushState(null, null, window.location.href);
+window.history.pushState(null, null, window.location.href)
 window.onpopstate = function() {
-    window.history.go(1);
-};
+    window.history.go(1)
+}
+
+const mapStateToProps = (state, ownProps) => {
+    return {
+        chats: state.chats,
+        currentChatId: state.currentChatId
+    }
+}
 
 const enhance = compose(
+    connect(mapStateToProps),
     withLanguage,
     withTranslation(),
     withTheme,
     withStyles(styles)
-);
+)
 
-export default enhance(TelegramApp);
+TelegramApp = enhance(TelegramApp)
+
+export default TelegramApp

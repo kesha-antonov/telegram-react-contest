@@ -5,17 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import withStyles from '@material-ui/core/styles/withStyles';
-import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
-import ChatStatus from './ChatStatus';
-import { getChatLetters, getChatUserId, isMeChat, isPrivateChat } from '../../Utils/Chat';
-import { loadChatContent } from '../../Utils/File';
-import ChatStore from '../../Stores/ChatStore';
-import FileStore from '../../Stores/FileStore';
-import './ChatTileControl.css';
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import classNames from 'classnames'
+import withStyles from '@material-ui/core/styles/withStyles'
+import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder'
+import ChatStatus from './ChatStatus'
+import { getChatLetters, getChatUserId, isMeChat, isPrivateChat } from '../../Utils/Chat'
+import { loadChatContent } from '../../Utils/File'
+import ChatStore from '../../Stores/ChatStore'
+import FileStore from '../../Stores/FileStore'
+import './ChatTileControl.css'
 
 const styles = {
     statusRoot: {
@@ -25,110 +25,111 @@ const styles = {
         zIndex: 1
     },
     statusIcon: {}
-};
+}
 
 class ChatTileControl extends Component {
     shouldComponentUpdate(nextProps, nextState) {
         if (nextProps.chatId !== this.props.chatId) {
-            return true;
+            return true
         }
 
         if (nextProps.theme !== this.props.theme) {
-            return true;
+            return true
         }
 
-        return false;
+        return false
     }
 
     componentDidMount() {
-        ChatStore.on('clientUpdateFastUpdatingComplete', this.onFastUpdatingComplete);
-        FileStore.on('clientUpdateChatBlob', this.onClientUpdateChatBlob);
-        ChatStore.on('updateChatPhoto', this.onUpdateChatPhoto);
-        ChatStore.on('updateChatTitle', this.onUpdateChatTitle);
+        ChatStore.on('clientUpdateFastUpdatingComplete', this.onFastUpdatingComplete)
+        FileStore.on('clientUpdateChatBlob', this.onClientUpdateChatBlob)
+        ChatStore.on('updateChatPhoto', this.onUpdateChatPhoto)
+        ChatStore.on('updateChatTitle', this.onUpdateChatTitle)
     }
 
     componentWillUnmount() {
-        ChatStore.removeListener('clientUpdateFastUpdatingComplete', this.onFastUpdatingComplete);
-        FileStore.removeListener('clientUpdateChatBlob', this.onClientUpdateChatBlob);
-        ChatStore.removeListener('updateChatPhoto', this.onUpdateChatPhoto);
-        ChatStore.removeListener('updateChatTitle', this.onUpdateChatTitle);
+        ChatStore.removeListener('clientUpdateFastUpdatingComplete', this.onFastUpdatingComplete)
+        FileStore.removeListener('clientUpdateChatBlob', this.onClientUpdateChatBlob)
+        ChatStore.removeListener('updateChatPhoto', this.onUpdateChatPhoto)
+        ChatStore.removeListener('updateChatTitle', this.onUpdateChatTitle)
     }
 
     onFastUpdatingComplete = update => {
-        this.forceUpdate();
-    };
+        this.forceUpdate()
+    }
 
     onClientUpdateChatBlob = update => {
-        const { chatId } = this.props;
+        const { chatId } = this.props
 
         if (chatId === update.chatId) {
-            this.forceUpdate();
+            this.forceUpdate()
         }
-    };
+    }
 
     onUpdateChatPhoto = update => {
-        const { chatId } = this.props;
-        const { chat_id } = update;
+        const { chatId } = this.props
+        const { chat_id } = update
 
-        if (chat_id !== chatId) return;
+        if (chat_id !== chatId) return
 
-        const chat = ChatStore.get(chatId);
+        const chat = ChatStore.get(chatId)
         if (!update.photo) {
-            this.forceUpdate();
+            this.forceUpdate()
         } else {
-            const store = FileStore.getStore();
-            loadChatContent(store, chat);
+            const store = FileStore.getStore()
+            loadChatContent(store, chat)
         }
-    };
+    }
 
     onUpdateChatTitle = update => {
-        const { chatId } = this.props;
+        const { chatId } = this.props
 
-        if (!update.chat_id) return;
-        if (update.chat_id !== chatId) return;
+        if (!update.chat_id) return
+        if (update.chat_id !== chatId) return
 
-        const chat = ChatStore.get(chatId);
+        const chat = ChatStore.get(chatId)
         if (!update.photo) {
-            this.forceUpdate();
+            this.forceUpdate()
         } else {
-            const store = FileStore.getStore();
-            loadChatContent(store, chat);
+            const store = FileStore.getStore()
+            loadChatContent(store, chat)
         }
-    };
+    }
 
     handleSelect = event => {
-        const { chatId, onSelect } = this.props;
-        if (!onSelect) return;
+        const { chatId, onSelect } = this.props
+        if (!onSelect) return
 
-        event.stopPropagation();
-        onSelect(chatId);
-    };
+        event.stopPropagation()
+        onSelect(chatId)
+    }
 
     render() {
-        const { classes, chatId, showOnline, showSavedMessages, onSelect } = this.props;
+        const { classes, chatId, showOnline, showSavedMessages, onSelect } = this.props
 
-        if (isMeChat(chatId) && showSavedMessages) {
-            const className = classNames('tile-photo', 'tile_color_4', { pointer: onSelect });
+        const chat = ChatStore.get(chatId)
+
+        if (isMeChat(chat) && showSavedMessages) {
+            const className = classNames('tile-photo', 'tile_color_4', { pointer: onSelect })
             return (
                 <div className={className} onClick={this.handleSelect}>
                     <div className='tile-saved-messages'>
                         <BookmarkBorderIcon />
                     </div>
                 </div>
-            );
+            )
         }
 
-        const chat = ChatStore.get(chatId);
-        if (!chat) return null;
+        if (!chat) return null
 
-        const { photo } = chat;
+        const { photo } = chat
 
-        const letters = getChatLetters(chat);
-        const blob = photo && photo.small ? FileStore.getBlob(photo.small.id) : null;
-        const src = FileStore.getBlobUrl(blob);
+        const letters = getChatLetters(chat)
+        const blob = photo && photo.small ? FileStore.getBlob(photo.small.id) : null
+        const src = FileStore.getBlobUrl(blob)
 
-        const tileColor = `tile_color_${(Math.abs(chatId) % 8) + 1}`;
-        const className = classNames('tile-photo', { [tileColor]: !blob }, { pointer: onSelect });
+        const tileColor = `tile_color_${(Math.abs(chatId) % 8) + 1}`
+        const className = classNames('tile-photo', { [tileColor]: !blob }, { pointer: onSelect })
 
         return (
             <div className='chat-tile' onClick={this.handleSelect}>
@@ -143,7 +144,7 @@ class ChatTileControl extends Component {
                     <ChatStatus classes={{ root: classes.statusRoot, icon: classes.statusIcon }} chatId={chatId} />
                 )}
             </div>
-        );
+        )
     }
 }
 
@@ -153,11 +154,11 @@ ChatTileControl.propTypes = {
     onSelect: PropTypes.func,
     showSavedMessages: PropTypes.bool,
     showOnline: PropTypes.bool
-};
+}
 
 ChatTileControl.defaultProps = {
     showSavedMessages: true,
     showOnline: false
-};
+}
 
-export default withStyles(styles, { withTheme: true })(ChatTileControl);
+export default withStyles(styles, { withTheme: true })(ChatTileControl)

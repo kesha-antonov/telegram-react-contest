@@ -5,35 +5,35 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import copy from 'copy-to-clipboard';
-import classNames from 'classnames';
-import { compose } from 'recompose';
-import withStyles from '@material-ui/core/styles/withStyles';
-import { withSnackbar } from 'notistack';
-import { withTranslation } from 'react-i18next';
-import PhotoIcon from '@material-ui/icons/Photo';
-import AlternateEmailIcon from '@material-ui/icons/AlternateEmail';
-import CallIcon from '@material-ui/icons/Call';
-import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
-import CloseIcon from '@material-ui/icons/Close';
-import Snackbar from '@material-ui/core/Snackbar';
-import IconButton from '@material-ui/core/IconButton';
-import ListItem from '@material-ui/core/ListItem';
-import Button from '@material-ui/core/Button';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import Divider from '@material-ui/core/Divider';
-import List from '@material-ui/core/List';
-import Typography from '@material-ui/core/Typography';
-import CircularProgress from '../ColumnMiddle/MainMenuButton';
-import NotificationTimer from '../Additional/NotificationTimer';
-import UserControl from '../Tile/UserControl';
-import ChatControl from '../Tile/ChatControl';
-import ChatDetailsHeader from './ChatDetailsHeader';
-import NotificationsListItem from './NotificationsListItem';
-import MoreListItem from './MoreListItem';
+import React from 'react'
+import PropTypes from 'prop-types'
+import copy from 'copy-to-clipboard'
+import classNames from 'classnames'
+import { compose } from 'recompose'
+import withStyles from '@material-ui/core/styles/withStyles'
+import { withSnackbar } from 'notistack'
+import { withTranslation } from 'react-i18next'
+import PhotoIcon from '@material-ui/icons/Photo'
+import AlternateEmailIcon from '@material-ui/icons/AlternateEmail'
+import CallIcon from '@material-ui/icons/Call'
+import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline'
+import CloseIcon from '@material-ui/icons/Close'
+import Snackbar from '@material-ui/core/Snackbar'
+import IconButton from '@material-ui/core/IconButton'
+import ListItem from '@material-ui/core/ListItem'
+import Button from '@material-ui/core/Button'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import ListItemText from '@material-ui/core/ListItemText'
+import Divider from '@material-ui/core/Divider'
+import List from '@material-ui/core/List'
+import Typography from '@material-ui/core/Typography'
+import CircularProgress from '../ColumnMiddle/MainMenuButton'
+import NotificationTimer from '../Additional/NotificationTimer'
+import UserControl from '../Tile/UserControl'
+import ChatControl from '../Tile/ChatControl'
+import ChatDetailsHeader from './ChatDetailsHeader'
+import NotificationsListItem from './NotificationsListItem'
+import MoreListItem from './MoreListItem'
 import {
     getChatUsername,
     getChatPhoneNumber,
@@ -44,22 +44,22 @@ import {
     isPrivateChat,
     getChatUserId,
     isMeChat
-} from '../../Utils/Chat';
-import { getUserStatusOrder } from '../../Utils/User';
-import { loadUsersContent, loadChatsContent } from '../../Utils/File';
-import { formatPhoneNumber } from '../../Utils/Common';
-import { openChat } from '../../Actions/Client';
-import { withRestoreRef, withSaveRef } from '../../Utils/HOC';
-import { NOTIFICATION_AUTO_HIDE_DURATION_MS } from '../../Constants';
-import ChatStore from '../../Stores/ChatStore';
-import UserStore from '../../Stores/UserStore';
-import BasicGroupStore from '../../Stores/BasicGroupStore';
-import SupergroupStore from '../../Stores/SupergroupStore';
-import OptionStore from '../../Stores/OptionStore';
-import FileStore from '../../Stores/FileStore';
-import ApplicationStore from '../../Stores/ApplicationStore';
-import TdLibController from '../../Controllers/TdLibController';
-import './ChatDetails.css';
+} from '../../Utils/Chat'
+import { getUserStatusOrder } from '../../Utils/User'
+import { loadUsersContent, loadChatsContent } from '../../Utils/File'
+import { formatPhoneNumber } from '../../Utils/Common'
+import { openChat } from '../../Actions/Client'
+import { withRestoreRef, withSaveRef } from '../../Utils/HOC'
+import { NOTIFICATION_AUTO_HIDE_DURATION_MS } from '../../Constants'
+import ChatStore from '../../Stores/ChatStore'
+import UserStore from '../../Stores/UserStore'
+import BasicGroupStore from '../../Stores/BasicGroupStore'
+import SupergroupStore from '../../Stores/SupergroupStore'
+import OptionStore from '../../Stores/OptionStore'
+import FileStore from '../../Stores/FileStore'
+import ApplicationStore from '../../Stores/ApplicationStore'
+import TdLibController from '../../Controllers/TdLibController'
+import './ChatDetails.css'
 
 const styles = theme => ({
     closeIconButton: {
@@ -74,21 +74,21 @@ const styles = theme => ({
     listItem: {
         padding: '11px 22px'
     }
-});
+})
 
 class ChatDetails extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
-        this.chatDetailsListRef = React.createRef();
+        this.chatDetailsListRef = React.createRef()
 
-        const { chatId } = this.props;
+        const { chatId } = this.props
 
-        this.members = new Map();
+        this.members = new Map()
         this.state = {
             prevChatId: chatId,
             hasGroupsInCommon: false
-        };
+        }
     }
 
     static getDerivedStateFromProps(props, state) {
@@ -96,197 +96,198 @@ class ChatDetails extends React.Component {
             return {
                 prevChatId: props.chatId,
                 hasGroupsInCommon: false
-            };
+            }
         }
 
-        return null;
+        return null
     }
 
     getSnapshotBeforeUpdate(prevProps, prevState) {
-        const { chatId } = this.props;
+        const { chatId } = this.props
 
-        const list = this.chatDetailsListRef.current;
-        const { scrollTop, scrollHeight, offsetHeight } = list;
+        const list = this.chatDetailsListRef.current
+        const { scrollTop, scrollHeight, offsetHeight } = list
         const snapshot = {
             scrollTop: scrollTop,
             scrollHeight: scrollHeight,
             offsetHeight: offsetHeight
-        };
+        }
 
         console.log(
             `[ChatDetails] getSnapshotBeforeUpdate chatId=${chatId} scrollTop=${scrollTop} scrollHeight=${scrollHeight} offsetHeight=${offsetHeight}`
-        );
+        )
 
-        return snapshot;
+        return snapshot
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        const { chatId, theme } = this.props;
-        const { hasGroupsInCommon } = this.state;
+        const { chatId, theme } = this.props
+        const { hasGroupsInCommon } = this.state
 
         if (nextProps.chatId !== chatId) {
-            return true;
+            return true
         }
 
         if (nextProps.theme !== theme) {
-            return true;
+            return true
         }
 
         if (nextState.hasGroupsInCommon !== hasGroupsInCommon) {
-            return true;
+            return true
         }
 
-        return false;
+        return false
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const { chatId } = this.props;
+        const { chatId } = this.props
         if (prevProps.chatId !== chatId) {
-            this.handleSelectChat();
+            this.handleSelectChat()
         }
 
-        console.log('chatDetailsListRef', this.chatDetailsListRef);
-        const list = this.chatDetailsListRef.current;
-        const { scrollTop, scrollHeight, offsetHeight } = snapshot;
+        console.log('chatDetailsListRef', this.chatDetailsListRef)
+        const list = this.chatDetailsListRef.current
+        const { scrollTop, scrollHeight, offsetHeight } = snapshot
         console.log(
             `[ChatDetails] componentDidUpdate before chatId=${chatId} list.scrollTop=${list.scrollTop} list.offsetHeight=${list.offsetHeight} list.scrollHeight=${list.scrollHeight}`
-        );
-        list.scrollTop = scrollTop + (list.scrollHeight - scrollHeight);
+        )
+        list.scrollTop = scrollTop + (list.scrollHeight - scrollHeight)
         console.log(
             `[ChatDetails] componentDidUpdate after chatId=${chatId} list.scrollTop=${list.scrollTop} list.offsetHeight=${list.offsetHeight} list.scrollHeight=${list.scrollHeight}`
-        );
+        )
     }
 
     componentDidMount() {
-        this.handleSelectChat();
+        this.handleSelectChat()
 
-        UserStore.on('updateUserStatus', this.onUpdateUserStatus);
-        UserStore.on('updateUserFullInfo', this.onUpdateUserFullInfo);
-        BasicGroupStore.on('updateBasicGroupFullInfo', this.onUpdateBasicGroupFullInfo);
-        SupergroupStore.on('updateSupergroupFullInfo', this.onUpdateSupergroupFullInfo);
+        UserStore.on('updateUserStatus', this.onUpdateUserStatus)
+        UserStore.on('updateUserFullInfo', this.onUpdateUserFullInfo)
+        BasicGroupStore.on('updateBasicGroupFullInfo', this.onUpdateBasicGroupFullInfo)
+        SupergroupStore.on('updateSupergroupFullInfo', this.onUpdateSupergroupFullInfo)
     }
 
     componentWillUnmount() {
-        UserStore.removeListener('updateUserStatus', this.onUpdateUserStatus);
-        UserStore.removeListener('updateUserFullInfo', this.onUpdateUserFullInfo);
-        BasicGroupStore.removeListener('updateBasicGroupFullInfo', this.onUpdateBasicGroupFullInfo);
-        SupergroupStore.removeListener('updateSupergroupFullInfo', this.onUpdateSupergroupFullInfo);
+        UserStore.removeListener('updateUserStatus', this.onUpdateUserStatus)
+        UserStore.removeListener('updateUserFullInfo', this.onUpdateUserFullInfo)
+        BasicGroupStore.removeListener('updateBasicGroupFullInfo', this.onUpdateBasicGroupFullInfo)
+        SupergroupStore.removeListener('updateSupergroupFullInfo', this.onUpdateSupergroupFullInfo)
     }
 
     onUpdateBasicGroupFullInfo = update => {
-        const chat = ChatStore.get(this.props.chatId);
-        if (!chat) return;
+        const chat = ChatStore.get(this.props.chatId)
+        if (!chat) return
 
         if (
             chat.type &&
             chat.type['@type'] === 'chatTypeBasicGroup' &&
             chat.type.basic_group_id === update.basic_group_id
         ) {
-            this.handleSelectChat();
+            this.handleSelectChat()
 
-            this.forceUpdate(); // update bio
+            this.forceUpdate() // update bio
         }
-    };
+    }
 
     onUpdateSupergroupFullInfo = update => {
-        const chat = ChatStore.get(this.props.chatId);
-        if (!chat) return;
+        const chat = ChatStore.get(this.props.chatId)
+        if (!chat) return
 
         if (
             chat.type &&
             chat.type['@type'] === 'chatTypeSupergroup' &&
             chat.type.supergroup_id === update.supergroup_id
         ) {
-            this.forceUpdate(); // update bio
+            this.forceUpdate() // update bio
         }
-    };
+    }
 
     onUpdateUserFullInfo = update => {
-        const chat = ChatStore.get(this.props.chatId);
-        if (!chat) return;
+        const chat = ChatStore.get(this.props.chatId)
+        if (!chat) return
 
         if (
             chat.type &&
             (chat.type['@type'] === 'chatTypePrivate' || chat.type['@type'] === 'chatTypeSecret') &&
             chat.type.user_id === update.user_id
         ) {
-            this.forceUpdate(); // update bio
+            this.forceUpdate() // update bio
         }
-    };
+    }
 
     onUpdateUserStatus = update => {
         if (this.members.has(update.user_id)) {
-            this.forceUpdate();
+            this.forceUpdate()
         }
-    };
+    }
 
     handleSelectChat = () => {
-        this.getFullInfo();
+        this.getFullInfo()
 
-        this.getGroupsInCommon();
+        this.getGroupsInCommon()
 
-        this.loadChatContents();
-    };
+        this.loadChatContents()
+    }
 
     loadChatContents = () => {
-        const { chatId } = this.props;
+        const { chatId } = this.props
 
-        const store = FileStore.getStore();
+        const store = FileStore.getStore()
 
-        loadChatsContent(store, [chatId]);
-        const members = getGroupChatMembers(chatId).map(x => x.user_id);
-        loadUsersContent(store, members);
-    };
+        loadChatsContent(store, [chatId])
+        const members = getGroupChatMembers(chatId).map(x => x.user_id)
+        loadUsersContent(store, members)
+    }
 
     getFullInfo = () => {
-        const { chatId } = this.props;
+        const { chatId } = this.props
 
-        getChatFullInfo(chatId);
-    };
+        getChatFullInfo(chatId)
+    }
 
     getGroupsInCommon = async () => {
-        const { chatId } = this.props;
+        const { chatId } = this.props
 
-        const isGroup = isGroupChat(chatId);
-        if (isGroup) return;
+        const isGroup = isGroupChat(chatId)
+        if (isGroup) return
 
-        const isMe = isMeChat(chatId);
-        if (isMe) return;
+        const chat = ChatStore.get(chatId)
+        const isMe = isMeChat(chat)
+        if (isMe) return
 
         const result = await TdLibController.send({
             '@type': 'getGroupsInCommon',
             user_id: getChatUserId(chatId),
             offset_chat_id: 0,
             limit: 1
-        });
+        })
 
-        this.setState({ hasGroupsInCommon: result.chat_ids.length > 0 });
-    };
+        this.setState({ hasGroupsInCommon: result.chat_ids.length > 0 })
+    }
 
     handleUsernameHint = () => {
-        const { t, chatId } = this.props;
-        const username = getChatUsername(chatId);
-        if (!username) return;
+        const { t, chatId } = this.props
+        const username = getChatUsername(chatId)
+        if (!username) return
 
-        const telegramUrlOption = OptionStore.get('t_me_url');
-        const usernameLink = telegramUrlOption ? telegramUrlOption.value : 'https://telegram.org/';
+        const telegramUrlOption = OptionStore.get('t_me_url')
+        const usernameLink = telegramUrlOption ? telegramUrlOption.value : 'https://telegram.org/'
 
-        copy(usernameLink + username);
+        copy(usernameLink + username)
 
-        const key = `${chatId}_copy_username`;
-        const message = t('TextCopied');
-        const action = null;
+        const key = `${chatId}_copy_username`
+        const message = t('TextCopied')
+        const action = null
 
-        this.handleScheduledAction(key, message, action);
-    };
+        this.handleScheduledAction(key, message, action)
+    }
 
     handleScheduledAction = (key, message, action) => {
-        if (!key) return;
+        if (!key) return
 
-        const { enqueueSnackbar, classes } = this.props;
-        if (!enqueueSnackbar) return;
+        const { enqueueSnackbar, classes } = this.props
+        if (!enqueueSnackbar) return
 
-        const TRANSITION_DELAY = 150;
+        const TRANSITION_DELAY = 150
         if (
             ApplicationStore.addScheduledAction(key, NOTIFICATION_AUTO_HIDE_DURATION_MS + 2 * TRANSITION_DELAY, action)
         ) {
@@ -302,55 +303,55 @@ class ChatDetails extends React.Component {
                         <CloseIcon />
                     </IconButton>
                 ]
-            });
+            })
         }
-    };
+    }
 
     handlePhoneHint = () => {
-        const { t, chatId } = this.props;
-        const phoneNumber = getChatPhoneNumber(chatId);
-        if (!phoneNumber) return;
+        const { t, chatId } = this.props
+        const phoneNumber = getChatPhoneNumber(chatId)
+        if (!phoneNumber) return
 
-        copy(formatPhoneNumber(phoneNumber));
+        copy(formatPhoneNumber(phoneNumber))
 
-        const key = `${chatId}_copy_phone`;
-        const message = t('PhoneCopied');
-        const action = null;
+        const key = `${chatId}_copy_phone`
+        const message = t('PhoneCopied')
+        const action = null
 
-        this.handleScheduledAction(key, message, action);
-    };
+        this.handleScheduledAction(key, message, action)
+    }
 
     handleHeaderClick = () => {
-        this.chatDetailsListRef.current.scrollTop = 0;
-    };
+        this.chatDetailsListRef.current.scrollTop = 0
+    }
 
     handleOpenViewer = () => {
-        const { chatId } = this.props;
-        const chat = ChatStore.get(chatId);
-        if (!chat) return;
-        if (!chat.photo) return;
+        const { chatId } = this.props
+        const chat = ChatStore.get(chatId)
+        if (!chat) return
+        if (!chat.photo) return
 
-        ApplicationStore.setProfileMediaViewerContent({ chatId: chatId });
-    };
+        ApplicationStore.setProfileMediaViewerContent({ chatId: chatId })
+    }
 
     handleOpenChat = () => {
-        const { chatId, popup } = this.props;
+        const { chatId, popup } = this.props
 
-        openChat(chatId, null, false);
+        openChat(chatId, null, false)
 
         if (popup) {
             TdLibController.clientUpdate({
                 '@type': 'clientUpdateDialogChatId',
                 chatId: 0
-            });
+            })
         }
-    };
+    }
 
     getContentHeight = () => {
-        if (!this.chatDetailsListRef) return 0;
+        if (!this.chatDetailsListRef) return 0
 
-        return this.chatDetailsListRef.current.clientHeight;
-    };
+        return this.chatDetailsListRef.current.clientHeight
+    }
 
     render() {
         const {
@@ -363,46 +364,46 @@ class ChatDetails extends React.Component {
             popup,
             backButton,
             onClose
-        } = this.props;
-        const { hasGroupsInCommon } = this.state;
+        } = this.props
+        const { hasGroupsInCommon } = this.state
 
-        const chat = ChatStore.get(chatId);
+        const chat = ChatStore.get(chatId)
         if (!chat) {
             return (
                 <div className='chat-details'>
                     <ChatDetailsHeader onClose={onClose} />
                     <div ref={this.chatDetailsListRef} className='chat-details-list' />
                 </div>
-            );
+            )
         }
 
-        const username = getChatUsername(chatId);
-        const phoneNumber = getChatPhoneNumber(chatId);
-        const bio = getChatBio(chatId);
-        const isGroup = isGroupChat(chatId);
-        const isMe = isMeChat(chatId);
+        const username = getChatUsername(chatId)
+        const phoneNumber = getChatPhoneNumber(chatId)
+        const bio = getChatBio(chatId)
+        const isGroup = isGroupChat(chatId)
+        const isMe = isMeChat(chat)
 
-        const members = getGroupChatMembers(chatId);
-        const users = [];
-        this.members = new Map();
+        const members = getGroupChatMembers(chatId)
+        const users = []
+        this.members = new Map()
         members.forEach(member => {
-            const user = UserStore.get(member.user_id);
+            const user = UserStore.get(member.user_id)
             if (user) {
-                this.members.set(user.id, user.id);
-                users.push(user);
+                this.members.set(user.id, user.id)
+                users.push(user)
             }
-        });
+        })
 
         const sortedUsers = users.sort((x, y) => {
-            return getUserStatusOrder(y) - getUserStatusOrder(x);
-        });
+            return getUserStatusOrder(y) - getUserStatusOrder(x)
+        })
         const items = sortedUsers.map(user => (
             <ListItem button className={classes.listItem} key={user.id}>
                 <UserControl userId={user.id} onSelect={this.handleSelectUser} />
             </ListItem>
-        ));
+        ))
 
-        const { photo } = chat;
+        const { photo } = chat
 
         const content = (
             <>
@@ -518,9 +519,9 @@ class ChatDetails extends React.Component {
                     )}
                 </div>
             </>
-        );
+        )
 
-        return popup ? <>{content}</> : <div className={classNames('chat-details', className)}>{content}</div>;
+        return popup ? <>{content}</> : <div className={classNames('chat-details', className)}>{content}</div>
     }
 }
 
@@ -530,7 +531,7 @@ ChatDetails.propTypes = {
     onClose: PropTypes.func,
     onOpenSharedMedia: PropTypes.func,
     onOpenGroupsInCommon: PropTypes.func
-};
+}
 
 const enhance = compose(
     withSaveRef(),
@@ -538,6 +539,6 @@ const enhance = compose(
     withStyles(styles, { withTheme: true }),
     withSnackbar,
     withRestoreRef()
-);
+)
 
-export default enhance(ChatDetails);
+export default enhance(ChatDetails)
