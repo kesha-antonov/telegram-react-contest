@@ -4,6 +4,7 @@ const en = {
         YourPhone: 'Your Phone',
         StartText: 'Please confirm your country code and enter your phone number.',
         Next: 'Next',
+        Remove: 'Remove',
         InvalidPhoneNumber: 'Invalid phone number. Please check the number and try again.',
         More: 'More',
         SendMessage: 'Send Message',
@@ -35,6 +36,6 @@ const en = {
         Connecting: 'Connecting',
         Updating: 'Updating'
     }
-};
+}
 
-export default en;
+export default en

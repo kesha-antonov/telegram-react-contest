@@ -4,6 +4,7 @@ const ru = {
         YourPhone: 'Ваш телефон',
         StartText: 'Пожалуйста, укажите код страны и свой номер телефона.',
         Next: 'Далее',
+        Remove: 'Удалить',
         InvalidPhoneNumber: 'Некорректный номер телефона. Пожалуйста, проверьте номер и попробуйте ещё раз.',
         More: 'Ещё',
         SendMessage: 'Отправить сообщение',
@@ -35,6 +36,6 @@ const ru = {
         Connecting: 'Соединение',
         Updating: 'Обновление'
     }
-};
+}
 
-export default ru;
+export default ru
