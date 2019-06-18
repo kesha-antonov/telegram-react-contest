@@ -5,20 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import classNames from 'classnames';
-import withStyles from '@material-ui/core/styles/withStyles';
-import VolumeMuteIcon from '@material-ui/icons/VolumeMute';
-import VolumeDownIcon from '@material-ui/icons/VolumeDown';
-import VolumeUpIcon from '@material-ui/icons/VolumeUp';
-import VolumeOffIcon from '@material-ui/icons/VolumeOff';
-import IconButton from '@material-ui/core/IconButton';
-import Slider from '@material-ui/lab/Slider';
-import { borderStyle } from '../Theme';
-import { PLAYER_VOLUME_NORMAL } from '../../Constants';
-import PlayerStore from '../../Stores/PlayerStore';
-import TdLibController from '../../Controllers/TdLibController';
-import './VolumeButton.css';
+import React from 'react'
+import classNames from 'classnames'
+import withStyles from '@material-ui/core/styles/withStyles'
+import VolumeMuteIcon from '@material-ui/icons/VolumeMute'
+import VolumeDownIcon from '@material-ui/icons/VolumeDown'
+import VolumeUpIcon from '@material-ui/icons/VolumeUp'
+import VolumeOffIcon from '@material-ui/icons/VolumeOff'
+import IconButton from '@material-ui/core/IconButton'
+import Slider from '@material-ui/lab/Slider'
+import { borderStyle } from '../Theme'
+import { PLAYER_VOLUME_NORMAL } from '../../Constants'
+import PlayerStore from '../../Stores/PlayerStore'
+import TdLibController from '../../Controllers/TdLibController'
+import './VolumeButton.css'
 
 const styles = theme => ({
     iconButton: {
@@ -38,140 +38,139 @@ const styles = theme => ({
         opacity: 0
     },
     ...borderStyle(theme)
-});
+})
 
 class VolumeButton extends React.Component {
-    state = {
-        anchorEl: null,
-        value: PlayerStore.volume,
-        prevValue: PlayerStore.volume,
-        dragging: false,
-        buttonOver: false,
-        popupOver: false
-    };
+    constructor() {
+        super()
+
+        this.state = {
+            anchorEl: null,
+            value: PlayerStore.volume,
+            prevValue: PlayerStore.volume
+        }
+
+        this.dragging = false
+        this.buttonOver = false
+        this.popupOver = false
+    }
 
     componentDidMount() {
-        PlayerStore.on('clientUpdateMediaVolume', this.onClientUpdateMediaVolume);
+        PlayerStore.on('clientUpdateMediaVolume', this.onClientUpdateMediaVolume)
     }
 
     componentWillUnmount() {
-        PlayerStore.removeListener('clientUpdateMediaVolume', this.onClientUpdateMediaVolume);
+        PlayerStore.removeListener('clientUpdateMediaVolume', this.onClientUpdateMediaVolume)
     }
 
     onClientUpdateMediaVolume = update => {
-        const { volume, prevVolume } = update;
+        const { volume, prevVolume } = update
 
-        if (prevVolume === undefined) {
-            this.setState({ value: volume });
-        } else {
-            this.setState({ value: volume, prevValue: prevVolume });
-        }
-    };
+        let newState = {}
+        if (this.state.value !== volume) newState['value'] = volume
+
+        if (prevVolume) newState['prevVolume'] = prevVolume
+
+        this.setState(newState)
+    }
 
     handlePopoverOpen = anchorEl => {
-        this.setState({ anchorEl: anchorEl });
-    };
+        this.setState({ anchorEl: anchorEl })
+    }
 
     handlePopoverClose = () => {
-        const { dragging, buttonOver, popupOver } = this.state;
+        const { buttonOver, popupOver, dragging } = this
 
-        if (dragging) return;
-        if (buttonOver) return;
-        if (popupOver) return;
+        if (dragging) return
+        if (buttonOver) return
+        if (popupOver) return
 
-        this.setState({ anchorEl: null });
-    };
+        this.setState({ anchorEl: null })
+    }
 
     handleMouseEnter = (event, openPopover) => {
-        this.setState({ buttonOver: true });
+        this.buttonOver = true
 
         if (openPopover) {
-            this.handlePopoverOpen(event.currentTarget);
+            this.handlePopoverOpen(event.currentTarget)
         }
-    };
+    }
 
     handleMouseLeave = () => {
-        this.setState({ buttonOver: false }, () => {
-            this.handlePopoverClose();
-        });
-    };
+        this.buttonOver = false
+        this.handlePopoverClose()
+    }
 
     handlePopupMouseLeave = () => {
-        this.setState({ popupOver: false }, () => {
-            this.handlePopoverClose();
-        });
-    };
+        this.popupOver = false
+        this.handlePopoverClose()
+    }
 
     handleVoiceClick = () => {
-        const { value, prevValue } = this.state;
-        const nextValue = value > 0 ? 0 : prevValue || PLAYER_VOLUME_NORMAL;
+        const { value, prevValue } = this.state
+        const nextValue = value > 0 ? 0 : prevValue || PLAYER_VOLUME_NORMAL
 
         TdLibController.clientUpdate({
             '@type': 'clientUpdateMediaVolume',
             volume: nextValue
-        });
-    };
+        })
+    }
 
-    handleChange = (event, value) => {
-        const { dragging, prevValue } = this.state;
-
-        if (dragging) {
-            TdLibController.clientUpdate({
-                '@type': 'clientUpdateMediaVolume',
-                volume: value
-            });
-        } else {
-            TdLibController.clientUpdate({
-                '@type': 'clientUpdateMediaVolume',
-                prevVolume: value > 0 ? value : prevValue,
-                volume: value
-            });
+    onChange = (event, value) => {
+        if (value === this.state) {
+            return
         }
-    };
 
-    handleDragStart = () => {
-        const { value } = this.state;
+        this.setState({ value }, () => {
+            TdLibController.clientUpdate({
+                '@type': 'clientUpdateMediaVolume',
+                volume: value
+            })
+        })
+    }
 
-        this.setState({
-            dragging: true,
-            prevValue: value
-        });
-    };
+    onDragEnd = (event, value) => {
+        this.setState({ value }, this.handlePopoverClose)
+    }
 
-    handleDragEnd = () => {
-        const { value, prevValue } = this.state;
+    getVolumeIcon = () => {
+        const { value } = this.state
 
-        this.setState(
-            {
-                dragging: false,
-                prevValue: value > 0 ? value : prevValue
-            },
-            () => {
-                this.handlePopoverClose();
-            }
-        );
-    };
-
-    getVolumeIcon = value => {
         if (value === 0) {
-            return <VolumeOffIcon fontSize='small' />;
+            return <VolumeOffIcon fontSize='small' />
         }
 
         if (value < 0.25) {
-            return <VolumeMuteIcon fontSize='small' />;
+            return <VolumeMuteIcon fontSize='small' />
         }
 
         if (value < 0.5) {
-            return <VolumeDownIcon fontSize='small' />;
+            return <VolumeDownIcon fontSize='small' />
         }
 
-        return <VolumeUpIcon fontSize='small' />;
-    };
+        return <VolumeUpIcon fontSize='small' />
+    }
+
+    onMouseDown = () => {
+        this.dragging = true
+    }
+
+    onMouseUp = () => {
+        this.dragging = false
+        this.handlePopoverClose()
+    }
+
+    onChangeCommitted = () => {
+        if (this.dragging) {
+            this.dragging = false
+            this.handlePopoverClose()
+        }
+    }
 
     render() {
-        const { classes } = this.props;
-        const { anchorEl, value } = this.state;
-        const open = Boolean(anchorEl);
+        const { classes } = this.props
+        const { anchorEl, value } = this.state
+        const open = Boolean(anchorEl)
 
         return (
             <div
@@ -182,7 +181,7 @@ class VolumeButton extends React.Component {
                     background: 'transparent'
                 }}>
                 <IconButton className={classes.iconButton} color='primary' onClick={this.handleVoiceClick}>
-                    {this.getVolumeIcon(value)}
+                    {this.getVolumeIcon()}
                 </IconButton>
                 <div
                     style={{
@@ -201,20 +200,25 @@ class VolumeButton extends React.Component {
                             borderStyle: 'solid'
                         }}>
                         <Slider
-                            classes={{ container: classes.slider, thumb: classes.thumb }}
+                            classes={{
+                                root: classes.slider,
+                                thumb: classes.thumb
+                            }}
                             min={0}
                             max={1}
+                            step={0.01}
                             value={value}
-                            onChange={this.handleChange}
-                            onDragStart={this.handleDragStart}
-                            onDragEnd={this.handleDragEnd}
-                            vertical
+                            onChange={this.onChange}
+                            onChangeCommitted={this.onChangeCommitted}
+                            orientation='vertical'
+                            onMouseDown={this.onMouseDown}
+                            onMouseUp={this.onMouseUp}
                         />
                     </div>
                 </div>
             </div>
-        );
+        )
     }
 }
 
-export default withStyles(styles, { withTheme: true })(VolumeButton);
+export default withStyles(styles, { withTheme: true })(VolumeButton)
