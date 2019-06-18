@@ -72,59 +72,22 @@ class MessagesList extends React.Component {
         //debounce(this.updateItemsInView, 250);
     }
 
-    static getDerivedStateFromProps(props, state) {
-        if (props.chatId !== state.prevChatId || props.messageId !== state.prevMessageId) {
-            return {
-                prevChatId: props.chatId,
-                prevMessageId: props.messageId,
-                clearHistory: false,
-                selectionActive: false,
-                scrollBehavior: ScrollBehaviorEnum.SCROLL_TO_BOTTOM,
-                separatorMessageId: 0
-            }
-        }
-
-        return null
-    }
-
-    getSnapshotBeforeUpdate(prevProps, prevState) {
+    componentDidMount() {
         const { chatId } = this.props
+        this.handleSelectChat(chatId, 0)
 
-        const list = this.listRef.current
-        const snapshot = {
-            scrollTop: list.scrollTop,
-            scrollHeight: list.scrollHeight,
-            offsetHeight: list.offsetHeight
-        }
+        MessageStore.on('updateNewMessage', this.onUpdateNewMessage)
+        MessageStore.on('updateDeleteMessages', this.onUpdateDeleteMessages)
+        MessageStore.on('updateMessageContent', this.onUpdateMessageContent)
+        MessageStore.on('updateMessageSendSucceeded', this.onUpdateMessageSendSucceeded)
+        MessageStore.on('clientUpdateMessageSelected', this.onClientUpdateSelection)
+        MessageStore.on('clientUpdateClearSelection', this.onClientUpdateSelection)
+        ChatStore.on('updateChatLastMessage', this.onUpdateChatLastMessage)
+        ChatStore.on('clientUpdateClearHistory', this.onClientUpdateClearHistory)
 
-        // console.log(
-        //     `SCROLL GETSNAPSHOTBEFOREUPDATE \\
-        //     list.scrollTop=${list.scrollTop} \\
-        //     list.scrollHeight=${list.scrollHeight} \\
-        //     list.offsetHeight=${list.offsetHeight} \\
-        //     chatId=${chatId}`
-        // );
-
-        return snapshot
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        const { chatId, messageId } = this.props
-
-        const list = this.listRef.current
-        // console.log(
-        //     `MessagesList.componentDidUpdate chat_id=${chatId} message_id=${messageId} \\
-        //     prev_chat_id=${prevProps.chatId} prev_message_id=${prevProps.messageId} \\
-        //     list.scrollTop=${list.scrollTop} \\
-        //     list.scrollHeight=${list.scrollHeight} \\
-        //     list.offsetHeight=${list.offsetHeight}`
-        // );
-
-        if (prevProps.chatId !== chatId || prevProps.messageId !== messageId) {
-            this.handleSelectChat(chatId, prevProps.chatId, messageId, prevProps.messageId)
-        } else {
-            this.handleScrollBehavior(snapshot)
-        }
+        PlayerStore.on('clientUpdateMediaActive', this.onClientUpdateMediaActive)
+        PlayerStore.on('clientUpdateMediaEnding', this.onClientUpdateMediaEnding)
+        PlayerStore.on('clientUpdateMediaEnd', this.onClientUpdateMediaEnd)
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -166,22 +129,23 @@ class MessagesList extends React.Component {
         return false
     }
 
-    componentDidMount() {
-        const { chatId } = this.props
-        this.handleSelectChat(chatId, 0)
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        const { chatId, messageId } = this.props
 
-        MessageStore.on('updateNewMessage', this.onUpdateNewMessage)
-        MessageStore.on('updateDeleteMessages', this.onUpdateDeleteMessages)
-        MessageStore.on('updateMessageContent', this.onUpdateMessageContent)
-        MessageStore.on('updateMessageSendSucceeded', this.onUpdateMessageSendSucceeded)
-        MessageStore.on('clientUpdateMessageSelected', this.onClientUpdateSelection)
-        MessageStore.on('clientUpdateClearSelection', this.onClientUpdateSelection)
-        ChatStore.on('updateChatLastMessage', this.onUpdateChatLastMessage)
-        ChatStore.on('clientUpdateClearHistory', this.onClientUpdateClearHistory)
+        const list = this.listRef.current
+        // console.log(
+        //     `MessagesList.componentDidUpdate chat_id=${chatId} message_id=${messageId} \\
+        //     prev_chat_id=${prevProps.chatId} prev_message_id=${prevProps.messageId} \\
+        //     list.scrollTop=${list.scrollTop} \\
+        //     list.scrollHeight=${list.scrollHeight} \\
+        //     list.offsetHeight=${list.offsetHeight}`
+        // );
 
-        PlayerStore.on('clientUpdateMediaActive', this.onClientUpdateMediaActive)
-        PlayerStore.on('clientUpdateMediaEnding', this.onClientUpdateMediaEnding)
-        PlayerStore.on('clientUpdateMediaEnd', this.onClientUpdateMediaEnd)
+        if (prevProps.chatId !== chatId || prevProps.messageId !== messageId) {
+            this.handleSelectChat(chatId, prevProps.chatId, messageId, prevProps.messageId)
+        } else {
+            this.handleScrollBehavior(snapshot)
+        }
     }
 
     componentWillUnmount() {
@@ -197,6 +161,42 @@ class MessagesList extends React.Component {
         PlayerStore.removeListener('clientUpdateMediaActive', this.onClientUpdateMediaActive)
         PlayerStore.removeListener('clientUpdateMediaEnding', this.onClientUpdateMediaEnding)
         PlayerStore.removeListener('clientUpdateMediaEnd', this.onClientUpdateMediaEnd)
+    }
+
+    static getDerivedStateFromProps(props, state) {
+        if (props.chatId !== state.prevChatId || props.messageId !== state.prevMessageId) {
+            return {
+                prevChatId: props.chatId,
+                prevMessageId: props.messageId,
+                clearHistory: false,
+                selectionActive: false,
+                scrollBehavior: ScrollBehaviorEnum.SCROLL_TO_BOTTOM,
+                separatorMessageId: 0
+            }
+        }
+
+        return null
+    }
+
+    getSnapshotBeforeUpdate(prevProps, prevState) {
+        const { chatId } = this.props
+
+        const list = this.listRef.current
+        const snapshot = {
+            scrollTop: list.scrollTop,
+            scrollHeight: list.scrollHeight,
+            offsetHeight: list.offsetHeight
+        }
+
+        // console.log(
+        //     `SCROLL GETSNAPSHOTBEFOREUPDATE \\
+        //     list.scrollTop=${list.scrollTop} \\
+        //     list.scrollHeight=${list.scrollHeight} \\
+        //     list.offsetHeight=${list.offsetHeight} \\
+        //     chatId=${chatId}`
+        // );
+
+        return snapshot
     }
 
     onClientUpdateMediaActive = update => {
