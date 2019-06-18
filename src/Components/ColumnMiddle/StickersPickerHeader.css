@@ -42,6 +42,6 @@
     will-change: transform;
     position: absolute;
     bottom: 16px;
-    transition: transform 500ms ease-out;
+    transition: transform 300ms ease-out;
     /*display: none;*/
 }

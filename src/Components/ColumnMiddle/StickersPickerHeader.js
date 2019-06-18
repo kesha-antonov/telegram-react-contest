@@ -5,71 +5,71 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import * as ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import withStyles from '@material-ui/core/styles/withStyles';
-import Animator from '../../Utils/Animatior';
-import Sticker from './../Message/Media/Sticker';
-import { accentStyles, borderStyle } from '../Theme';
-import { ANIMATION_DURATION_500MS } from '../../Constants';
-import StickerStore from '../../Stores/StickerStore';
-import './StickersPickerHeader.css';
+import React from 'react'
+import * as ReactDOM from 'react-dom'
+import PropTypes from 'prop-types'
+import classNames from 'classnames'
+import withStyles from '@material-ui/core/styles/withStyles'
+import Animator from '../../Utils/Animatior'
+import Sticker from './../Message/Media/Sticker'
+import { accentStyles, borderStyle } from '../Theme'
+import { ANIMATION_DURATION_300MS } from '../../Constants'
+import StickerStore from '../../Stores/StickerStore'
+import './StickersPickerHeader.css'
 
 const styles = theme => ({
     ...borderStyle(theme),
     ...accentStyles(theme)
-});
+})
 
 class StickersPickerHeader extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
-        this.state = { position: 0 };
+        this.state = { position: 0 }
 
-        this.scrollRef = React.createRef();
-        this.anchorRef = React.createRef();
+        this.scrollRef = React.createRef()
+        this.anchorRef = React.createRef()
     }
 
     componentDidMount() {
-        StickerStore.on('clientUpdateStickerSetPosition', this.onClientUpdateStickerSetPosition);
+        StickerStore.on('clientUpdateStickerSetPosition', this.onClientUpdateStickerSetPosition)
     }
 
     componentWillUnmount() {
-        StickerStore.removeListener('clientUpdateStickerSetPosition', this.onClientUpdateStickerSetPosition);
+        StickerStore.removeListener('clientUpdateStickerSetPosition', this.onClientUpdateStickerSetPosition)
     }
 
     onClientUpdateStickerSetPosition = update => {
-        const { position } = update;
+        const { position } = update
 
-        this.setState({ position });
-    };
+        this.setState({ position })
+    }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevState.position !== this.state.position) {
-            this.scrollToPosition();
+            this.scrollToPosition()
         }
     }
 
     scrollToPosition = () => {
-        const { position } = this.state;
-        const { animator, anchorRef, scrollRef } = this;
+        const { position } = this.state
+        const { animator, anchorRef, scrollRef } = this
 
-        const scroll = scrollRef.current;
-        const anchor = anchorRef.current;
-        const anchorNode = ReactDOM.findDOMNode(anchor);
+        const scroll = scrollRef.current
+        const anchor = anchorRef.current
+        const anchorNode = ReactDOM.findDOMNode(anchor)
 
-        const scrollFrom = scroll.scrollLeft;
-        const scrollTo = position * 44 - 147;
+        const scrollFrom = scroll.scrollLeft
+        const scrollTo = position * 44 - 147
 
-        const anchorFrom = Number(anchorNode.style.left.replace('px', ''));
-        const anchorTo = position * 44;
+        const anchorFrom = Number(anchorNode.style.left.replace('px', ''))
+        const anchorTo = position * 44
 
         if (animator) {
-            animator.stop();
+            animator.stop()
         }
-        this.animator = new Animator(ANIMATION_DURATION_500MS, [
+        this.animator = new Animator(ANIMATION_DURATION_300MS, [
             {
                 from: scrollFrom,
                 to: scrollTo,
@@ -83,28 +83,28 @@ class StickersPickerHeader extends React.Component {
                 to: anchorTo,
                 func: left => (anchorNode.style.left = left + 'px')
             }
-        ]);
-        this.animator.start();
-    };
+        ])
+        this.animator.start()
+    }
 
     handleWheel = event => {
-        const { scrollRef } = this;
+        const { scrollRef } = this
 
         if (event.deltaX === 0) {
-            const scroll = scrollRef.current;
+            const scroll = scrollRef.current
 
-            scroll.scrollLeft += event.deltaY;
+            scroll.scrollLeft += event.deltaY
         }
-    };
+    }
 
     handleSelect = sticker => {
-        const { stickers, onSelect } = this.props;
+        const { stickers, onSelect } = this.props
 
-        onSelect(stickers.indexOf(sticker));
-    };
+        onSelect(stickers.indexOf(sticker))
+    }
 
     render() {
-        const { classes, stickers } = this.props;
+        const { classes, stickers } = this.props
 
         const items = stickers.map(x => (
             <Sticker
@@ -116,7 +116,7 @@ class StickersPickerHeader extends React.Component {
                 blur={false}
                 openMedia={() => this.handleSelect(x)}
             />
-        ));
+        ))
 
         return (
             <div className={classNames('stickers-picker-header', classes.borderColor)}>
@@ -128,13 +128,13 @@ class StickersPickerHeader extends React.Component {
                     />
                 </div>
             </div>
-        );
+        )
     }
 }
 
 StickersPickerHeader.propTypes = {
     stickers: PropTypes.array.isRequired,
     onSelect: PropTypes.func.isRequired
-};
+}
 
-export default withStyles(styles)(StickersPickerHeader);
+export default withStyles(styles)(StickersPickerHeader)
