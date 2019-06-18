@@ -34,8 +34,12 @@ const styles = theme => ({
     slider: {
         padding: '0 13px'
     },
+    track: {
+        transition: 'height linear 150ms'
+    },
     thumb: {
-        opacity: 0
+        opacity: 0,
+        transition: 'bottom linear 150ms'
     },
     ...borderStyle(theme)
 })
@@ -117,11 +121,11 @@ class VolumeButton extends React.Component {
     }
 
     onChange = (event, value) => {
-        if (value === this.state) {
+        if (value === this.state.value) {
             return
         }
 
-        this.setState({ value }, () => {
+        this.setState({ prevValue: this.state.value, value }, () => {
             TdLibController.clientUpdate({
                 '@type': 'clientUpdateMediaVolume',
                 volume: value
@@ -202,7 +206,8 @@ class VolumeButton extends React.Component {
                         <Slider
                             classes={{
                                 root: classes.slider,
-                                thumb: classes.thumb
+                                thumb: classes.thumb,
+                                track: classes.track
                             }}
                             min={0}
                             max={1}
