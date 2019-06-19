@@ -24,7 +24,8 @@ const styles = () => ({
         flexGrow: 0,
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'flex-start'
+        justifyContent: 'flex-start',
+        overflow: 'hidden'
     },
     verifiedBadgeIconSelectedColor: {
         color: '#fff'
