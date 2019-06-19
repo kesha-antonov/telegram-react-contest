@@ -1168,10 +1168,19 @@ function getChatDraftReplyToMessageId(chatId) {
 function isVerifiedChat(chat) {
     if (!chat) return false
 
-    const supergroup = SupergroupStore.get(chat.type.supergroup_id)
-    if (!supergroup) return false
+    switch (chat.type['@type']) {
+        case 'chatTypePrivate':
+            const user = UserStore.get(chat.type.user_id)
+            if (!user) return false
 
-    return supergroup.is_verified
+            return user.is_verified
+        case 'chatTypeSupergroup':
+            const supergroup = SupergroupStore.get(chat.type.supergroup_id)
+            if (!supergroup) return false
+            return supergroup.is_verified
+    }
+
+    return false
 }
 
 export {
