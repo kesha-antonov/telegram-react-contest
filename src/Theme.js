@@ -5,17 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import blue from '@material-ui/core/colors/blue';
-import createMuiTheme from '@material-ui/core/styles/createMuiTheme';
-import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider';
-import StylesProvider from '@material-ui/styles/StylesProvider';
-import { getDisplayName } from './Utils/HOC';
-import Cookies from 'universal-cookie';
-import ApplicationStore from './Stores/ApplicationStore';
+import React from 'react'
+import blue from '@material-ui/core/colors/blue'
+import createMuiTheme from '@material-ui/core/styles/createMuiTheme'
+import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider'
+import StylesProvider from '@material-ui/styles/StylesProvider'
+import { getDisplayName } from './Utils/HOC'
+import Cookies from 'universal-cookie'
+import ApplicationStore from './Stores/ApplicationStore'
 
-const SECONDARY = { main: '#FF5555' };
-const TYPE_LIGHT = 'light';
+const SECONDARY = { main: '#FF5555' }
+const TYPE_LIGHT = 'light'
 
 function createLightTheme() {
     return createMuiTheme({
@@ -24,16 +24,16 @@ function createLightTheme() {
             primary: blue,
             secondary: SECONDARY
         }
-    });
+    })
 }
 
 export default function withTheme(WrappedComponent) {
     class ThemeWrapper extends React.Component {
         constructor(props) {
-            super(props);
+            super(props)
 
-            const cookies = new Cookies();
-            const { type, primary } = cookies.get('themeOptions') || { type: TYPE_LIGHT, primary: blue };
+            const cookies = new Cookies()
+            const { type, primary } = cookies.get('themeOptions') || { type: TYPE_LIGHT, primary: blue }
 
             let theme = createMuiTheme({
                 palette: {
@@ -41,26 +41,26 @@ export default function withTheme(WrappedComponent) {
                     primary,
                     secondary: SECONDARY
                 }
-            });
+            })
 
             this.state = {
                 prevTheme: theme,
                 theme
-            };
+            }
         }
 
         componentDidMount() {
-            ApplicationStore.on('clientUpdateThemeChanging', this.onClientUpdateThemeChanging);
-            ApplicationStore.on('updateAuthorizationState', this.onUpdateAuthorizationState);
+            ApplicationStore.on('clientUpdateThemeChanging', this.onClientUpdateThemeChanging)
+            ApplicationStore.on('updateAuthorizationState', this.onUpdateAuthorizationState)
         }
 
         componentWillUnmount() {
-            ApplicationStore.removeListener('clientUpdateThemeChanging', this.onClientUpdateThemeChanging);
-            ApplicationStore.removeListener('updateAuthorizationState', this.onUpdateAuthorizationState);
+            ApplicationStore.removeListener('clientUpdateThemeChanging', this.onClientUpdateThemeChanging)
+            ApplicationStore.removeListener('updateAuthorizationState', this.onUpdateAuthorizationState)
         }
 
         onClientUpdateThemeChanging = update => {
-            const { type, primary } = update;
+            const { type, primary } = update
 
             const theme = createMuiTheme({
                 palette: {
@@ -68,13 +68,13 @@ export default function withTheme(WrappedComponent) {
                     primary,
                     secondary: SECONDARY
                 }
-            });
+            })
 
-            const cookies = new Cookies();
-            cookies.set('themeOptions', { type, primary });
+            const cookies = new Cookies()
+            cookies.set('themeOptions', { type, primary })
 
-            this.setState({ theme }, () => ApplicationStore.emit('clientUpdateThemeChange'));
-        };
+            this.setState({ theme }, () => ApplicationStore.emit('clientUpdateThemeChange'))
+        }
 
         onUpdateAuthorizationState = update => {
             switch (update.authorization_state['@type']) {
@@ -84,30 +84,30 @@ export default function withTheme(WrappedComponent) {
                     this.setState({
                         prevTheme: this.state.theme,
                         theme: createLightTheme()
-                    });
-                    break;
+                    })
+                    break
                 default:
                     if (this.state.prevTheme && this.state.theme.type !== this.state.prevTheme.type) {
                         this.setState({
                             theme: this.state.prevTheme
-                        });
+                        })
                     }
             }
-        };
+        }
 
         render() {
-            const { theme } = this.state;
+            const { theme } = this.state
 
             return (
-                <StylesProvider injectFirst>
+                <StylesProvider injectFirst={false}>
                     <MuiThemeProvider theme={theme}>
                         <WrappedComponent {...this.props} />
                     </MuiThemeProvider>
                 </StylesProvider>
-            );
+            )
         }
     }
-    ThemeWrapper.displayName = `WithTheme(${getDisplayName(WrappedComponent)})`;
+    ThemeWrapper.displayName = `WithTheme(${getDisplayName(WrappedComponent)})`
 
-    return ThemeWrapper;
+    return ThemeWrapper
 }
