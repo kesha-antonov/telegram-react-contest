@@ -11,6 +11,7 @@ import DialogControl from '../Tile/DialogControl'
 import { CHAT_SLICE_LIMIT } from '../../Constants'
 import { loadChatsContent } from '../../Utils/File'
 import { itemsInView, orderCompare, throttle } from '../../Utils/Common'
+import { isSupergroup } from '../../Utils/Chat'
 import ChatStore from '../../Stores/ChatStore'
 import BasicGroupStore from '../../Stores/BasicGroupStore'
 import SupergroupStore from '../../Stores/SupergroupStore'
@@ -302,6 +303,24 @@ class DialogsList extends React.Component {
             this.replaceChats(result.chat_ids, () => this.loadChatContents(result.chat_ids))
         } else {
             this.appendChats(result.chat_ids, () => this.loadChatContents(result.chat_ids))
+        }
+
+        this.loadSupergroupsInfo(result.chat_ids)
+    }
+
+    loadSupergroupsInfo = async chatIds => {
+        for (let chatId of chatIds) {
+            if (isSupergroup(chatId)) {
+                const chat = ChatStore.get(chatId)
+                const supergroup = await TdLibController.send({
+                    '@type': 'getSupergroup',
+                    supergroup_id: chat.type.supergroup_id
+                })
+                TdLibController.clientUpdate({
+                    '@type': 'updateSupergroup',
+                    supergroup
+                })
+            }
         }
     }
 

@@ -15,14 +15,14 @@ import DialogBadgeControl from './DialogBadgeControl'
 import DialogTitleControl from './DialogTitleControl'
 import DialogMetaControl from './DialogMetaControl'
 import { openChat } from '../../Actions/Client'
-import ChatStore from '../../Stores/ChatStore'
-import ApplicationStore from '../../Stores/ApplicationStore'
+import SupergroupStore from '../../Stores/SupergroupStore'
 import './DialogControl.css'
 import VolumeOffIcon from '@material-ui/icons/VolumeOff'
 import CheckDecagramIcon from 'mdi-material-ui/CheckDecagram'
 import blue from '@material-ui/core/colors/blue'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
+import { hasSupergroupId } from '../../Utils/Chat'
 
 const OFFICIAL_TELEGRAM_CHATS_IDS = [796917078, -1001038976893, 777000, -1001322215945, -1001416855018]
 
@@ -93,6 +93,10 @@ class DialogControl extends Component {
         this.dialog = React.createRef()
     }
 
+    componentDidMount() {
+        SupergroupStore.on('updateSupergroup', this.onUpdateSupergroup)
+    }
+
     shouldComponentUpdate(nextProps, nextState) {
         if (nextProps.chatId !== this.props.chatId) {
             return true
@@ -106,21 +110,21 @@ class DialogControl extends Component {
             return true
         }
 
+        if (nextProps.currentChatId !== this.props.currentChatId) {
+            return true
+        }
+
         return false
     }
 
-    componentDidMount() {
-        ApplicationStore.on('clientUpdateChatId', this.onClientUpdateChatId)
-    }
-
     componentWillUnmount() {
-        ApplicationStore.removeListener('clientUpdateChatId', this.onClientUpdateChatId)
+        SupergroupStore.removeListener('updateSupergroup', this.onUpdateSupergroup)
     }
 
-    onClientUpdateChatId = update => {
+    onUpdateSupergroup = update => {
         const { chatId } = this.props
 
-        if (chatId === update.previousChatId || chatId === update.nextChatId) {
+        if (hasSupergroupId(chatId, update.supergroup.id)) {
             this.forceUpdate()
         }
     }
@@ -130,15 +134,17 @@ class DialogControl extends Component {
     }
 
     render() {
-        const { classes, chatId, showSavedMessages, hidden } = this.props
+        const { classes, chatId, chat, currentChatId, showSavedMessages, hidden } = this.props
 
         if (hidden) return null
 
-        const currentChatId = ApplicationStore.getChatId()
         const isSelected = currentChatId === chatId
 
-        const { chat } = this.props
-        // console.log('chat', chat)
+        let isVerified = false
+        const supergroup = SupergroupStore.get(chat.type.supergroup_id)
+        if (supergroup) {
+            isVerified = supergroup.is_verified
+        }
 
         return (
             <div
@@ -159,7 +165,7 @@ class DialogControl extends Component {
                         <div className='tile-first-row'>
                             <div className={classes.titleAndIcons}>
                                 <DialogTitleControl chatId={chatId} />
-                                {OFFICIAL_TELEGRAM_CHATS_IDS.indexOf(chat.id) > -1 ? (
+                                {isVerified ? (
                                     <CheckDecagramIcon
                                         className={classes.titleIcon}
                                         color={isSelected ? 'action' : 'primary'}
@@ -204,6 +210,7 @@ class DialogControl extends Component {
 DialogControl.propTypes = {
     chat: PropTypes.object.isRequired,
     chatId: PropTypes.number.isRequired,
+    currentChatId: PropTypes.number,
     hidden: PropTypes.bool,
     showSavedMessages: PropTypes.bool
 }
@@ -215,7 +222,8 @@ DialogControl.defaultProps = {
 
 const mapStateToProps = (state, ownProps) => {
     return {
-        chat: state.chats.get(ownProps.chatId.toString())
+        chat: state.chats.get(ownProps.chatId.toString()),
+        currentChatId: state.currentChatId
     }
 }
 
