@@ -312,14 +312,19 @@ class DialogsList extends React.Component {
         for (let chatId of chatIds) {
             if (isSupergroup(chatId)) {
                 const chat = ChatStore.get(chatId)
-                const supergroup = await TdLibController.send({
-                    '@type': 'getSupergroup',
-                    supergroup_id: chat.type.supergroup_id
-                })
-                TdLibController.clientUpdate({
-                    '@type': 'updateSupergroup',
-                    supergroup
-                })
+
+                let supergroup = SupergroupStore.get(chat.type.supergroup_id)
+
+                if (!supergroup) {
+                    supergroup = await TdLibController.send({
+                        '@type': 'getSupergroup',
+                        supergroup_id: chat.type.supergroup_id
+                    })
+                    TdLibController.clientUpdate({
+                        '@type': 'updateSupergroup',
+                        supergroup
+                    })
+                }
             }
         }
     }
