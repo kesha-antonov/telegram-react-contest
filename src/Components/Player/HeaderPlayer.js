@@ -314,6 +314,10 @@ class HeaderPlayer extends React.Component {
                             player.pause()
 
                             //this.handleVideoPause();
+                        } else {
+                            if (player.paused) {
+                                player.play()
+                            }
                         }
                     }
                 }
