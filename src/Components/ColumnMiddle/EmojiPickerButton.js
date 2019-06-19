@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react'
+import React, { createRef, Component } from 'react'
 import classNames from 'classnames'
 import { compose } from 'recompose'
 import withStyles from '@material-ui/core/styles/withStyles'
@@ -52,17 +52,19 @@ const styles = theme => ({
     }
 })
 
-class EmojiPickerButton extends React.Component {
+class EmojiPickerButton extends Component {
     constructor(props) {
         super(props)
 
         this.state = {
             open: false,
-            tab: 0
+            tab: 0,
+            pickerStyle: null
         }
 
-        this.emojiPickerRef = React.createRef()
-        this.stickersPickerRef = React.createRef()
+        this.emojiPickerRef = createRef()
+        this.stickersPickerRef = createRef()
+        this.pickerButtonRef = createRef()
     }
 
     componentDidMount() {
@@ -155,7 +157,16 @@ class EmojiPickerButton extends React.Component {
     }
 
     updatePicker = open => {
-        this.setState({ open })
+        let newState = { open }
+
+        if (newState.open) {
+            const bounds = this.pickerButtonRef.current.getBoundingClientRect()
+            newState['pickerStyle'] = {
+                left: bounds.left - 338 + bounds.width
+            }
+        }
+
+        this.setState(newState)
     }
 
     switchPicker = () => {
@@ -199,7 +210,7 @@ class EmojiPickerButton extends React.Component {
 
     render() {
         const { classes, theme, t } = this.props
-        const { open, tab, sticker } = this.state
+        const { open, tab, sticker, pickerStyle } = this.state
 
         if (open && !this.picker) {
             const i18n = {
@@ -251,6 +262,7 @@ class EmojiPickerButton extends React.Component {
                     href={theme.palette.type === 'dark' ? 'emoji-mart.dark.css' : 'emoji-mart.light.css'}
                 />
                 <IconButton
+                    ref={this.pickerButtonRef}
                     className={classes.iconButton}
                     aria-label='Emoticon'
                     onClick={this.switchPicker}
@@ -261,7 +273,8 @@ class EmojiPickerButton extends React.Component {
                 <div
                     className={classNames(classes.pickerRoot, { [classes.pickerRootOpened]: open })}
                     onMouseEnter={this.handlePaperMouseEnter}
-                    onMouseLeave={this.handlePaperMouseLeave}>
+                    onMouseLeave={this.handlePaperMouseLeave}
+                    style={pickerStyle}>
                     <div className={classes.pickerEmojisAndStickers}>
                         <div className='emoji-picker-header'>
                             <Button

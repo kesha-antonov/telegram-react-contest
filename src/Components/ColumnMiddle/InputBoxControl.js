@@ -615,31 +615,6 @@ class InputBoxControl extends Component {
                     <InputBoxHeader chatId={chatId} messageId={replyToMessageId} />
                     <div className='inputbox-wrapper'>
                         <div className='inputbox-left-column'>
-                            <React.Suspense
-                                fallback={
-                                    <IconButton className={classes.iconButton} aria-label='Emoticon'>
-                                        <InsertEmoticonIcon />
-                                    </IconButton>
-                                }>
-                                <EmojiPickerButton onSelect={this.handleEmojiSelect} />
-                            </React.Suspense>
-                        </div>
-                        <div className='inputbox-middle-column'>
-                            <div
-                                id='inputbox-message'
-                                ref={this.newMessageRef}
-                                key={new Date()}
-                                placeholder={t('Message')}
-                                contentEditable
-                                suppressContentEditableWarning
-                                onKeyDown={this.handleKeyDown}
-                                onKeyUp={this.handleKeyUp}
-                                onPaste={this.handlePaste}
-                                onInput={this.handleInput}>
-                                {content}
-                            </div>
-                        </div>
-                        <div className='inputbox-right-column'>
                             <input
                                 ref={this.attachDocumentRef}
                                 className='inputbox-attach-button'
@@ -661,6 +636,31 @@ class InputBoxControl extends Component {
                                 onAttachDocument={this.handleAttachDocument}
                                 onAttachPoll={this.handleAttachPoll}
                             />
+                        </div>
+                        <div className='inputbox-middle-column'>
+                            <div
+                                id='inputbox-message'
+                                ref={this.newMessageRef}
+                                key={new Date()}
+                                placeholder={t('Message')}
+                                contentEditable
+                                suppressContentEditableWarning
+                                onKeyDown={this.handleKeyDown}
+                                onKeyUp={this.handleKeyUp}
+                                onPaste={this.handlePaste}
+                                onInput={this.handleInput}>
+                                {content}
+                            </div>
+                        </div>
+                        <div className='inputbox-right-column'>
+                            <React.Suspense
+                                fallback={
+                                    <IconButton className={classes.iconButton} aria-label='Emoticon'>
+                                        <InsertEmoticonIcon />
+                                    </IconButton>
+                                }>
+                                <EmojiPickerButton onSelect={this.handleEmojiSelect} />
+                            </React.Suspense>
 
                             {/*<IconButton>*/}
                             {/*<KeyboardVoiceIcon />*/}
