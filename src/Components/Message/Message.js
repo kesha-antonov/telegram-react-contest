@@ -33,6 +33,7 @@ import { openUser, openChat, selectMessage } from '../../Actions/Client'
 import MessageStore from '../../Stores/MessageStore'
 import TdLibController from '../../Controllers/TdLibController'
 import './Message.css'
+import emojiRegex from 'emoji-regex/es2015/index.js'
 
 const styles = theme => ({
     message: {
@@ -50,8 +51,15 @@ const styles = theme => ({
     },
     messageHighlighted: {
         animation: '$highlighted 4s ease-out'
+    },
+    textOnlyWithEmojis: {
+        fontSize: '4em',
+        lineHeight: '1em',
+        paddingTop: '10px'
     }
 })
+
+const EMOJI_WHOLE_STRING_REGEX = new RegExp('^(?:' + emojiRegex().source + ')+$', '')
 
 class Message extends Component {
     constructor(props) {
@@ -291,6 +299,9 @@ class Message extends Component {
         const { sending_state, views, edit_date, reply_to_message_id, forward_info } = message
 
         const text = getText(message)
+        const textOnlyWithEmojis =
+            message.content['@type'] === 'messageText' && EMOJI_WHOLE_STRING_REGEX.test(message.content.text.text)
+
         const webPage = getWebPage(message)
         const date = getDate(message)
         const dateHint = getDateHint(message)
@@ -352,7 +363,12 @@ class Message extends Component {
                         </div>
                         {Boolean(reply_to_message_id) && <Reply chatId={chatId} messageId={reply_to_message_id} />}
                         {media}
-                        <div className='message-text'>{text}</div>
+                        <div
+                            className={classNames('message-text', {
+                                [classes.textOnlyWithEmojis]: textOnlyWithEmojis
+                            })}>
+                            {text}
+                        </div>
                         {webPage && <WebPage chatId={chatId} messageId={messageId} openMedia={this.openMedia} />}
                     </div>
                 </div>
