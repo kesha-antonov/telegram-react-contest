@@ -200,6 +200,8 @@ class MessagesList extends React.Component {
     }
 
     onClientUpdateMediaActive = update => {
+        if (this.state.playerOpened) return
+
         const list = this.listRef.current
 
         const prevOffsetHeight = list.offsetHeight

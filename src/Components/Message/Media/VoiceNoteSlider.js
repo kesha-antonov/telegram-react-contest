@@ -12,15 +12,20 @@ import Slider from '@material-ui/lab/Slider'
 import { PLAYER_PROGRESS_TIMEOUT_MS } from '../../../Constants'
 import PlayerStore from '../../../Stores/PlayerStore'
 import './VoiceNoteSlider.css'
+import TdLibController from '../../../Controllers/TdLibController'
+import classNames from 'classnames'
 
 const styles = {
     slider: {
         maxWidth: 216
     },
-    track: {
+    sliderDisabled: {
+        pointerEvents: 'none'
+    },
+    trackDisabled: {
         transition: 'width 0ms linear 0ms, height 0ms linear 0ms, transform 0ms linear 0ms'
     },
-    thumb: {
+    thumbDisabled: {
         transition: 'transform 0ms linear 0ms, box-shadow 0ms linear 0ms'
     }
 }
@@ -37,11 +42,20 @@ class VoiceNoteSlider extends React.Component {
         const audioDuration = active && time && time.duration ? time.duration : duration
 
         this.state = {
-            active: active,
-            currentTime: currentTime,
+            active,
+            currentTime,
             duration: audioDuration,
             value: this.getValue(currentTime, audioDuration, active)
         }
+
+        this.playAfterFinishDraggingCurrentTime = false
+        this.dragging = false
+    }
+
+    componentDidMount() {
+        PlayerStore.on('clientUpdateMediaActive', this.onClientUpdateMediaActive)
+        PlayerStore.on('clientUpdateMediaTime', this.onClientUpdateMediaTime)
+        PlayerStore.on('clientUpdateMediaEnd', this.onClientUpdateMediaEnd)
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -58,27 +72,37 @@ class VoiceNoteSlider extends React.Component {
         return false
     }
 
-    componentDidMount() {
-        PlayerStore.on('clientUpdateMediaActive', this.onClientUpdateMediaActive)
-        PlayerStore.on('clientUpdateMediaTime', this.onClientUpdateMediaTime)
-        PlayerStore.on('clientUpdateMediaEnd', this.onClientUpdateMediaEnd)
-    }
-
     componentWillUnmount() {
         PlayerStore.removeListener('clientUpdateMediaActive', this.onClientUpdateMediaActive)
         PlayerStore.removeListener('clientUpdateMediaTime', this.onClientUpdateMediaTime)
         PlayerStore.removeListener('clientUpdateMediaEnd', this.onClientUpdateMediaEnd)
     }
 
+    togglePlayPause = () => {
+        const { active, currentTime, duration } = this.state
+
+        if (!active) return
+
+        const { chatId, messageId } = this.props
+
+        TdLibController.clientUpdate({
+            '@type': 'clientUpdateMediaActive',
+            chatId,
+            messageId
+        })
+    }
+
     reset = () => {
         const { duration } = this.props
         const { value } = this.state
 
+        let newState = {
+            active: false,
+            currentTime: 0
+        }
+
         if (value === 1) {
-            this.setState({
-                active: false,
-                currentTime: 0
-            })
+            this.setState(newState)
 
             setTimeout(() => {
                 const { currentTime } = this.state
@@ -89,11 +113,8 @@ class VoiceNoteSlider extends React.Component {
                 }
             }, PLAYER_PROGRESS_TIMEOUT_MS)
         } else {
-            this.setState({
-                active: false,
-                currentTime: 0,
-                value: this.getValue(0, duration, false)
-            })
+            newState['value'] = this.getValue(0, duration, false)
+            this.setState(newState)
         }
     }
 
@@ -110,11 +131,16 @@ class VoiceNoteSlider extends React.Component {
         const { active } = this.state
 
         if (chatId === update.chatId && messageId === update.messageId) {
-            this.setState({
+            let newState = {
                 currentTime: update.currentTime,
-                duration: update.duration || duration,
-                value: this.getValue(update.currentTime, update.duration || duration, active)
-            })
+                duration: update.duration || duration
+            }
+            if (PlayerStore.playing) {
+                const value = this.getValue(update.currentTime, update.duration || duration, active)
+                newState['value'] = value
+            }
+
+            this.setState(newState)
         }
     }
 
@@ -123,13 +149,23 @@ class VoiceNoteSlider extends React.Component {
         const { active, currentTime } = this.state
 
         if (chatId === update.chatId && messageId === update.messageId) {
-            this.setState({
-                active: true,
-                currentTime: active ? currentTime : 0,
-                value: this.getValue(active ? currentTime : 0, duration, true)
-            })
+            const currentTime = active ? currentTime : 0
+            if (!this.state.active || currentTime !== this.state.currentTime) {
+                this.setState({
+                    active: true,
+                    currentTime,
+                    value: this.getValue(currentTime, duration, true)
+                })
+            }
         } else if (active) {
             this.reset()
+        }
+    }
+
+    tryPlay = () => {
+        if (this.playAfterFinishDraggingCurrentTime && !this.dragging && !PlayerStore.playing) {
+            this.playAfterFinishDraggingCurrentTime = false
+            this.togglePlayPause()
         }
     }
 
@@ -137,21 +173,82 @@ class VoiceNoteSlider extends React.Component {
         return active ? currentTime / duration : 0
     }
 
+    onChange = (event, value) => {
+        if (this.state.active && PlayerStore.playing && !this.playAfterFinishDraggingCurrentTime) {
+            this.playAfterFinishDraggingCurrentTime = true
+            this.togglePlayPause()
+        }
+
+        const { chatId, messageId, duration } = this.props
+
+        const currentTime = duration * value
+
+        this.setState({ value, currentTime }, () => {
+            TdLibController.clientUpdate({
+                '@type': 'clientUpdateMediaTime',
+                chatId,
+                messageId,
+                duration,
+                currentTime,
+                timestamp: Date.now()
+            })
+            this.tryPlay()
+        })
+    }
+
+    onMouseDown = () => {
+        this.dragging = true
+    }
+
+    onMouseUp = () => {
+        this.dragging = false
+    }
+
+    onChangeCommitted = (event, value) => {
+        if (this.dragging) {
+            this.onMouseUp()
+            this.onChange(event, value)
+        }
+    }
+
+    onClick = event => {
+        const { active } = this.state
+
+        if (active) {
+            event.preventDefault()
+            event.stopPropagation()
+        }
+    }
+
     render() {
         const { classes } = this.props
-        const { value } = this.state
+        const { value, active } = this.state
 
         return (
-            <div className='voice-note-slider'>
+            <div className='voice-note-slider' onClick={this.onClick}>
                 <Slider
-                    className={classes.slider}
+                    className={classNames(classes.slider, {
+                        [classes.sliderDisabled]: !active
+                    })}
                     classes={{
-                        track: classes.track,
-                        thumb: classes.thumb
+                        track: classNames({
+                            [classes.trackDisabled]: !active
+                        }),
+                        thumb: classNames({
+                            [classes.thumbDisabled]: !active
+                        })
                     }}
                     min={0}
                     max={1}
+                    step={0.01}
                     value={value}
+                    onChange={this.onChange}
+                    orientation='horizontal'
+                    onChangeCommitted={this.onChangeCommitted}
+                    onMouseDown={this.onMouseDown}
+                    onMouseUp={this.onMouseUp}
+                    onClick={this.onClick}
+                    aria-labelledby='continuous-slider'
                 />
             </div>
         )

@@ -166,8 +166,7 @@ class VolumeButton extends React.Component {
 
     onChangeCommitted = () => {
         if (this.dragging) {
-            this.dragging = false
-            this.handlePopoverClose()
+            this.onMouseUp()
         }
     }
 
