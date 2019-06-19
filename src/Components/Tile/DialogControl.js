@@ -47,7 +47,8 @@ const styles = theme => ({
         '&:hover': {
             backgroundColor: theme.palette.primary.main + '22',
             '& $statusRoot': {
-                background: theme.palette.type === 'dark' ? theme.palette.background.default : '#FFFFFF',
+                background:
+                    theme.palette.type === 'dark' ? theme.palette.background.default : '#FFFFFF',
             },
             '& $statusIcon': {
                 background: theme.palette.primary.main + '22',
@@ -125,12 +126,18 @@ class DialogControl extends Component {
                         chatId={chatId}
                         showSavedMessages={showSavedMessages}
                         showOnline
-                        classes={{ statusRoot: classes.statusRoot, statusIcon: classes.statusIcon }}
+                        classes={{
+                            statusRoot: classes.statusRoot,
+                            statusIcon: classes.statusIcon,
+                        }}
                     />
                     <div className='dialog-inner-wrapper'>
                         <div className='tile-first-row'>
                             <div className={classes.titleAndIcons}>
-                                <DialogTitleControl chatId={chatId} highlightVerifiedBadge={isSelected} />
+                                <DialogTitleControl
+                                    chatId={chatId}
+                                    highlightVerifiedBadge={isSelected}
+                                />
                                 {isChatMuted(chat) && (
                                     <VolumeOffIcon
                                         color={isSelected ? 'action' : 'primary'}
