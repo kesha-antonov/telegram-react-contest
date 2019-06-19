@@ -21,6 +21,8 @@ import './DialogControl.css'
 import VolumeOffIcon from '@material-ui/icons/VolumeOff'
 import CheckDecagramIcon from 'mdi-material-ui/CheckDecagram'
 import blue from '@material-ui/core/colors/blue'
+import { connect } from 'react-redux'
+import { compose } from 'recompose'
 
 const OFFICIAL_TELEGRAM_CHATS_IDS = [796917078, -1001038976893, 777000, -1001322215945, -1001416855018]
 
@@ -85,15 +87,10 @@ const styles = theme => ({
 })
 
 class DialogControl extends Component {
-    constructor(props) {
-        super(props)
+    constructor() {
+        super()
 
         this.dialog = React.createRef()
-
-        const chat = ChatStore.get(this.props.chatId)
-        this.state = {
-            chat
-        }
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -140,7 +137,7 @@ class DialogControl extends Component {
         const currentChatId = ApplicationStore.getChatId()
         const isSelected = currentChatId === chatId
 
-        const { chat } = this.state
+        const { chat } = this.props
         // console.log('chat', chat)
 
         return (
@@ -205,6 +202,7 @@ class DialogControl extends Component {
 }
 
 DialogControl.propTypes = {
+    chat: PropTypes.object.isRequired,
     chatId: PropTypes.number.isRequired,
     hidden: PropTypes.bool,
     showSavedMessages: PropTypes.bool
@@ -215,4 +213,15 @@ DialogControl.defaultProps = {
     showSavedMessages: true
 }
 
-export default withStyles(styles, { withTheme: true })(DialogControl)
+const mapStateToProps = (state, ownProps) => {
+    return {
+        chat: state.chats.get(ownProps.chatId.toString())
+    }
+}
+
+const enhance = compose(
+    connect(mapStateToProps),
+    withStyles(styles, { withTheme: true })
+)
+
+export default enhance(DialogControl)

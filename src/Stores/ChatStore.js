@@ -15,7 +15,6 @@ class ChatStore extends EventEmitter {
     constructor() {
         super()
 
-        this.items = new Map()
         this.typingManagers = new Map()
         this.onlineMemberCount = new Map()
         this.skippedUpdates = []
@@ -28,11 +27,8 @@ class ChatStore extends EventEmitter {
         this.reduxStore = reduxStore
     }
 
-    updateChat = (chat, newProps) => {
+    updateChat = (chat, newProps = {}) => {
         chat = Object.assign({}, chat, newProps)
-
-        this.set(chat)
-
         this.reduxStore && this.reduxStore.dispatch(updateChat(chat))
     }
 
@@ -236,7 +232,7 @@ class ChatStore extends EventEmitter {
                 break
             }
             case 'updateNewChat': {
-                this.set(update.chat)
+                this.updateChat(update.chat)
 
                 this.emitFastUpdate(update)
                 break
@@ -347,11 +343,9 @@ class ChatStore extends EventEmitter {
     }
 
     get(chatId) {
-        return this.items.get(chatId)
-    }
+        if (!chatId) return null
 
-    set(chat) {
-        this.items.set(chat.id, chat)
+        return this.reduxStore.getState().chats.get(chatId.toString())
     }
 
     setOnlineMemberCount(chatId, onlineMemberCount) {

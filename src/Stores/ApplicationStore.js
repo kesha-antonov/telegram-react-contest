@@ -291,11 +291,6 @@ class ApplicationStore extends EventEmitter {
         this.dragging = value
         this.emit('clientUpdateDragging', value)
     }
-
-    assign(source1, source2) {
-        Object.assign(source1, source2)
-        //this.set(Object.assign({}, source1, source2));
-    }
 }
 
 const store = new ApplicationStore()

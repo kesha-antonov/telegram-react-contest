@@ -29,7 +29,7 @@ import UserStore from './Stores/UserStore'
 import ApplicationStore from './Stores/ApplicationStore'
 import TdLibController from './Controllers/TdLibController'
 import './TelegramApp.css'
-import { connect } from 'react-redux'
+import { ReactReduxContext } from 'react-redux'
 
 const MainPage = React.lazy(() => import('./Components/MainPage'))
 
@@ -45,7 +45,9 @@ const styles = theme => ({
 })
 
 class TelegramApp extends Component {
-    constructor(props) {
+    static contextType = ReactReduxContext
+
+    constructor(props, context) {
         super(props)
 
         console.log(`Start Telegram Web ${packageJson.version}`)
@@ -56,14 +58,8 @@ class TelegramApp extends Component {
             fatalError: false
         }
 
-        ApplicationStore.setReduxStore({
-            currentChatId: props.currentChatId,
-            dispatch: props.dispatch
-        })
-        ChatStore.setReduxStore({
-            chats: props.chats,
-            dispatch: props.dispatch
-        })
+        ApplicationStore.setReduxStore(context.store)
+        ChatStore.setReduxStore(context.store)
     }
 
     componentWillMount() {
@@ -369,15 +365,7 @@ window.onpopstate = function() {
     window.history.go(1)
 }
 
-const mapStateToProps = (state, ownProps) => {
-    return {
-        chats: state.chats,
-        currentChatId: state.currentChatId
-    }
-}
-
 const enhance = compose(
-    connect(mapStateToProps),
     withLanguage,
     withTranslation(),
     withTheme,
