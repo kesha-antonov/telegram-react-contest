@@ -5,75 +5,75 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component } from 'react';
-import classNames from 'classnames';
-import ChatInfoDialog from '../Dialog/ChatInfoDialog';
-import Footer from './Footer';
-import Header from './Header';
-import HeaderPlayer from '../Player/HeaderPlayer';
-import MessagesList from './MessagesList';
-import PinnedMessage from './PinnedMessage';
-import StickerSetDialog from '../Dialog/StickerSetDialog';
-import ApplicationStore from '../../Stores/ApplicationStore';
-import './DialogDetails.css';
+import React, { Component } from 'react'
+import classNames from 'classnames'
+import ChatInfoDialog from '../Dialog/ChatInfoDialog'
+import Footer from './Footer'
+import Header from './Header'
+import HeaderPlayer from '../Player/HeaderPlayer'
+import MessagesList from './MessagesList'
+import PinnedMessage from './PinnedMessage'
+import StickerSetDialog from '../Dialog/StickerSetDialog'
+import ApplicationStore from '../../Stores/ApplicationStore'
+import './DialogDetails.css'
 
 class DialogDetails extends Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         this.state = {
             chatId: ApplicationStore.getChatId(),
             messageId: ApplicationStore.getMessageId(),
             selectedCount: 0
-        };
+        }
     }
 
     shouldComponentUpdate(nextProps, nextState) {
         if (nextState.chatId !== this.state.chatId) {
-            return true;
+            return true
         }
         if (nextState.messageId !== this.state.messageId) {
-            return true;
+            return true
         }
         if (nextState.selectedCount !== this.state.selectedItems) {
-            return true;
+            return true
         }
 
-        return false;
+        return false
     }
 
     componentDidMount() {
-        ApplicationStore.on('clientUpdateChatDetailsVisibility', this.onUpdateChatDetailsVisibility);
-        ApplicationStore.on('clientUpdateChatId', this.onClientUpdateChatId);
+        ApplicationStore.on('clientUpdateChatDetailsVisibility', this.onUpdateChatDetailsVisibility)
+        ApplicationStore.on('clientUpdateChatId', this.onClientUpdateChatId)
     }
 
     componentWillUnmount() {
-        ApplicationStore.removeListener('clientUpdateChatDetailsVisibility', this.onUpdateChatDetailsVisibility);
-        ApplicationStore.removeListener('clientUpdateChatId', this.onClientUpdateChatId);
+        ApplicationStore.removeListener('clientUpdateChatDetailsVisibility', this.onUpdateChatDetailsVisibility)
+        ApplicationStore.removeListener('clientUpdateChatId', this.onClientUpdateChatId)
     }
 
     onUpdateChatDetailsVisibility = update => {
-        this.forceUpdate();
-    };
+        this.forceUpdate()
+    }
 
     onClientUpdateChatId = update => {
         this.setState({
             chatId: update.nextChatId,
             messageId: update.nextMessageId
-        });
-    };
+        })
+    }
 
     scrollToBottom = () => {
-        this.messagesList.scrollToBottom();
-    };
+        this.messagesList.scrollToBottom()
+    }
 
     scrollToStart = () => {
-        this.messagesList.scrollToStart();
-    };
+        this.messagesList.scrollToStart()
+    }
 
     scrollToMessage = () => {
-        this.messagesList.scrollToMessage();
-    };
+        this.messagesList.scrollToMessage()
+    }
 
     render() {
         /*let groups = [];
@@ -108,20 +108,20 @@ class DialogDetails extends Component {
         this.groups = groups.map(x => {
             return (<MessageGroup key={x.key} senderUserId={x.senderUserId} messages={x.messages} onSelectChat={this.props.onSelectChat}/>);
         });*/
-        const { chatId, messageId, selectedCount } = this.state;
-        const { isChatDetailsVisible } = ApplicationStore;
+        const { chatId, messageId, selectedCount } = this.state
+        const { isChatDetailsVisible } = ApplicationStore
 
         return (
             <div className={classNames('dialog-details', { 'dialog-details-third-column': isChatDetailsVisible })}>
-                <HeaderPlayer />
                 <Header chatId={chatId} />
+                <HeaderPlayer />
                 <MessagesList innerRef={ref => (this.messagesList = ref)} chatId={chatId} messageId={messageId} />
                 <Footer chatId={chatId} />
                 <StickerSetDialog />
                 <ChatInfoDialog />
             </div>
-        );
+        )
     }
 }
 
-export default DialogDetails;
+export default DialogDetails
