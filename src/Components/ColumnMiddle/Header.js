@@ -15,7 +15,7 @@ import { withTranslation } from 'react-i18next'
 import { compose } from 'recompose'
 import MainMenuButton from './MainMenuButton'
 import HeaderCommand from './HeaderCommand'
-import { getChatSubtitle, getChatTitle, isAccentChatSubtitle } from '../../Utils/Chat'
+import { getChatSubtitle, getChatTitle, isAccentChatSubtitle, isVerifiedChat } from '../../Utils/Chat'
 import { borderStyle } from '../Theme'
 import ChatStore from '../../Stores/ChatStore'
 import UserStore from '../../Stores/UserStore'
@@ -25,6 +25,7 @@ import MessageStore from '../../Stores/MessageStore'
 import ApplicationStore from '../../Stores/ApplicationStore'
 import './Header.css'
 import { connect } from 'react-redux'
+import VerifiedBadgeIcon from '../Icons/VerifiedBadgeIcon'
 
 const styles = theme => ({
     button: {
@@ -45,7 +46,13 @@ const styles = theme => ({
     headerStatusAccentTitle: {
         color: theme.palette.primary.dark + '!important'
     },
-    ...borderStyle(theme)
+    ...borderStyle(theme),
+    titleIcon: {
+        marginLeft: 8,
+        marginBottom: 3,
+        alignSelf: 'flex-end',
+        fontSize: 18
+    }
 })
 
 class Header extends Component {
@@ -272,6 +279,8 @@ class Header extends Component {
         let subtitle = getChatSubtitle(chat, true)
         let showProgressAnimation = false
 
+        const isVerified = isVerifiedChat(chat)
+
         if (connectionState) {
             switch (connectionState['@type']) {
                 case 'connectionStateConnecting':
@@ -339,6 +348,7 @@ class Header extends Component {
                     className={classNames('header-status', 'grow', chat ? 'cursor-pointer' : 'cursor-default')}
                     onClick={this.openChatDetails}>
                     <span className='header-status-content'>{title}</span>
+                    {!showProgressAnimation && isVerified && <VerifiedBadgeIcon className={classes.titleIcon} />}
                     {showProgressAnimation && (
                         <>
                             <span className='header-progress'>.</span>

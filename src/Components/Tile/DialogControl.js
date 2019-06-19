@@ -18,13 +18,8 @@ import { openChat } from '../../Actions/Client'
 import SupergroupStore from '../../Stores/SupergroupStore'
 import './DialogControl.css'
 import VolumeOffIcon from '@material-ui/icons/VolumeOff'
-import CheckDecagramIcon from 'mdi-material-ui/CheckDecagram'
-import blue from '@material-ui/core/colors/blue'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
-import { hasSupergroupId } from '../../Utils/Chat'
-
-const OFFICIAL_TELEGRAM_CHATS_IDS = [796917078, -1001038976893, 777000, -1001322215945, -1001416855018]
 
 const styles = theme => ({
     statusRoot: {
@@ -67,16 +62,8 @@ const styles = theme => ({
         overflow: 'hidden'
     },
     titleIcon: {
-        marginLeft: 5
-    },
-    iconSmall: {
+        marginLeft: 5,
         fontSize: 15
-    },
-    verifiedBadgeIconUnselectedColor: {
-        color: blue[400]
-    },
-    verifiedBadgeIconSelectedColor: {
-        color: '#fff'
     },
     volumeOffIconUnselectedColor: {
         color: theme.palette.grey[400]
@@ -91,10 +78,6 @@ class DialogControl extends Component {
         super()
 
         this.dialog = React.createRef()
-    }
-
-    componentDidMount() {
-        SupergroupStore.on('updateSupergroup', this.onUpdateSupergroup)
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -117,18 +100,6 @@ class DialogControl extends Component {
         return false
     }
 
-    componentWillUnmount() {
-        SupergroupStore.removeListener('updateSupergroup', this.onUpdateSupergroup)
-    }
-
-    onUpdateSupergroup = update => {
-        const { chatId } = this.props
-
-        if (hasSupergroupId(chatId, update.supergroup.id)) {
-            this.forceUpdate()
-        }
-    }
-
     handleSelect = () => {
         openChat(this.props.chatId)
     }
@@ -139,12 +110,6 @@ class DialogControl extends Component {
         if (hidden) return null
 
         const isSelected = currentChatId === chatId
-
-        let isVerified = false
-        const supergroup = SupergroupStore.get(chat.type.supergroup_id)
-        if (supergroup) {
-            isVerified = supergroup.is_verified
-        }
 
         return (
             <div
@@ -164,28 +129,12 @@ class DialogControl extends Component {
                     <div className='dialog-inner-wrapper'>
                         <div className='tile-first-row'>
                             <div className={classes.titleAndIcons}>
-                                <DialogTitleControl chatId={chatId} />
-                                {isVerified ? (
-                                    <CheckDecagramIcon
-                                        className={classes.titleIcon}
-                                        color={isSelected ? 'action' : 'primary'}
-                                        fontSize='small'
-                                        classes={{
-                                            fontSizeSmall: classes.iconSmall,
-                                            colorPrimary: classes.verifiedBadgeIconUnselectedColor,
-                                            colorAction: classes.verifiedBadgeIconSelectedColor
-                                        }}
-                                    />
-                                ) : (
-                                    void 0
-                                )}
+                                <DialogTitleControl chatId={chatId} highlightVerifiedBadge={isSelected} />
                                 {chat.notification_settings.mute_for ? (
                                     <VolumeOffIcon
                                         color={isSelected ? 'action' : 'primary'}
-                                        fontSize='small'
                                         className={classes.titleIcon}
                                         classes={{
-                                            fontSizeSmall: classes.iconSmall,
                                             colorPrimary: classes.volumeOffIconUnselectedColor,
                                             colorAction: classes.volumeOffIconSelectedColor
                                         }}

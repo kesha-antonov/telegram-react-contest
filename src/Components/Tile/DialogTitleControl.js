@@ -10,7 +10,30 @@ import PropTypes from 'prop-types'
 import { withTranslation } from 'react-i18next'
 import { getChatTitle } from '../../Utils/Chat'
 import ChatStore from '../../Stores/ChatStore'
+import SupergroupStore from '../../Stores/SupergroupStore'
+import { hasSupergroupId, isVerifiedChat } from '../../Utils/Chat'
 import './DialogTitleControl.css'
+import { compose } from 'recompose'
+import VerifiedBadgeIcon from '../Icons/VerifiedBadgeIcon'
+import { connect } from 'react-redux'
+import withStyles from '@material-ui/core/styles/withStyles'
+
+const styles = () => ({
+    row: {
+        display: 'flex',
+        flexGrow: 0,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start'
+    },
+    verifiedBadgeIconSelectedColor: {
+        color: '#fff'
+    },
+    titleIcon: {
+        marginLeft: 5,
+        fontSize: 15
+    }
+})
 
 class DialogTitleControl extends React.Component {
     shouldComponentUpdate(nextProps, nextState) {
@@ -22,47 +45,81 @@ class DialogTitleControl extends React.Component {
             return true
         }
 
+        if (nextProps.highlightVerifiedBadge !== this.props.highlightVerifiedBadge) {
+            return true
+        }
+
         return false
     }
 
     componentDidMount() {
         ChatStore.on('clientUpdateFastUpdatingComplete', this.onFastUpdatingComplete)
-        ChatStore.on('updateChatTitle', this.onUpdateChatTitle)
+        SupergroupStore.on('updateSupergroup', this.onUpdateSupergroup)
     }
 
     componentWillUnmount() {
         ChatStore.removeListener('clientUpdateFastUpdatingComplete', this.onFastUpdatingComplete)
-        ChatStore.removeListener('updateChatTitle', this.onUpdateChatTitle)
+        SupergroupStore.removeListener('updateSupergroup', this.onUpdateSupergroup)
+    }
+
+    onUpdateSupergroup = update => {
+        const { chatId } = this.props
+
+        if (hasSupergroupId(chatId, update.supergroup.id)) {
+            this.forceUpdate()
+        }
     }
 
     onFastUpdatingComplete = update => {
         this.forceUpdate()
     }
 
-    onUpdateChatTitle = update => {
-        const { chatId } = this.props
-
-        if (update.chat_id !== chatId) return
-
-        this.forceUpdate()
-    }
-
     render() {
-        const { t, chatId, showSavedMessages } = this.props
+        const { t, classes, chatId, chat, showSavedMessages, highlightVerifiedBadge } = this.props
 
         const title = getChatTitle(chatId, showSavedMessages, t)
 
-        return <div className='dialog-title'>{title}</div>
+        const isVerified = isVerifiedChat(chat)
+
+        return (
+            <div className={classes.row}>
+                <div className='dialog-title'>{title}</div>
+                {isVerified && (
+                    <VerifiedBadgeIcon
+                        className={classes.titleIcon}
+                        color={highlightVerifiedBadge ? 'action' : 'primary'}
+                        classes={{
+                            colorAction: classes.verifiedBadgeIconSelectedColor
+                        }}
+                    />
+                )}
+            </div>
+        )
     }
 }
 
 DialogTitleControl.propTypes = {
     chatId: PropTypes.number.isRequired,
-    showSavedMessages: PropTypes.bool
+    chat: PropTypes.object.isRequired,
+    showSavedMessages: PropTypes.bool,
+    highlightVerifiedBadge: PropTypes.bool.isRequired
 }
 
 DialogTitleControl.defaultProps = {
-    showSavedMessages: true
+    showSavedMessages: true,
+    highlightVerifiedBadge: false
 }
 
-export default withTranslation()(DialogTitleControl)
+const mapStateToProps = (state, ownProps) => {
+    return {
+        chat: state.chats.get(ownProps.chatId.toString())
+    }
+}
+
+const enhance = compose(
+    connect(mapStateToProps),
+    withStyles(styles, { withTheme: true }),
+    withTranslation()
+)
+
+export default enhance(DialogTitleControl)

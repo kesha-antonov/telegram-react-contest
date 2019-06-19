@@ -1165,6 +1165,15 @@ function getChatDraftReplyToMessageId(chatId) {
     return replyToMessageId
 }
 
+function isVerifiedChat(chat) {
+    if (!chat) return false
+
+    const supergroup = SupergroupStore.get(chat.type.supergroup_id)
+    if (!supergroup) return false
+
+    return supergroup.is_verified
+}
+
 export {
     showChatDraft,
     getChatDraft,
@@ -1193,6 +1202,7 @@ export {
     isGroupChat,
     isChannelChat,
     isChatMember,
+    isVerifiedChat,
     getChatTitle,
     getGroupChatMembers,
     getChatFullInfo,
