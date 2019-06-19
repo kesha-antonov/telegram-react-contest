@@ -17,6 +17,5 @@ export function removeChat(chat) {
 export const SET_CURRENT_CHAT_ID = 'SET_CURRENT_CHAT_ID'
 
 export function setCurrentChatId(chatId) {
-    console.log('setCurrentChatId', chatId)
     return { type: SET_CURRENT_CHAT_ID, chatId }
 }
