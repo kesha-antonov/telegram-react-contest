@@ -225,7 +225,7 @@ class VoiceNoteSlider extends React.Component {
         const { value, active } = this.state
 
         return (
-            <div className='voice-note-slider' onClick={this.onClick}>
+            <div className='voice-note-slider'>
                 <Slider
                     className={classNames(classes.slider, {
                         [classes.sliderDisabled]: !active
