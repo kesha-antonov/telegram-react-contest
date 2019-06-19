@@ -48,6 +48,8 @@ const styles = theme => ({
     ...borderStyle(theme)
 })
 
+const EMOJI_REGEX = emojiRegex()
+
 class InputBoxControl extends Component {
     constructor(props) {
         super(props)
@@ -64,8 +66,6 @@ class InputBoxControl extends Component {
             replyToMessageId: getChatDraftReplyToMessageId(chatId),
             openPasteDialog: false
         }
-
-        this.emojiRegex = emojiRegex()
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -557,7 +557,7 @@ class InputBoxControl extends Component {
         }
 
         const t0 = performance.now()
-        let match = this.emojiRegex.exec(innerText)
+        let match = EMOJI_REGEX.exec(innerText)
         const t1 = performance.now()
         console.log('Matched ' + (t1 - t0) + 'ms', match)
         if (!match || innerText !== match[0]) {
