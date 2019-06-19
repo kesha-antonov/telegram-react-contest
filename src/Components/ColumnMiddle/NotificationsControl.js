@@ -5,126 +5,132 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import { isChatMuted } from '../../Utils/Chat';
-import { debounce } from '../../Utils/Common';
-import {
-    MUTED_VALUE_MAX,
-    NOTIFICATIONS_DEBOUNCE_DELAY_MS,
-    MUTED_VALUE_MIN
-} from '../../Constants';
-import ChatStore from '../../Stores/ChatStore';
-import ApplicationStore from '../../Stores/ApplicationStore';
-import TdLibController from '../../Controllers/TdLibController';
+import React from 'react'
+import { isChatMuted } from '../../Utils/Chat'
+import { debounce } from '../../Utils/Common'
+import { MUTED_VALUE_MAX, NOTIFICATIONS_DEBOUNCE_DELAY_MS, MUTED_VALUE_MIN } from '../../Constants'
+import ChatStore from '../../Stores/ChatStore'
+import ApplicationStore from '../../Stores/ApplicationStore'
+import TdLibController from '../../Controllers/TdLibController'
 
 class NotificationsControl extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
-        const { chatId } = props;
-        const chat = ChatStore.get(chatId);
-        const isMuted = isChatMuted(chat);
+        const { chatId } = props
+        const chat = ChatStore.get(chatId)
+        const isMuted = isChatMuted(chat)
 
         this.state = {
             prevChatId: chatId,
-            isMuted: isMuted
-        };
+            isMuted: isMuted,
+        }
 
-        this.debouncedSetChatNotificationSettings = debounce(this.setChatNotificationSettings, NOTIFICATIONS_DEBOUNCE_DELAY_MS);
+        this.debouncedSetChatNotificationSettings = debounce(
+            this.setChatNotificationSettings,
+            NOTIFICATIONS_DEBOUNCE_DELAY_MS
+        )
     }
 
     static getDerivedStateFromProps(props, state) {
         if (props.chatId !== state.prevChatId) {
-            const { chatId } = props;
-            const chat = ChatStore.get(chatId);
-            const isMuted = isChatMuted(chat);
+            const { chatId } = props
+            const chat = ChatStore.get(chatId)
+            const isMuted = isChatMuted(chat)
 
             return {
                 prevChatId: props.chatId,
-                isMuted: isMuted
-            };
+                isMuted: isMuted,
+            }
         }
-        return null;
+        return null
     }
 
     componentDidMount() {
-        ChatStore.on('updateChatNotificationSettings', this.onUpdateChatNotificationSettings);
-        ApplicationStore.on('updateScopeNotificationSettings', this.onUpdateScopeNotificationSettings);
+        ChatStore.on('updateChatNotificationSettings', this.onUpdateChatNotificationSettings)
+        ApplicationStore.on('updateScopeNotificationSettings', this.onUpdateScopeNotificationSettings)
     }
 
     componentWillUnmount() {
-        ChatStore.removeListener('updateChatNotificationSettings', this.onUpdateChatNotificationSettings);
-        ApplicationStore.removeListener('updateScopeNotificationSettings', this.onUpdateScopeNotificationSettings);
+        ChatStore.removeListener('updateChatNotificationSettings', this.onUpdateChatNotificationSettings)
+        ApplicationStore.removeListener('updateScopeNotificationSettings', this.onUpdateScopeNotificationSettings)
     }
 
-    onUpdateChatNotificationSettings = (update) => {
-        const { chatId } = this.props;
-        if (!update.chat_id) return;
-        if (update.chat_id !== chatId) return;
+    onUpdateChatNotificationSettings = update => {
+        const { chatId } = this.props
+        if (!update.chat_id) return
+        if (update.chat_id !== chatId) return
 
-        const chat = ChatStore.get(update.chat_id);
-        if (!chat) return;
+        const chat = ChatStore.get(update.chat_id)
+        if (!chat) return
 
-        this.setState({ isMuted: isChatMuted(chat) });
-    };
+        this.setState({ isMuted: isChatMuted(chat) })
+    }
 
-    onUpdateScopeNotificationSettings = (update) => {
-        const { chatId } = this.props;
-        const chat = ChatStore.get(chatId);
-        if (!chat) return;
+    onUpdateScopeNotificationSettings = update => {
+        const { chatId } = this.props
+        const chat = ChatStore.get(chatId)
+        if (!chat) return
 
         switch (update.scope['@type']) {
             case 'notificationSettingsScopeGroupChats': {
-                if (
-                    chat.type['@type'] === 'chatTypeBasicGroup' ||
-                    chat.type['@type'] === 'chatTypeSupergroup'
-                ) {
-                    this.setState({ isMuted: isChatMuted(chat) });
+                if (chat.type['@type'] === 'chatTypeBasicGroup' || chat.type['@type'] === 'chatTypeSupergroup') {
+                    this.setState({ isMuted: isChatMuted(chat) })
                 }
-                break;
+                break
             }
             case 'notificationSettingsScopePrivateChats': {
-                if (
-                    chat.type['@type'] === 'chatTypePrivate' ||
-                    chat.type['@type'] === 'chatTypeSecret'
-                ) {
-                    this.setState({ isMuted: isChatMuted(chat) });
+                if (chat.type['@type'] === 'chatTypePrivate' || chat.type['@type'] === 'chatTypeSecret') {
+                    this.setState({ isMuted: isChatMuted(chat) })
                 }
-                break;
+                break
             }
         }
-    };
+    }
 
     handleSetChatNotifications = () => {
-        this.setState({ isMuted: !this.state.isMuted });
-        this.debouncedSetChatNotificationSettings();
-    };
+        const isMuted = !this.state.isMuted
+
+        this.setState({ isMuted })
+
+        const { chatId } = this.props
+        const chat = ChatStore.get(chatId)
+        if (!chat) return
+
+        ChatStore.updateChat(chat, {
+            notification_settings: Object.assign({}, chat.notification_settings, {
+                mute_for: isMuted ? 586523363 : 0,
+            }),
+        })
+
+        this.debouncedSetChatNotificationSettings()
+    }
 
     setChatNotificationSettings = () => {
-        const { chatId } = this.props;
-        const { isMuted } = this.state;
-        const chat = ChatStore.get(chatId);
-        if (!chat) return;
-        if (!chat.notification_settings) return;
+        const { chatId } = this.props
+        const { isMuted } = this.state
+        const chat = ChatStore.get(chatId)
+        if (!chat) return
+        if (!chat.notification_settings) return
 
-        const isMutedPrev = isChatMuted(chat);
+        const isMutedPrev = isChatMuted(chat)
         if (isMutedPrev === isMuted) {
-            return;
+            return
         }
 
-        const muteFor = isMuted ? MUTED_VALUE_MAX : MUTED_VALUE_MIN;
+        const muteFor = isMuted ? MUTED_VALUE_MAX : MUTED_VALUE_MIN
         const newNotificationSettings = {
             ...chat.notification_settings,
             use_default_mute_for: false,
-            mute_for: muteFor
-        };
+            mute_for: muteFor,
+        }
 
         TdLibController.send({
             '@type': 'setChatNotificationSettings',
             chat_id: chatId,
-            notification_settings: newNotificationSettings
-        });
-    };
+            notification_settings: newNotificationSettings,
+        })
+    }
 }
 
-export default NotificationsControl;
+export default NotificationsControl

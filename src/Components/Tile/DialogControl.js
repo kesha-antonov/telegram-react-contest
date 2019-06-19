@@ -20,13 +20,14 @@ import './DialogControl.css'
 import VolumeOffIcon from '@material-ui/icons/VolumeOff'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
+import { isChatMuted } from '../../Utils/Chat'
 
 const styles = theme => ({
     statusRoot: {
         position: 'absolute',
         right: 1,
         bottom: 1,
-        zIndex: 1
+        zIndex: 1,
     },
     statusIcon: {},
     dialogActive: {
@@ -36,8 +37,8 @@ const styles = theme => ({
         cursor: 'pointer',
         margin: '0 12px',
         '& $statusRoot': {
-            background: theme.palette.primary.main
-        }
+            background: theme.palette.primary.main,
+        },
     },
     dialog: {
         borderRadius: 8,
@@ -46,12 +47,12 @@ const styles = theme => ({
         '&:hover': {
             backgroundColor: theme.palette.primary.main + '22',
             '& $statusRoot': {
-                background: theme.palette.type === 'dark' ? theme.palette.background.default : '#FFFFFF'
+                background: theme.palette.type === 'dark' ? theme.palette.background.default : '#FFFFFF',
             },
             '& $statusIcon': {
-                background: theme.palette.primary.main + '22'
-            }
-        }
+                background: theme.palette.primary.main + '22',
+            },
+        },
     },
     titleAndIcons: {
         display: 'flex',
@@ -59,18 +60,18 @@ const styles = theme => ({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        overflow: 'hidden'
+        overflow: 'hidden',
     },
     titleIcon: {
         marginLeft: 5,
-        fontSize: 15
+        fontSize: 15,
     },
     volumeOffIconUnselectedColor: {
-        color: theme.palette.grey[400]
+        color: theme.palette.grey[400],
     },
     volumeOffIconSelectedColor: {
-        color: theme.palette.grey[300]
-    }
+        color: theme.palette.grey[300],
+    },
 })
 
 class DialogControl extends Component {
@@ -81,7 +82,7 @@ class DialogControl extends Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        if (nextProps.chatId !== this.props.chatId) {
+        if (nextProps.chat !== this.props.chat) {
             return true
         }
 
@@ -130,17 +131,15 @@ class DialogControl extends Component {
                         <div className='tile-first-row'>
                             <div className={classes.titleAndIcons}>
                                 <DialogTitleControl chatId={chatId} highlightVerifiedBadge={isSelected} />
-                                {chat.notification_settings.mute_for ? (
+                                {isChatMuted(chat) && (
                                     <VolumeOffIcon
                                         color={isSelected ? 'action' : 'primary'}
                                         className={classes.titleIcon}
                                         classes={{
                                             colorPrimary: classes.volumeOffIconUnselectedColor,
-                                            colorAction: classes.volumeOffIconSelectedColor
+                                            colorAction: classes.volumeOffIconSelectedColor,
                                         }}
                                     />
-                                ) : (
-                                    void 0
                                 )}
                             </div>
                             <DialogMetaControl chatId={chatId} />
@@ -161,18 +160,18 @@ DialogControl.propTypes = {
     chatId: PropTypes.number.isRequired,
     currentChatId: PropTypes.number,
     hidden: PropTypes.bool,
-    showSavedMessages: PropTypes.bool
+    showSavedMessages: PropTypes.bool,
 }
 
 DialogControl.defaultProps = {
     hidden: false,
-    showSavedMessages: true
+    showSavedMessages: true,
 }
 
 const mapStateToProps = (state, ownProps) => {
     return {
         chat: state.chats.get(ownProps.chatId.toString()),
-        currentChatId: state.currentChatId
+        currentChatId: state.currentChatId,
     }
 }
 
