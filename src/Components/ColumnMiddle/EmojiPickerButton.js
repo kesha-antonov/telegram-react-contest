@@ -6,6 +6,7 @@
  */
 
 import React, { createRef, Component } from 'react'
+import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { compose } from 'recompose'
 import withStyles from '@material-ui/core/styles/withStyles'
@@ -27,11 +28,11 @@ import './emojiMart.css'
 
 const styles = theme => ({
     iconButton: {
-        margin: '8px 0px'
+        margin: '8px 0px',
     },
     headerButton: {
         borderRadius: 0,
-        flex: '50%'
+        flex: '50%',
     },
     pickerRoot: {
         zIndex: theme.zIndex.modal,
@@ -42,14 +43,14 @@ const styles = theme => ({
         boxShadow: theme.shadows[8],
         position: 'absolute',
         bottom: 80,
-        display: 'none'
+        display: 'none',
     },
     pickerRootOpened: {
-        display: 'block'
+        display: 'block',
     },
     pickerEmojisAndStickers: {
-        overflowX: 'hidden'
-    }
+        overflowX: 'hidden',
+    },
 })
 
 class EmojiPickerButton extends Component {
@@ -59,7 +60,7 @@ class EmojiPickerButton extends Component {
         this.state = {
             open: false,
             tab: 0,
-            pickerStyle: null
+            pickerStyle: null,
         }
 
         this.emojiPickerRef = createRef()
@@ -68,16 +69,18 @@ class EmojiPickerButton extends Component {
     }
 
     componentDidMount() {
-        ApplicationStore.on('clientUpdateThemeChange', this.onClientUpdateChange)
-        LocalizationStore.on('clientUpdateLanguageChange', this.onClientUpdateChange)
+        LocalizationStore.on('clientUpdateLanguageChange', this.removePicker)
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.theme !== this.props.theme) this.removePicker()
     }
 
     componentWillUnmount() {
-        ApplicationStore.removeListener('clientUpdateThemeChange', this.onClientUpdateChange)
-        LocalizationStore.removeListener('clientUpdateLanguageChange', this.onClientUpdateChange)
+        LocalizationStore.removeListener('clientUpdateLanguageChange', this.removePicker)
     }
 
-    onClientUpdateChange = update => {
+    removePicker = () => {
         this.picker = null
     }
 
@@ -96,7 +99,7 @@ class EmojiPickerButton extends Component {
 
         this.stickerSets = await TdLibController.send({
             '@type': 'getInstalledStickerSets',
-            is_masks: false
+            is_masks: false,
         })
 
         const promises = []
@@ -104,7 +107,7 @@ class EmojiPickerButton extends Component {
             promises.push(
                 TdLibController.send({
                     '@type': 'getStickerSet',
-                    set_id: x.id
+                    set_id: x.id,
                 })
             )
         })
@@ -162,7 +165,7 @@ class EmojiPickerButton extends Component {
         if (newState.open) {
             const bounds = this.pickerButtonRef.current.getBoundingClientRect()
             newState['pickerStyle'] = {
-                left: bounds.left - 338 + bounds.width
+                left: bounds.left - 338 + bounds.width,
             }
         }
 
@@ -194,7 +197,7 @@ class EmojiPickerButton extends Component {
 
         TdLibController.clientUpdate({
             '@type': 'clientUpdateStickerSend',
-            sticker
+            sticker,
         })
 
         this.updatePicker(false)
@@ -228,8 +231,8 @@ class EmojiPickerButton extends Component {
                     objects: t('Objects'),
                     symbols: t('Symbols'),
                     flags: t('Flags'),
-                    custom: t('Custom')
-                }
+                    custom: t('Custom'),
+                },
             }
 
             this.picker = (
@@ -259,7 +262,11 @@ class EmojiPickerButton extends Component {
                 <link
                     rel='stylesheet'
                     type='text/css'
-                    href={theme.palette.type === 'dark' ? 'emoji-mart.dark.css' : 'emoji-mart.light.css'}
+                    href={
+                        theme.palette.type === 'dark'
+                            ? 'emoji-mart.dark.css'
+                            : 'emoji-mart.light.css'
+                    }
                 />
                 <IconButton
                     ref={this.pickerButtonRef}
@@ -292,7 +299,7 @@ class EmojiPickerButton extends Component {
                         </div>
                         <div
                             className={classNames('emoji-picker-content', {
-                                'emoji-picker-content-stickers': tab === 1
+                                'emoji-picker-content-stickers': tab === 1,
                             })}>
                             {this.picker}
                             {this.stickersPicker}
@@ -303,6 +310,10 @@ class EmojiPickerButton extends Component {
             </>
         )
     }
+}
+
+EmojiPickerButton.propTypes = {
+    theme: PropTypes.object.isRequired,
 }
 
 const enhance = compose(

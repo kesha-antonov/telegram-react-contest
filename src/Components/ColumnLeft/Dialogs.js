@@ -53,6 +53,10 @@ class Dialogs extends Component {
             return true
         }
 
+        if (nextProps.theme !== this.props.theme) {
+            return true
+        }
+
         return false
     }
 
@@ -62,7 +66,6 @@ class Dialogs extends Component {
             this.onClientUpdateChatDetailsVisibility
         )
         ApplicationStore.on('clientUpdateSearchChat', this.onClientUpdateSearchChat)
-        // ApplicationStore.on('clientUpdateThemeChange', this.onClientUpdateThemeChange);
     }
 
     componentWillUnmount() {
@@ -71,12 +74,7 @@ class Dialogs extends Component {
             this.onClientUpdateChatDetailsVisibility
         )
         ApplicationStore.removeListener('clientUpdateSearchChat', this.onClientUpdateSearchChat)
-        // ApplicationStore.removeListener('clientUpdateThemeChange', this.onClientUpdateThemeChange);
     }
-
-    // onClientUpdateThemeChange = update => {
-    //     this.forceUpdate();
-    // };
 
     onClientUpdateChatDetailsVisibility = update => {
         this.setState({
@@ -168,7 +166,8 @@ class Dialogs extends Component {
 }
 
 Dialogs.propTypes = {
+    theme: PropTypes.object.isRequired,
     onSelectChat: PropTypes.func.isRequired,
 }
 
-export default withStyles(styles)(Dialogs)
+export default withStyles(styles, { withTheme: true })(Dialogs)
