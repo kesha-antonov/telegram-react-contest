@@ -107,7 +107,6 @@ class ThemeWrapper extends React.Component {
     render() {
         const { theme } = this.state
         const { children } = this.props
-        console.log('Theme theme', theme)
 
         return <ThemeProvider theme={theme}>{children}</ThemeProvider>
     }
