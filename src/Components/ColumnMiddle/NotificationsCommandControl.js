@@ -28,7 +28,7 @@ const mapStateToProps = (state, ownProps) => {
 }
 
 NotificationsCommandControl.propTypes = {
-    chatId: PropTypes.object.isRequired,
+    chatId: PropTypes.number.isRequired,
     chat: PropTypes.object.isRequired,
 }
 
