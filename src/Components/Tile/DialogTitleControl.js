@@ -25,15 +25,15 @@ const styles = () => ({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-start',
-        overflow: 'hidden'
+        overflow: 'hidden',
     },
     verifiedBadgeIconSelectedColor: {
-        color: '#fff'
+        color: '#fff',
     },
     titleIcon: {
         marginLeft: 5,
-        fontSize: 15
-    }
+        fontSize: 15,
+    },
 })
 
 class DialogTitleControl extends React.Component {
@@ -47,6 +47,10 @@ class DialogTitleControl extends React.Component {
         }
 
         if (nextProps.highlightVerifiedBadge !== this.props.highlightVerifiedBadge) {
+            return true
+        }
+
+        if (nextProps.theme !== this.props.theme) {
             return true
         }
 
@@ -90,7 +94,7 @@ class DialogTitleControl extends React.Component {
                         className={classes.titleIcon}
                         color={highlightVerifiedBadge ? 'action' : 'primary'}
                         classes={{
-                            colorAction: classes.verifiedBadgeIconSelectedColor
+                            colorAction: classes.verifiedBadgeIconSelectedColor,
                         }}
                     />
                 )}
@@ -100,20 +104,21 @@ class DialogTitleControl extends React.Component {
 }
 
 DialogTitleControl.propTypes = {
+    theme: PropTypes.object.isRequired,
     chatId: PropTypes.number.isRequired,
     chat: PropTypes.object.isRequired,
     showSavedMessages: PropTypes.bool,
-    highlightVerifiedBadge: PropTypes.bool.isRequired
+    highlightVerifiedBadge: PropTypes.bool.isRequired,
 }
 
 DialogTitleControl.defaultProps = {
     showSavedMessages: true,
-    highlightVerifiedBadge: false
+    highlightVerifiedBadge: false,
 }
 
 const mapStateToProps = (state, ownProps) => {
     return {
-        chat: state.chats.get(ownProps.chatId.toString())
+        chat: state.chats.get(ownProps.chatId.toString()),
     }
 }
 
