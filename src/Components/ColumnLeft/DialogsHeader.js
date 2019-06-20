@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import withStyles from '@material-ui/core/styles/withStyles';
-import { withTranslation } from 'react-i18next';
-import { compose } from 'recompose';
+import React from 'react'
+import PropTypes from 'prop-types'
+import withStyles from '@material-ui/core/styles/withStyles'
+import { withTranslation } from 'react-i18next'
+import { compose } from 'recompose'
 import {
     Dialog,
     DialogActions,
@@ -17,117 +17,130 @@ import {
     DialogContentText,
     DialogTitle,
     Button,
-    IconButton
-} from '@material-ui/core';
-import SearchIcon from '@material-ui/icons/Search';
-import CloseIcon from '@material-ui/icons/Close';
-import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon';
-import MainMenuButton from './MainMenuButton';
-import { debounce, isAuthorizationReady, throttle } from '../../Utils/Common';
-import ApplicationStore from '../../Stores/ApplicationStore';
-import TdLibController from '../../Controllers/TdLibController';
-import '../ColumnMiddle/Header.css';
+    IconButton,
+} from '@material-ui/core'
+import SearchIcon from '@material-ui/icons/Search'
+import CloseIcon from '@material-ui/icons/Close'
+import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon'
+import MainMenuButton from './MainMenuButton'
+import { debounce, isAuthorizationReady, throttle } from '../../Utils/Common'
+import ApplicationStore from '../../Stores/ApplicationStore'
+import TdLibController from '../../Controllers/TdLibController'
+import '../ColumnMiddle/Header.css'
+import { connect } from 'react-redux'
+import { clearCurrentChatId } from '../../Stores/ReduxStore/actions'
 
 const styles = {
     headerIconButton: {
-        margin: '8px 12px 8px 0'
+        margin: '8px 12px 8px 0',
     },
     dialogText: {
-        whiteSpace: 'pre-wrap'
-    }
-};
+        whiteSpace: 'pre-wrap',
+    },
+}
 
 class DialogsHeader extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
-        this.searchInput = React.createRef();
+        this.searchInput = React.createRef()
 
         this.state = {
             authorizationState: ApplicationStore.getAuthorizationState(),
-            open: false
-        };
+            open: false,
+        }
 
-        this.handleInput = debounce(this.handleInput, 250);
+        this.handleInput = debounce(this.handleInput, 250)
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.props.openSearch && this.props.openSearch !== prevProps.openSearch) {
             setTimeout(() => {
                 if (this.searchInput.current) {
-                    this.searchInput.current.focus();
+                    this.searchInput.current.focus()
                 }
-            }, 250);
+            }, 250)
         }
     }
 
     componentDidMount() {
-        ApplicationStore.on('updateAuthorizationState', this.onUpdateAuthorizationState);
+        ApplicationStore.on('updateAuthorizationState', this.onUpdateAuthorizationState)
     }
 
     componentWillUnmount() {
-        ApplicationStore.removeListener('updateAuthorizationState', this.onUpdateAuthorizationState);
+        ApplicationStore.removeListener('updateAuthorizationState', this.onUpdateAuthorizationState)
     }
 
     onUpdateAuthorizationState = update => {
-        this.setState({ authorizationState: update.authorization_state });
-    };
+        this.setState({ authorizationState: update.authorization_state })
+    }
 
     handleLogOut = () => {
-        this.setState({ open: true });
-    };
+        this.setState({ open: true })
+    }
 
     handleDone = () => {
-        this.handleClose();
-        TdLibController.logOut();
-    };
+        this.handleClose()
+
+        this.props.clearCurrentChatId()
+        TdLibController.setChatId(0)
+        ApplicationStore.changeChatDetailsVisibility(false)
+
+        TdLibController.logOut()
+    }
 
     handleClose = () => {
-        this.setState({ open: false });
-    };
+        this.setState({ open: false })
+    }
 
     handleSearch = () => {
-        const { onSearch, openSearch } = this.props;
-        const { authorizationState } = this.state;
-        if (!isAuthorizationReady(authorizationState)) return;
+        const { onSearch, openSearch } = this.props
+        const { authorizationState } = this.state
+        if (!isAuthorizationReady(authorizationState)) return
 
-        onSearch(!openSearch);
-    };
+        onSearch(!openSearch)
+    }
 
     handleKeyDown = event => {
         if (event.keyCode === 13) {
-            event.preventDefault();
+            event.preventDefault()
         }
-    };
+    }
 
     handleKeyUp = () => {
-        const innerText = this.searchInput.current.innerText;
-        const innerHTML = this.searchInput.current.innerHTML;
+        const innerText = this.searchInput.current.innerText
+        const innerHTML = this.searchInput.current.innerHTML
 
         if (innerHTML && (innerHTML === '<br>' || innerHTML === '<div><br></div>')) {
-            this.searchInput.current.innerHTML = '';
+            this.searchInput.current.innerHTML = ''
         }
 
-        ApplicationStore.emit('clientUpdateSearchText', { text: innerText });
-    };
+        ApplicationStore.emit('clientUpdateSearchText', { text: innerText })
+    }
 
     handlePaste = event => {
-        const plainText = event.clipboardData.getData('text/plain');
+        const plainText = event.clipboardData.getData('text/plain')
         if (plainText) {
-            event.preventDefault();
-            document.execCommand('insertHTML', false, plainText);
+            event.preventDefault()
+            document.execCommand('insertHTML', false, plainText)
         }
-    };
+    }
 
     render() {
-        const { classes, onClick, openSearch, t } = this.props;
-        const { open } = this.state;
+        const { classes, onClick, openSearch, t } = this.props
+        const { open } = this.state
 
         const confirmLogoutDialog = open ? (
-            <Dialog transitionDuration={0} open={open} onClose={this.handleClose} aria-labelledby='form-dialog-title'>
+            <Dialog
+                transitionDuration={0}
+                open={open}
+                onClose={this.handleClose}
+                aria-labelledby='form-dialog-title'>
                 <DialogTitle id='form-dialog-title'>{t('AppTitle')}</DialogTitle>
                 <DialogContent>
-                    <DialogContentText className={classes.dialogText}>{t('AreYouSureLogout')}</DialogContentText>
+                    <DialogContentText className={classes.dialogText}>
+                        {t('AreYouSureLogout')}
+                    </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={this.handleClose} color='primary'>
@@ -138,7 +151,7 @@ class DialogsHeader extends React.Component {
                     </Button>
                 </DialogActions>
             </Dialog>
-        ) : null;
+        ) : null
 
         return (
             <div className='header-master'>
@@ -171,10 +184,14 @@ class DialogsHeader extends React.Component {
                     className={classes.headerIconButton}
                     aria-label={t('Search')}
                     onMouseDown={this.handleSearch}>
-                    <SpeedDialIcon open={openSearch} icon={<SearchIcon />} openIcon={<CloseIcon />} />
+                    <SpeedDialIcon
+                        open={openSearch}
+                        icon={<SearchIcon />}
+                        openIcon={<CloseIcon />}
+                    />
                 </IconButton>
             </div>
-        );
+        )
     }
 }
 
@@ -182,12 +199,23 @@ DialogsHeader.propTypes = {
     openSearch: PropTypes.bool.isRequired,
     onClick: PropTypes.func.isRequired,
     onSearch: PropTypes.func.isRequired,
-    onSearchTextChange: PropTypes.func.isRequired
-};
+    onSearchTextChange: PropTypes.func.isRequired,
+    clearCurrentChatId: PropTypes.func.isRequired,
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        clearCurrentChatId: () => dispatch(clearCurrentChatId()),
+    }
+}
 
 const enhance = compose(
+    connect(
+        null,
+        mapDispatchToProps
+    ),
     withTranslation(),
     withStyles(styles)
-);
+)
 
-export default enhance(DialogsHeader);
+export default enhance(DialogsHeader)

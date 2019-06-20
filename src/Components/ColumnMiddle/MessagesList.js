@@ -36,13 +36,13 @@ const ScrollBehaviorEnum = Object.freeze({
     SCROLL_TO_BOTTOM: 'SCROLL_TO_BOTTOM',
     SCROLL_TO_UNREAD: 'SCROLL_TO_UNREAD',
     SCROLL_TO_MESSAGE: 'SCROLL_TO_MESSAGE',
-    KEEP_SCROLL_POSITION: 'KEEP_SCROLL_POSITION'
+    KEEP_SCROLL_POSITION: 'KEEP_SCROLL_POSITION',
 })
 
 const styles = theme => ({
     background: {
-        background: theme.palette.type === 'dark' ? theme.palette.grey[900] : 'transparent'
-    }
+        background: theme.palette.type === 'dark' ? theme.palette.grey[900] : 'transparent',
+    },
 })
 
 class MessagesList extends React.Component {
@@ -60,7 +60,7 @@ class MessagesList extends React.Component {
             clearHistory: false,
             selectionActive: false,
             scrollBehavior: ScrollBehaviorEnum.NONE,
-            separatorMessageId: 0
+            separatorMessageId: 0,
         }
 
         this.listRef = React.createRef()
@@ -171,7 +171,7 @@ class MessagesList extends React.Component {
                 clearHistory: false,
                 selectionActive: false,
                 scrollBehavior: ScrollBehaviorEnum.SCROLL_TO_BOTTOM,
-                separatorMessageId: 0
+                separatorMessageId: 0,
             }
         }
 
@@ -185,7 +185,7 @@ class MessagesList extends React.Component {
         const snapshot = {
             scrollTop: list.scrollTop,
             scrollHeight: list.scrollHeight,
-            offsetHeight: list.offsetHeight
+            offsetHeight: list.offsetHeight,
         }
 
         // console.log(
@@ -236,7 +236,7 @@ class MessagesList extends React.Component {
     onClientUpdateSelection = update => {
         this.setState({
             selectionActive: MessageStore.selectedItems.size > 0,
-            scrollBehavior: ScrollBehaviorEnum.KEEP_SCROLL_POSITION
+            scrollBehavior: ScrollBehaviorEnum.KEEP_SCROLL_POSITION,
         })
     }
 
@@ -355,7 +355,7 @@ class MessagesList extends React.Component {
 
         TdLibController.clientUpdate({
             '@type': 'clientUpdateMessagesInView',
-            messages: messages
+            messages: messages,
         })
         return
 
@@ -396,14 +396,22 @@ class MessagesList extends React.Component {
         if (chat) {
             TdLibController.send({
                 '@type': 'openChat',
-                chat_id: chat.id
+                chat_id: chat.id,
             })
 
             const unread = !messageId && chat.unread_count > 0
             const fromMessageId =
-                unread && chat.unread_count > 1 ? chat.last_read_inbox_message_id : messageId ? messageId : 0
-            const offset = (unread && chat.unread_count > 1) || messageId ? -1 - MESSAGE_SLICE_LIMIT : 0
-            const limit = (unread && chat.unread_count > 1) || messageId ? 2 * MESSAGE_SLICE_LIMIT : MESSAGE_SLICE_LIMIT
+                unread && chat.unread_count > 1
+                    ? chat.last_read_inbox_message_id
+                    : messageId
+                    ? messageId
+                    : 0
+            const offset =
+                (unread && chat.unread_count > 1) || messageId ? -1 - MESSAGE_SLICE_LIMIT : 0
+            const limit =
+                (unread && chat.unread_count > 1) || messageId
+                    ? 2 * MESSAGE_SLICE_LIMIT
+                    : MESSAGE_SLICE_LIMIT
 
             const sessionId = this.sessionId
             const result = await TdLibController.send({
@@ -411,7 +419,7 @@ class MessagesList extends React.Component {
                 chat_id: chat.id,
                 from_message_id: fromMessageId,
                 offset: offset,
-                limit: limit
+                limit: limit,
             })
 
             if (sessionId !== this.sessionId) {
@@ -421,7 +429,8 @@ class MessagesList extends React.Component {
             //TODO: replace result with one-way data flow
 
             if (chat.last_message) {
-                this.completed = result.messages.length > 0 && chat.last_message.id === result.messages[0].id
+                this.completed =
+                    result.messages.length > 0 && chat.last_message.id === result.messages[0].id
             } else {
                 this.completed = true
             }
@@ -486,7 +495,7 @@ class MessagesList extends React.Component {
         if (previousChat) {
             TdLibController.send({
                 '@type': 'closeChat',
-                chat_id: previousChat.id
+                chat_id: previousChat.id,
             })
         }
     }
@@ -499,7 +508,7 @@ class MessagesList extends React.Component {
         TdLibController.send({
             '@type': 'viewMessages',
             chat_id: messages[0].chat_id,
-            message_ids: messages.map(x => x.id)
+            message_ids: messages.map(x => x.id),
         })
     }
 
@@ -538,11 +547,13 @@ class MessagesList extends React.Component {
 
     loadIncompleteHistory = async result => {
         const MAX_ITERATIONS = 5
-        let incomplete = result && result.messages.length > 0 && result.messages.length < MESSAGE_SLICE_LIMIT
+        let incomplete =
+            result && result.messages.length > 0 && result.messages.length < MESSAGE_SLICE_LIMIT
 
         for (let i = 0; i < MAX_ITERATIONS && incomplete; i++) {
             result = await this.onLoadNext()
-            incomplete = result && result.messages.length > 0 && result.messages.length < MESSAGE_SLICE_LIMIT
+            incomplete =
+                result && result.messages.length > 0 && result.messages.length < MESSAGE_SLICE_LIMIT
         }
     }
 
@@ -570,7 +581,7 @@ class MessagesList extends React.Component {
             chat_id: chatId,
             from_message_id: fromMessageId,
             offset: 0,
-            limit: MESSAGE_SLICE_LIMIT
+            limit: MESSAGE_SLICE_LIMIT,
         }).finally(() => {
             this.loading = false
         })
@@ -619,7 +630,7 @@ class MessagesList extends React.Component {
 
         const basicGroupChat = await TdLibController.send({
             '@type': 'createBasicGroupChat',
-            basic_group_id: fullInfo.upgraded_from_basic_group_id
+            basic_group_id: fullInfo.upgraded_from_basic_group_id,
         })
 
         if (!basicGroupChat) return
@@ -641,7 +652,7 @@ class MessagesList extends React.Component {
             chat_id: basicGroupChat.id,
             from_message_id: fromMessageId,
             offset: 0,
-            limit: MESSAGE_SLICE_LIMIT
+            limit: MESSAGE_SLICE_LIMIT,
         }).finally(() => {
             this.loading = false
         })
@@ -684,7 +695,7 @@ class MessagesList extends React.Component {
             chat_id: chatId,
             from_message_id: fromMessageId,
             offset: -MESSAGE_SLICE_LIMIT - 1,
-            limit: MESSAGE_SLICE_LIMIT + 1
+            limit: MESSAGE_SLICE_LIMIT + 1,
         }).finally(() => {
             this.loading = false
         })
@@ -698,7 +709,8 @@ class MessagesList extends React.Component {
         }
 
         if (chat.last_message) {
-            this.completed = result.messages.length > 0 && chat.last_message.id === result.messages[0].id
+            this.completed =
+                result.messages.length > 0 && chat.last_message.id === result.messages[0].id
         } else {
             this.completed = true
         }
@@ -720,7 +732,11 @@ class MessagesList extends React.Component {
 
     replace(separatorMessageId, history, scrollBehavior, callback) {
         this.setState(
-            { separatorMessageId: separatorMessageId, history: history, scrollBehavior: scrollBehavior },
+            {
+                separatorMessageId: separatorMessageId,
+                history: history,
+                scrollBehavior: scrollBehavior,
+            },
             callback
         )
     }
@@ -732,7 +748,10 @@ class MessagesList extends React.Component {
         }
 
         this.setState(
-            { history: history.concat(this.state.history), scrollBehavior: ScrollBehaviorEnum.KEEP_SCROLL_POSITION },
+            {
+                history: history.concat(this.state.history),
+                scrollBehavior: ScrollBehaviorEnum.KEEP_SCROLL_POSITION,
+            },
             callback
         )
     }
@@ -743,7 +762,7 @@ class MessagesList extends React.Component {
         this.setState(
             {
                 history: this.state.history.filter(x => x.id !== oldMessageId).concat([message]),
-                scrollBehavior: scrollBehavior
+                scrollBehavior: scrollBehavior,
             },
             callback
         )
@@ -752,7 +771,10 @@ class MessagesList extends React.Component {
     insertAfter(history, scrollBehavior, callback) {
         if (history.length === 0) return
 
-        this.setState({ history: this.state.history.concat(history), scrollBehavior: scrollBehavior }, callback)
+        this.setState(
+            { history: this.state.history.concat(history), scrollBehavior: scrollBehavior },
+            callback
+        )
     }
 
     deleteHistory(message_ids, callback) {
@@ -762,12 +784,23 @@ class MessagesList extends React.Component {
         let map = new Map(message_ids.map(x => [x, x]))
 
         this.setState(
-            { history: history.filter(x => !map.has(x.id)), scrollBehavior: ScrollBehaviorEnum.SCROLL_TO_BOTTOM },
+            {
+                history: history.filter(x => !map.has(x.id)),
+                scrollBehavior: ScrollBehaviorEnum.SCROLL_TO_BOTTOM,
+            },
             callback
         )
     }
 
+    isChatChosed = () => {
+        const { chatId } = this.props
+
+        return chatId !== 0
+    }
+
     handleScroll = () => {
+        if (!this.isChatChosed()) return
+
         this.updateItemsInView()
 
         const list = this.listRef.current
@@ -961,7 +994,7 @@ class MessagesList extends React.Component {
             chat_id: chat.id,
             from_message_id: fromMessageId,
             offset: offset,
-            limit: limit
+            limit: limit,
         })
 
         if (sessionId !== this.sessionId) {
@@ -975,7 +1008,8 @@ class MessagesList extends React.Component {
         }
 
         if (chat.last_message) {
-            this.completed = result.messages.length > 0 && chat.last_message.id === result.messages[0].id
+            this.completed =
+                result.messages.length > 0 && chat.last_message.id === result.messages[0].id
         } else {
             this.completed = true
         }
@@ -1040,16 +1074,17 @@ class MessagesList extends React.Component {
                   )
               )
 
-        const isChatChosed = chatId !== 0
-
         return (
             <div
                 className={classNames(classes.background, 'messages-list', {
-                    'messages-list-selection-active': selectionActive
+                    'messages-list-selection-active': selectionActive,
                 })}
                 onDragEnter={this.handleListDragEnter}>
-                <div ref={this.listRef} className='messages-list-wrapper' onScroll={this.handleScroll}>
-                    {isChatChosed ? (
+                <div
+                    ref={this.listRef}
+                    className='messages-list-wrapper'
+                    onScroll={this.handleScroll}>
+                    {this.isChatChosed() ? (
                         <>
                             <div className='messages-list-top' />
                             <div ref={this.itemsRef} className='messages-list-items'>

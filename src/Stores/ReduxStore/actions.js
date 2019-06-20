@@ -19,9 +19,14 @@ export function removeChat(chat) {
 // currentChatId
 
 export const SET_CURRENT_CHAT_ID = 'SET_CURRENT_CHAT_ID'
+export const CLEAR_CURRENT_CHAT_ID = 'CLEAR_CURRENT_CHAT_ID'
 
 export function setCurrentChatId(chatId) {
     return { type: SET_CURRENT_CHAT_ID, chatId }
+}
+
+export function clearCurrentChatId() {
+    return { type: CLEAR_CURRENT_CHAT_ID }
 }
 
 // palette
