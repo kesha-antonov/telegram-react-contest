@@ -140,10 +140,10 @@ class UserTileControl extends Component {
             profile_photo && profile_photo.small ? FileStore.getBlob(profile_photo.small.id) : null
         const src = FileStore.getBlobUrl(blob)
         const tileColor = `tile_color_${(Math.abs(userId) % 8) + 1}`
-        const className = classNames('tile-photo', { [tileColor]: !blob }, { pointer: onSelect })
+        const className = classNames('tile-photo', { pointer: onSelect })
 
         return (
-            <div className={className} onClick={this.handleSelect}>
+            <div className={classNames(className, tileColor)} onClick={this.handleSelect}>
                 <span className='tile-text'>{letters}</span>
                 {src && (
                     <div className={'tile-photo-image'}>
