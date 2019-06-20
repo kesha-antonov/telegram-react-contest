@@ -1,9 +1,9 @@
 import chats from './chats'
 import currentChatId from './currentChatId'
-import theme from './theme'
+import palette from './palette'
 
 export default {
     chats,
     currentChatId,
-    theme,
+    palette,
 }

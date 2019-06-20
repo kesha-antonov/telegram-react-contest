@@ -24,8 +24,8 @@ import blue from '@material-ui/core/colors/blue'
 import indigo from '@material-ui/core/colors/indigo'
 import deepPurple from '@material-ui/core/colors/deepPurple'
 import ApplicationStore from '../../Stores/ApplicationStore'
-import { setTheme } from '../../Stores/ReduxStore/actions'
-import { createTheme } from '../../Theme'
+import { setPalette } from '../../Stores/ReduxStore/actions'
+import { createPalette } from '../../Theme'
 import Cookies from 'universal-cookie'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
@@ -92,37 +92,33 @@ class ThemePicker extends React.Component {
     }
 
     handleChange = event => {
-        const { theme, setTheme } = this.props
+        const { palette, setPalette } = this.props
 
-        setTheme(
-            createTheme({
-                type: event.target.value,
-                primary: theme.palette.primary,
-            })
-        )
+        const newPalette = createPalette({
+            type: event.target.value,
+            primary: palette.primary,
+        })
 
-        // this.saveThemeInCookies()
+        setPalette(newPalette)
+
+        this.savePaletteInCookies(newPalette)
     }
 
     handleAccentChange = event => {
-        const { theme, setTheme } = this.props
+        const { palette, setPalette } = this.props
 
-        setTheme(
-            createTheme({
-                type: theme.palette.type,
-                primary: this.getColor(event.target.value),
-            })
-        )
+        const newPalette = createPalette({
+            type: palette.type,
+            primary: this.getColor(event.target.value),
+        })
+        setPalette(newPalette)
 
-        // this.saveThemeInCookies()
+        this.savePaletteInCookies(newPalette)
     }
 
-    // TODO: USE SIDE EFFECT
-    saveThemeInCookies() {
-        const { theme } = this.props
-
+    savePaletteInCookies(palette) {
         const cookies = new Cookies()
-        cookies.set('themeOptions', { type: theme.palette.type, primary: theme.palette.primary })
+        cookies.set('themeOptions', { type: palette.type, primary: palette.primary })
     }
 
     getColorString = value => {
@@ -176,8 +172,8 @@ class ThemePicker extends React.Component {
     }
 
     render() {
-        const { classes, theme } = this.props
-        const color = this.getColorString(theme.palette.primary.main)
+        const { classes, palette } = this.props
+        const color = this.getColorString(palette.primary[500])
 
         return (
             <Dialog
@@ -196,7 +192,7 @@ class ThemePicker extends React.Component {
                             aria-label='theme'
                             name='theme1'
                             className={classes.group}
-                            value={theme.palette.type}
+                            value={palette.type}
                             onChange={this.handleChange}>
                             <FormControlLabel
                                 value='light'
@@ -314,18 +310,19 @@ class ThemePicker extends React.Component {
 
 ThemePicker.propTypes = {
     theme: PropTypes.object.isRequired,
-    setTheme: PropTypes.func.isRequired,
+    palette: PropTypes.object.isRequired,
+    setPalette: PropTypes.func.isRequired,
 }
 
 const mapStateToProps = state => {
     return {
-        theme: state.theme.current,
+        palette: state.palette.current,
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        setTheme: theme => dispatch(setTheme(theme)),
+        setPalette: palette => dispatch(setPalette(palette)),
     }
 }
 
@@ -334,7 +331,7 @@ const enhance = compose(
         mapStateToProps,
         mapDispatchToProps
     ),
-    withStyles(styles)
+    withStyles(styles, { withTheme: true })
 )
 
 export default enhance(ThemePicker)

@@ -7,7 +7,7 @@ import { connect } from 'react-redux'
 
 function Scrollbar(props) {
     console.log('Scrollbar', props)
-    const isDarkTheme = props.theme.palette.type === 'dark'
+    const isLightTheme = props.palette.type === 'light'
 
     return (
         <PerfectScrollbar
@@ -15,8 +15,8 @@ function Scrollbar(props) {
             className={classNames(
                 'dialogs-list',
                 {
-                    ['scrollbar-light']: !isDarkTheme,
-                    ['scrollbar-dark']: isDarkTheme,
+                    ['scrollbar-light']: isLightTheme,
+                    ['scrollbar-dark']: !isLightTheme,
                 },
                 props.className
             )}>
@@ -26,13 +26,13 @@ function Scrollbar(props) {
 }
 
 Scrollbar.propTypes = {
-    theme: PropTypes.object.isRequired,
+    palette: PropTypes.object.isRequired,
     children: PropTypes.any,
 }
 
 const mapStateToProps = state => {
     return {
-        theme: state.theme.current,
+        palette: state.palette.current,
     }
 }
 

@@ -24,11 +24,11 @@ export function setCurrentChatId(chatId) {
     return { type: SET_CURRENT_CHAT_ID, chatId }
 }
 
-// theme
+// palette
 
-export const SET_THEME = 'SET_THEME'
+export const SET_PALETTE = 'SET_PALETTE'
 
-export function setTheme(theme, prevTheme = null) {
-    console.log('setTheme', theme, prevTheme)
-    return { type: SET_THEME, theme, prevTheme }
+export function setPalette(palette, prevPalette = null) {
+    console.log('setPalette', palette, prevPalette)
+    return { type: SET_PALETTE, palette, prevPalette }
 }

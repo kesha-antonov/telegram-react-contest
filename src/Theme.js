@@ -12,28 +12,40 @@ import createMuiTheme from '@material-ui/core/styles/createMuiTheme'
 // import { ThemeProvider } from '@material-ui/core/styles'
 import { ThemeProvider } from '@material-ui/styles'
 import { getDisplayName } from './Utils/HOC'
-import Cookies from 'universal-cookie'
 import ApplicationStore from './Stores/ApplicationStore'
-import { setTheme } from './Stores/ReduxStore/actions'
+import { setPalette } from './Stores/ReduxStore/actions'
 import { connect } from 'react-redux'
+import { shallowEqual } from 'recompose'
 
 const SECONDARY = { main: '#FF5555' }
-const TYPE_LIGHT = 'light'
+export const TYPE_LIGHT = 'light'
 
 export function createLightTheme() {
-    return createTheme({
-        type: TYPE_LIGHT,
-        primary: blue,
-    })
+    return createTheme(createLightPalette())
 }
 
-export function createTheme({ type, primary }) {
+export function createTheme({ type, primary, secondary }) {
     return createMuiTheme({
         palette: {
             type,
             primary,
-            secondary: SECONDARY,
+            secondary: secondary || SECONDARY,
         },
+    })
+}
+
+export function createPalette({ type, primary }) {
+    return {
+        type,
+        primary,
+        secondary: SECONDARY,
+    }
+}
+
+export function createLightPalette() {
+    return createPalette({
+        type: TYPE_LIGHT,
+        primary: blue,
     })
 }
 
@@ -41,53 +53,59 @@ class ThemeWrapper extends React.Component {
     constructor(props) {
         super(props)
 
-        const cookies = new Cookies()
-        const { type, primary } = cookies.get('themeOptions') || { type: TYPE_LIGHT, primary: blue }
+        const { palette } = this.props
 
-        let theme = createMuiTheme({
-            palette: {
-                type,
-                primary,
-                secondary: SECONDARY,
-            },
-        })
-
-        if (this.props.theme.palette.type !== theme.palette.type) this.props.setTheme(theme)
+        this.state = {
+            theme: createMuiTheme({ palette }),
+        }
     }
 
-    shouldComponentUpdate(nextProps) {
-        console.log('shouldComponentUpdate', this.props, nextProps)
-        return nextProps !== this.props
+    componentWillReceiveProps(nextProps) {
+        if (!shallowEqual(this.props.palette, nextProps.palette))
+            this.setState({ theme: createMuiTheme({ palette: nextProps.palette }) })
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        if (nextState.theme !== this.state.theme) {
+            return true
+        }
+
+        if (nextProps.children !== this.props.children) {
+            return true
+        }
+
+        return false
     }
 
     componentDidMount() {
-        // ApplicationStore.on('clientUpdateThemeChanging', this.onClientUpdateThemeChanging)
-        // ApplicationStore.on('updateAuthorizationState', this.onUpdateAuthorizationState)
+        ApplicationStore.on('updateAuthorizationState', this.onUpdateAuthorizationState)
     }
 
     componentWillUnmount() {
-        // ApplicationStore.removeListener('clientUpdateThemeChanging', this.onClientUpdateThemeChanging)
-        // ApplicationStore.removeListener('updateAuthorizationState', this.onUpdateAuthorizationState)
+        ApplicationStore.removeListener('updateAuthorizationState', this.onUpdateAuthorizationState)
     }
 
     onUpdateAuthorizationState = update => {
-        const { theme, prevTheme } = this.props
+        const { palette, prevPalette } = this.props
 
         switch (update.authorization_state['@type']) {
             case 'authorizationStateWaitPhoneNumber':
             case 'authorizationStateWaitCode':
             case 'authorizationStateWaitPassword':
-                if (theme.palette.type !== TYPE_LIGHT) this.props.setTheme(createLightTheme())
+                if (palette.type !== TYPE_LIGHT) {
+                    this.props.setPalette(createLightPalette())
+                }
                 break
             default:
-                if (prevTheme && theme.palette.type !== prevTheme.palette.type) {
-                    this.props.setTheme(prevTheme, prevTheme)
+                if (prevPalette && palette.type !== prevPalette.type) {
+                    this.props.setPalette(prevPalette, prevPalette)
                 }
         }
     }
 
     render() {
-        const { theme, children } = this.props
+        const { theme } = this.state
+        const { children } = this.props
         console.log('Theme theme', theme)
 
         return <ThemeProvider theme={theme}>{children}</ThemeProvider>
@@ -95,21 +113,21 @@ class ThemeWrapper extends React.Component {
 }
 
 ThemeWrapper.propTypes = {
-    theme: PropTypes.object.isRequired,
-    prevTheme: PropTypes.object,
-    setTheme: PropTypes.func.isRequired,
+    palette: PropTypes.object.isRequired,
+    prevPalette: PropTypes.object,
+    setPalette: PropTypes.func.isRequired,
 }
 
 const mapStateToProps = state => {
     return {
-        theme: state.theme.current,
-        prevTheme: state.theme.prev,
+        palette: state.palette.current,
+        prevPalette: state.palette.prev,
     }
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        setTheme: (theme, prevTheme = null) => dispatch(setTheme(theme, prevTheme)),
+        setPalette: (palette, prevPalette = null) => dispatch(setPalette(palette, prevPalette)),
     }
 }
 
