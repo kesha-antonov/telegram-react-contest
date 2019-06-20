@@ -5,58 +5,58 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { formatNumber } from 'libphonenumber-js';
-import { PHOTO_SIZE, PHOTO_THUMBNAIL_SIZE } from '../Constants';
+import { formatNumber } from 'libphonenumber-js'
+import { PHOTO_SIZE, PHOTO_THUMBNAIL_SIZE } from '../Constants'
 
 function getOSName() {
-    let OSName = 'Unknown';
-    if (window.navigator.userAgent.indexOf('Windows NT 10.0') != -1) OSName = 'Windows 10';
-    if (window.navigator.userAgent.indexOf('Windows NT 6.2') != -1) OSName = 'Windows 8';
-    if (window.navigator.userAgent.indexOf('Windows NT 6.1') != -1) OSName = 'Windows 7';
-    if (window.navigator.userAgent.indexOf('Windows NT 6.0') != -1) OSName = 'Windows Vista';
-    if (window.navigator.userAgent.indexOf('Windows NT 5.1') != -1) OSName = 'Windows XP';
-    if (window.navigator.userAgent.indexOf('Windows NT 5.0') != -1) OSName = 'Windows 2000';
-    if (window.navigator.userAgent.indexOf('Mac') != -1) OSName = 'Mac/iOS';
-    if (window.navigator.userAgent.indexOf('X11') != -1) OSName = 'UNIX';
-    if (window.navigator.userAgent.indexOf('Linux') != -1) OSName = 'Linux';
+    let OSName = 'Unknown'
+    if (window.navigator.userAgent.indexOf('Windows NT 10.0') != -1) OSName = 'Windows 10'
+    if (window.navigator.userAgent.indexOf('Windows NT 6.2') != -1) OSName = 'Windows 8'
+    if (window.navigator.userAgent.indexOf('Windows NT 6.1') != -1) OSName = 'Windows 7'
+    if (window.navigator.userAgent.indexOf('Windows NT 6.0') != -1) OSName = 'Windows Vista'
+    if (window.navigator.userAgent.indexOf('Windows NT 5.1') != -1) OSName = 'Windows XP'
+    if (window.navigator.userAgent.indexOf('Windows NT 5.0') != -1) OSName = 'Windows 2000'
+    if (window.navigator.userAgent.indexOf('Mac') != -1) OSName = 'Mac/iOS'
+    if (window.navigator.userAgent.indexOf('X11') != -1) OSName = 'UNIX'
+    if (window.navigator.userAgent.indexOf('Linux') != -1) OSName = 'Linux'
 
-    return OSName;
+    return OSName
 }
 
 function getBrowser() {
-    let browser_name = '';
-    let isIE = /*@cc_on!@*/ false || !!document.documentMode;
-    let isEdge = !isIE && !!window.StyleMedia;
+    let browser_name = ''
+    let isIE = /*@cc_on!@*/ false || !!document.documentMode
+    let isEdge = !isIE && !!window.StyleMedia
     if (navigator.userAgent.indexOf('Chrome') != -1 && !isEdge) {
-        browser_name = 'Chrome';
+        browser_name = 'Chrome'
     } else if (navigator.userAgent.indexOf('Safari') != -1 && !isEdge) {
-        browser_name = 'Safari';
+        browser_name = 'Safari'
     } else if (navigator.userAgent.indexOf('Firefox') != -1) {
-        browser_name = 'Firefox';
+        browser_name = 'Firefox'
     } else if (navigator.userAgent.indexOf('MSIE') != -1 || !!document.documentMode == true) {
         //IF IE > 10
-        browser_name = 'IE';
+        browser_name = 'IE'
     } else if (isEdge) {
-        browser_name = 'Edge';
+        browser_name = 'Edge'
     } else {
-        browser_name = 'Unknown';
+        browser_name = 'Unknown'
     }
 
-    return browser_name;
+    return browser_name
 }
 
 function isValidPhoneNumber(phoneNumber) {
-    if (!phoneNumber) return false;
+    if (!phoneNumber) return false
 
-    let isBad = !phoneNumber.match(/^[\d\-+\s]+$/);
+    let isBad = !phoneNumber.match(/^[\d\-+\s]+$/)
     if (!isBad) {
-        phoneNumber = phoneNumber.replace(/\D/g, '');
+        phoneNumber = phoneNumber.replace(/\D/g, '')
         if (phoneNumber.length < 7) {
-            isBad = true;
+            isBad = true
         }
     }
 
-    return !isBad;
+    return !isBad
 }
 
 function stringToBoolean(string) {
@@ -64,93 +64,95 @@ function stringToBoolean(string) {
         case 'true':
         case 'yes':
         case '1':
-            return true;
+            return true
         case 'false':
         case 'no':
         case '0':
         case null:
-            return false;
+            return false
         default:
-            return Boolean(string);
+            return Boolean(string)
     }
 }
 
 function orderCompare(order1, order2) {
-    let diff = order1.length - order2.length;
-    if (diff !== 0) return diff < 0 ? -1 : 1;
-    if (order1 === order2) return 0;
+    let diff = order1.length - order2.length
+    if (diff !== 0) return diff < 0 ? -1 : 1
+    if (order1 === order2) return 0
 
-    return order1 > order2 ? 1 : -1;
+    return order1 > order2 ? 1 : -1
 }
 
 function getPhotoThumbnailSize(sizes) {
-    return getSize(sizes, PHOTO_THUMBNAIL_SIZE);
+    return getSize(sizes, PHOTO_THUMBNAIL_SIZE)
 }
 
 function getPhotoSize(sizes) {
-    return getSize(sizes, PHOTO_SIZE);
+    return getSize(sizes, PHOTO_SIZE)
 }
 
 function getSize(sizes, dimension) {
-    if (!sizes) return null;
-    if (sizes.length === 0) return null;
-    if (dimension === 0) return null;
+    if (!sizes) return null
+    if (sizes.length === 0) return null
+    if (dimension === 0) return null
 
     // let iSize = sizes[2];//.find(x => x.type === 'i');
     // if (iSize){
     //     return iSize;
     // }
 
-    let useWidth = sizes[0].width >= sizes[0].height;
-    let diff = Math.abs(dimension - (useWidth ? sizes[0].width : sizes[0].height));
-    let index = 0;
+    let useWidth = sizes[0].width >= sizes[0].height
+    let diff = Math.abs(dimension - (useWidth ? sizes[0].width : sizes[0].height))
+    let index = 0
     for (let i = 1; i < sizes.length; i++) {
         if (sizes[i].type === 'i' && !sizes[i].photo.local.is_downloading_completed) {
-            continue;
+            continue
         }
 
-        let currDiff = Math.abs(dimension - (useWidth ? sizes[i].width : sizes[i].height));
+        let currDiff = Math.abs(dimension - (useWidth ? sizes[i].width : sizes[i].height))
         if (currDiff < diff) {
-            index = i;
-            currDiff = diff;
+            index = i
+            currDiff = diff
         }
     }
 
-    return sizes[index];
+    return sizes[index]
 }
 
 function getFitSize(size, max, increaseToMax = true) {
-    if (!size) return { width: 0, height: 0 };
+    if (!size) return { width: 0, height: 0 }
 
     if (!increaseToMax) {
         if (size.width < max && size.height < max) {
-            return size;
+            return size
         }
     }
 
     if (size.width > size.height) {
-        return { width: max, height: Math.floor((size.height * max) / size.width) };
+        return { width: max, height: Math.floor((size.height * max) / size.width) }
     }
 
-    return { width: Math.floor((size.width * max) / size.height), height: max };
+    return { width: Math.floor((size.width * max) / size.height), height: max }
 }
 
 function itemsInView(scrollContainerRef, itemsContainerRef) {
-    let scrollContainer = scrollContainerRef.current;
-    let itemsContainer = itemsContainerRef ? itemsContainerRef.current : scrollContainer;
+    let scrollContainer = scrollContainerRef.hasOwnProperty('current')
+        ? scrollContainerRef.current
+        : scrollContainerRef
+    let itemsContainer = itemsContainerRef ? itemsContainerRef.current : scrollContainer
 
-    const items = [];
+    const items = []
     for (let i = 0; i < itemsContainer.children.length; i++) {
-        let child = itemsContainer.children[i];
+        let child = itemsContainer.children[i]
         if (
             child.offsetTop + child.offsetHeight >= scrollContainer.scrollTop &&
             child.offsetTop <= scrollContainer.scrollTop + scrollContainer.offsetHeight
         ) {
-            items.push(i);
+            items.push(i)
         }
     }
 
-    return items;
+    return items
 }
 
 // Returns a function, that, when invoked, will only be triggered at most once
@@ -159,35 +161,35 @@ function itemsInView(scrollContainerRef, itemsContainerRef) {
 // but if you'd like to disable the execution on the leading edge, pass
 // `{leading: false}`. To disable execution on the trailing edge, ditto.
 function throttle(func, wait, options) {
-    var context, args, result;
-    var timeout = null;
-    var previous = 0;
-    if (!options) options = {};
+    var context, args, result
+    var timeout = null
+    var previous = 0
+    if (!options) options = {}
     var later = function() {
-        previous = options.leading === false ? 0 : Date.now();
-        timeout = null;
-        result = func.apply(context, args);
-        if (!timeout) context = args = null;
-    };
+        previous = options.leading === false ? 0 : Date.now()
+        timeout = null
+        result = func.apply(context, args)
+        if (!timeout) context = args = null
+    }
     return function() {
-        var now = Date.now();
-        if (!previous && options.leading === false) previous = now;
-        var remaining = wait - (now - previous);
-        context = this;
-        args = arguments;
+        var now = Date.now()
+        if (!previous && options.leading === false) previous = now
+        var remaining = wait - (now - previous)
+        context = this
+        args = arguments
         if (remaining <= 0 || remaining > wait) {
             if (timeout) {
-                clearTimeout(timeout);
-                timeout = null;
+                clearTimeout(timeout)
+                timeout = null
             }
-            previous = now;
-            result = func.apply(context, args);
-            if (!timeout) context = args = null;
+            previous = now
+            result = func.apply(context, args)
+            if (!timeout) context = args = null
         } else if (!timeout && options.trailing !== false) {
-            timeout = setTimeout(later, remaining);
+            timeout = setTimeout(later, remaining)
         }
-        return result;
-    };
+        return result
+    }
 }
 
 // Returns a function, that, as long as it continues to be invoked, will not
@@ -195,55 +197,55 @@ function throttle(func, wait, options) {
 // N milliseconds. If `immediate` is passed, trigger the function on the
 // leading edge, instead of the trailing.
 function debounce(func, wait, immediate) {
-    var timeout;
+    var timeout
     return function() {
         var context = this,
-            args = arguments;
+            args = arguments
         var later = function() {
-            timeout = null;
+            timeout = null
             if (!immediate) {
-                func.apply(context, args);
+                func.apply(context, args)
             }
-        };
-        var callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
-        if (callNow) {
-            func.apply(context, args);
         }
-    };
+        var callNow = immediate && !timeout
+        clearTimeout(timeout)
+        timeout = setTimeout(later, wait)
+        if (callNow) {
+            func.apply(context, args)
+        }
+    }
 }
 
 function getFirstLetter(str) {
-    if (!str) return '';
+    if (!str) return ''
     for (let i = 0; i < str.length; i++) {
         if (str[i].toUpperCase() !== str[i].toLowerCase()) {
-            return str[i];
+            return str[i]
         } else if (str[i] >= '0' && str[i] <= '9') {
-            return str[i];
+            return str[i]
         }
     }
 
-    return '';
+    return ''
 }
 
 function getLetters(title) {
-    if (!title) return null;
-    if (title.length === 0) return null;
+    if (!title) return null
+    if (title.length === 0) return null
 
-    let split = title.split(' ');
+    let split = title.split(' ')
     if (split.length > 1) {
-        return getFirstLetter(split[0]) + getFirstLetter(split[1]);
+        return getFirstLetter(split[0]) + getFirstLetter(split[1])
     }
 
-    return null;
+    return null
 }
 
 function readImageSize(file, callback) {
-    let useBlob = false;
+    let useBlob = false
     // Create a new FileReader instance
     // https://developer.mozilla.org/en/docs/Web/API/FileReader
-    var reader = new FileReader();
+    var reader = new FileReader()
 
     // Once a file is successfully readed:
     reader.addEventListener('load', function() {
@@ -254,7 +256,7 @@ function readImageSize(file, callback) {
         // Since the File Object does not hold the size of an image
         // we need to create a new image and assign it's src, so when
         // the image is loaded we can calculate it's width and height:
-        var image = new Image();
+        var image = new Image()
         image.addEventListener('load', function() {
             // Concatenate our HTML image info
             // var imageInfo = file.name    +' '+ // get the value of `name` from the `file` Obj
@@ -264,8 +266,8 @@ function readImageSize(file, callback) {
             //     Math.round(file.size/1024) +'KB';
 
             //alert(imageInfo);
-            file.photoWidth = image.width;
-            file.photoHeight = image.height;
+            file.photoWidth = image.width
+            file.photoHeight = image.height
             // Finally append our created image and the HTML info string to our `#preview`
             //elPreview.appendChild( this );
             //elPreview.insertAdjacentHTML("beforeend", imageInfo +'<br>');
@@ -277,23 +279,23 @@ function readImageSize(file, callback) {
             // src="blob:http%3A//example.com/2a303acf-c34c-4d0a-85d4-2136eef7d723"
             if (useBlob) {
                 // Free some memory for optimal performance
-                window.URL.revokeObjectURL(image.src);
+                window.URL.revokeObjectURL(image.src)
             }
 
-            callback(file);
-        });
+            callback(file)
+        })
 
-        image.src = useBlob ? window.URL.createObjectURL(file) : reader.result;
-    });
+        image.src = useBlob ? window.URL.createObjectURL(file) : reader.result
+    })
 
     // https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readAsDataURL
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(file)
 }
 
 function formatPhoneNumber(number) {
-    const unformattedNumber = number && number.startsWith('+') ? number : '+' + number;
-    const formattedNumber = formatNumber(unformattedNumber, 'International');
-    return formattedNumber || unformattedNumber;
+    const unformattedNumber = number && number.startsWith('+') ? number : '+' + number
+    const formattedNumber = formatNumber(unformattedNumber, 'International')
+    return formattedNumber || unformattedNumber
 }
 
 /**
@@ -308,7 +310,7 @@ function Base64EncodeUrl(str) {
     return str
         .replace(/\+/g, '-')
         .replace(/\//g, '_')
-        .replace(/\=+$/, '');
+        .replace(/\=+$/, '')
 }
 
 /**
@@ -320,49 +322,49 @@ function Base64EncodeUrl(str) {
  * @returns {String} the URL friendly encoded String
  */
 function Base64DecodeUrl(str) {
-    str = (str + '===').slice(0, str.length + (str.length % 4));
-    return str.replace(/-/g, '+').replace(/_/g, '/');
+    str = (str + '===').slice(0, str.length + (str.length % 4))
+    return str.replace(/-/g, '+').replace(/_/g, '/')
 }
 
 function arrayBufferToBase64(buffer) {
-    var binary = '';
-    var bytes = new Uint8Array(buffer);
-    var len = bytes.byteLength;
+    var binary = ''
+    var bytes = new Uint8Array(buffer)
+    var len = bytes.byteLength
     for (var i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i]);
+        binary += String.fromCharCode(bytes[i])
     }
-    return Base64EncodeUrl(window.btoa(binary));
+    return Base64EncodeUrl(window.btoa(binary))
 }
 
 function isAuthorizationReady(state) {
-    if (!state) return false;
+    if (!state) return false
 
-    return state['@type'] === 'authorizationStateReady';
+    return state['@type'] === 'authorizationStateReady'
 }
 
 function between(item, first, last) {
-    return item > first && item < last;
+    return item > first && item < last
 }
 
 function getDurationString(secondsTotal) {
-    let hours = Math.floor(secondsTotal / 3600);
-    let minutes = Math.floor((secondsTotal - hours * 3600) / 60);
-    let seconds = secondsTotal - hours * 3600 - minutes * 60;
+    let hours = Math.floor(secondsTotal / 3600)
+    let minutes = Math.floor((secondsTotal - hours * 3600) / 60)
+    let seconds = secondsTotal - hours * 3600 - minutes * 60
 
     if (hours > 0 && minutes < 10) {
-        minutes = '0' + minutes;
+        minutes = '0' + minutes
     }
     if (seconds < 10) {
-        seconds = '0' + seconds;
+        seconds = '0' + seconds
     }
 
-    return (hours > 0 ? hours + ':' : '') + minutes + ':' + seconds;
+    return (hours > 0 ? hours + ':' : '') + minutes + ':' + seconds
 }
 
 function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+    min = Math.ceil(min)
+    max = Math.floor(max)
+    return Math.floor(Math.random() * (max - min)) + min //The maximum is exclusive and the minimum is inclusive
 }
 
 export {
@@ -385,5 +387,5 @@ export {
     isAuthorizationReady,
     between,
     getDurationString,
-    getRandomInt
-};
+    getRandomInt,
+}

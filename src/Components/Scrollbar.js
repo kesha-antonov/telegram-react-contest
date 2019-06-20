@@ -6,14 +6,12 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 import { connect } from 'react-redux'
 
 function Scrollbar(props) {
-    console.log('Scrollbar', props)
     const isLightTheme = props.palette.type === 'light'
 
     return (
         <PerfectScrollbar
             {...props}
             className={classNames(
-                'dialogs-list',
                 {
                     ['scrollbar-light']: isLightTheme,
                     ['scrollbar-dark']: !isLightTheme,

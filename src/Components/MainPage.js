@@ -200,7 +200,7 @@ MainPage.propTypes = {}
 
 const enhance = compose(
     withLanguage,
-    withStyles(styles),
+    withStyles(styles, { withTheme: true }),
     withSnackbarNotifications
 )
 

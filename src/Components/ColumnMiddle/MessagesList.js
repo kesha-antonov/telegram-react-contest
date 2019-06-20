@@ -30,6 +30,7 @@ import PlayerStore from '../../Stores/PlayerStore'
 import TdLibController from '../../Controllers/TdLibController'
 import './MessagesList.css'
 import SelectChatPlaceholder from './SelectChatPlaceholder'
+import Scrollbar from '../Scrollbar'
 
 const ScrollBehaviorEnum = Object.freeze({
     NONE: 'NONE',
@@ -63,7 +64,7 @@ class MessagesList extends React.Component {
             separatorMessageId: 0,
         }
 
-        this.listRef = React.createRef()
+        this.listRef = null
         this.itemsRef = React.createRef()
 
         this.itemsMap = new Map()
@@ -132,7 +133,7 @@ class MessagesList extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         const { chatId, messageId } = this.props
 
-        const list = this.listRef.current
+        const list = this.listRef
         // console.log(
         //     `MessagesList.componentDidUpdate chat_id=${chatId} message_id=${messageId} \\
         //     prev_chat_id=${prevProps.chatId} prev_message_id=${prevProps.messageId} \\
@@ -181,7 +182,7 @@ class MessagesList extends React.Component {
     getSnapshotBeforeUpdate(prevProps, prevState) {
         const { chatId } = this.props
 
-        const list = this.listRef.current
+        const list = this.listRef
         const snapshot = {
             scrollTop: list.scrollTop,
             scrollHeight: list.scrollHeight,
@@ -202,7 +203,7 @@ class MessagesList extends React.Component {
     onClientUpdateMediaActive = update => {
         if (this.state.playerOpened) return
 
-        const list = this.listRef.current
+        const list = this.listRef
 
         const prevOffsetHeight = list.offsetHeight
         const prevScrollTop = list.scrollTop
@@ -214,14 +215,14 @@ class MessagesList extends React.Component {
     }
 
     onClientUpdateMediaEnding = udpate => {
-        const list = this.listRef.current
+        const list = this.listRef
 
         this.prevOffsetHeight = list.offsetHeight
         this.prevScrollTop = list.scrollTop
     }
 
     onClientUpdateMediaEnd = udpate => {
-        const list = this.listRef.current
+        const list = this.listRef
 
         //const prevOffsetHeight = list.offsetHeight;
         //const prevScrollTop = list.scrollTop;
@@ -286,7 +287,7 @@ class MessagesList extends React.Component {
         if (!handleSendSucceeded) return
 
         let scrollBehavior = ScrollBehaviorEnum.NONE
-        const list = this.listRef.current
+        const list = this.listRef
         // at the end of list
         if (list.scrollTop === list.scrollHeight - list.offsetHeight) {
             scrollBehavior = ScrollBehaviorEnum.SCROLL_TO_BOTTOM
@@ -311,7 +312,7 @@ class MessagesList extends React.Component {
         if (chatId !== message.chat_id) return
 
         let scrollBehavior = ScrollBehaviorEnum.NONE
-        const list = this.listRef.current
+        const list = this.listRef
         // at the end of list
         if (list.scrollTop === list.scrollHeight - list.offsetHeight) {
             scrollBehavior = ScrollBehaviorEnum.SCROLL_TO_BOTTOM
@@ -803,7 +804,7 @@ class MessagesList extends React.Component {
 
         this.updateItemsInView()
 
-        const list = this.listRef.current
+        const list = this.listRef
         //console.log(`SCROLL HANDLESCROLL list.scrollTop=${list.scrollTop} list.offsetHeight=${list.offsetHeight} list.scrollHeight=${list.scrollHeight} chatId=${this.props.chatId}`);
 
         if (this.suppressHandleScroll) {
@@ -847,7 +848,7 @@ class MessagesList extends React.Component {
         } else if (scrollBehavior === ScrollBehaviorEnum.SCROLL_TO_MESSAGE) {
             this.scrollToMessage()
         } else if (scrollBehavior === ScrollBehaviorEnum.SCROLL_TO_UNREAD) {
-            const list = this.listRef.current
+            const list = this.listRef
             // console.log(
             //     `SCROLL SCROLL_TO_UNREAD before \\
             //     list.scrollTop=${list.scrollTop} \\
@@ -882,7 +883,7 @@ class MessagesList extends React.Component {
             //     chatId=${chatId}`
             // );
         } else if (scrollBehavior === ScrollBehaviorEnum.KEEP_SCROLL_POSITION) {
-            const list = this.listRef.current
+            const list = this.listRef
             // console.log(
             //     `SCROLL KEEP_SCROLL_POSITION before \\
             //     list.scrollTop=${list.scrollTop} \\
@@ -905,7 +906,7 @@ class MessagesList extends React.Component {
         const { chatId, messageId } = this.props
         const { history } = this.state
 
-        const list = this.listRef.current
+        const list = this.listRef
         // console.log(
         //     `SCROLL SCROLL_TO_MESSAGE message_id=${messageId} before \\
         //     list.scrollTop=${list.scrollTop} \\
@@ -943,7 +944,7 @@ class MessagesList extends React.Component {
 
     scrollToBottom = () => {
         this.suppressHandleScroll = true
-        const list = this.listRef.current
+        const list = this.listRef
         // console.log(
         //     `SCROLL SCROLL_TO_BOTTOM before \\
         //     list.scrollHeight=${list.scrollHeight} \\
@@ -1043,6 +1044,10 @@ class MessagesList extends React.Component {
         ApplicationStore.setDragging(true)
     }
 
+    onListRef = listRef => {
+        this.listRef = listRef
+    }
+
     render() {
         const { classes, chatId } = this.props
         const { history, separatorMessageId, clearHistory, selectionActive } = this.state
@@ -1080,10 +1085,10 @@ class MessagesList extends React.Component {
                     'messages-list-selection-active': selectionActive,
                 })}
                 onDragEnter={this.handleListDragEnter}>
-                <div
-                    ref={this.listRef}
+                <Scrollbar
+                    containerRef={this.onListRef}
                     className='messages-list-wrapper'
-                    onScroll={this.handleScroll}>
+                    onScrollY={this.handleScroll}>
                     {this.isChatChosed() ? (
                         <>
                             <div className='messages-list-top' />
@@ -1094,7 +1099,7 @@ class MessagesList extends React.Component {
                     ) : (
                         <SelectChatPlaceholder />
                     )}
-                </div>
+                </Scrollbar>
                 <PinnedMessage chatId={chatId} />
                 <FilesDropTarget />
                 <StickersHint />

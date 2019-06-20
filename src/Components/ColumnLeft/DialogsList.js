@@ -26,7 +26,7 @@ class DialogsList extends React.Component {
 
         this.hiddenChats = new Map()
 
-        this.listRef = React.createRef()
+        this.listRef = null
 
         this.state = {
             chatsIds: [],
@@ -44,17 +44,13 @@ class DialogsList extends React.Component {
     }
 
     getSnapshotBeforeUpdate(prevProps, prevState) {
-        const { current: list } = this.listRef
-
-        console.log('list', list)
-        return { scrollTop: list.scrollTop }
+        return { scrollTop: this.listRef.scrollTop }
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const { current: list } = this.listRef
         const { scrollTop } = snapshot
 
-        list.scrollTop = scrollTop
+        this.listRef.scrollTop = scrollTop
     }
 
     componentDidMount() {
@@ -262,7 +258,7 @@ class DialogsList extends React.Component {
     }
 
     handleScroll = () => {
-        const list = this.listRef.current
+        const list = this.listRef
 
         if (list && list.scrollTop + list.offsetHeight >= list.scrollHeight) {
             this.onLoadNext()
@@ -346,12 +342,12 @@ class DialogsList extends React.Component {
     }
 
     scrollToTop() {
-        const list = this.listRef.current
+        const list = this.listRef
         list.scrollTop = 0
     }
 
-    containerRef = listRef => {
-        this.listRef = { current: listRef }
+    onListRef = listRef => {
+        this.listRef = listRef
     }
 
     render() {
@@ -364,7 +360,7 @@ class DialogsList extends React.Component {
         return (
             <Scrollbar
                 className='dialogs-list'
-                containerRef={this.containerRef}
+                containerRef={this.onListRef}
                 onScrollY={this.handleScroll}>
                 {dialogs}
             </Scrollbar>
