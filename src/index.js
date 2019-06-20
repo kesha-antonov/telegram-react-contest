@@ -15,13 +15,19 @@ import { OPTIMIZATIONS_FIRST_START } from './Constants'
 import './index.css'
 import reduxStore from './Stores/ReduxStore/store'
 import { Provider } from 'react-redux'
+import StylesProvider from '@material-ui/styles/StylesProvider'
+import Theme from './Theme'
 
 ReactDOM.render(
-    <Provider store={reduxStore}>
-        <Router>
-            <Route path='' component={TelegramApp} />
-        </Router>
-    </Provider>,
+    <StylesProvider injectFirst={false}>
+        <Provider store={reduxStore}>
+            <Theme>
+                <Router>
+                    <Route path='' component={TelegramApp} />
+                </Router>
+            </Theme>
+        </Provider>
+    </StylesProvider>,
     document.getElementById('root')
 )
 

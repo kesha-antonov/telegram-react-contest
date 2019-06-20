@@ -6,108 +6,114 @@
  */
 
 import React from 'react'
+import PropTypes from 'prop-types'
 import blue from '@material-ui/core/colors/blue'
 import createMuiTheme from '@material-ui/core/styles/createMuiTheme'
-import MuiThemeProvider from '@material-ui/core/styles/MuiThemeProvider'
-import StylesProvider from '@material-ui/styles/StylesProvider'
+// import { ThemeProvider } from '@material-ui/core/styles'
+import { ThemeProvider } from '@material-ui/styles'
 import { getDisplayName } from './Utils/HOC'
 import Cookies from 'universal-cookie'
 import ApplicationStore from './Stores/ApplicationStore'
+import { setTheme } from './Stores/ReduxStore/actions'
+import { connect } from 'react-redux'
 
 const SECONDARY = { main: '#FF5555' }
 const TYPE_LIGHT = 'light'
 
-function createLightTheme() {
-    return createMuiTheme({
-        palette: {
-            type: TYPE_LIGHT,
-            primary: blue,
-            secondary: SECONDARY
-        }
+export function createLightTheme() {
+    return createTheme({
+        type: TYPE_LIGHT,
+        primary: blue,
     })
 }
 
-export default function withTheme(WrappedComponent) {
-    class ThemeWrapper extends React.Component {
-        constructor(props) {
-            super(props)
+export function createTheme({ type, primary }) {
+    return createMuiTheme({
+        palette: {
+            type,
+            primary,
+            secondary: SECONDARY,
+        },
+    })
+}
 
-            const cookies = new Cookies()
-            const { type, primary } = cookies.get('themeOptions') || { type: TYPE_LIGHT, primary: blue }
+class ThemeWrapper extends React.Component {
+    constructor(props) {
+        super(props)
 
-            let theme = createMuiTheme({
-                palette: {
-                    type,
-                    primary,
-                    secondary: SECONDARY
+        const cookies = new Cookies()
+        const { type, primary } = cookies.get('themeOptions') || { type: TYPE_LIGHT, primary: blue }
+
+        let theme = createMuiTheme({
+            palette: {
+                type,
+                primary,
+                secondary: SECONDARY,
+            },
+        })
+
+        if (this.props.theme.palette.type !== theme.palette.type) this.props.setTheme(theme)
+    }
+
+    shouldComponentUpdate(nextProps) {
+        console.log('shouldComponentUpdate', this.props, nextProps)
+        return nextProps !== this.props
+    }
+
+    componentDidMount() {
+        // ApplicationStore.on('clientUpdateThemeChanging', this.onClientUpdateThemeChanging)
+        // ApplicationStore.on('updateAuthorizationState', this.onUpdateAuthorizationState)
+    }
+
+    componentWillUnmount() {
+        // ApplicationStore.removeListener('clientUpdateThemeChanging', this.onClientUpdateThemeChanging)
+        // ApplicationStore.removeListener('updateAuthorizationState', this.onUpdateAuthorizationState)
+    }
+
+    onUpdateAuthorizationState = update => {
+        const { theme, prevTheme } = this.props
+
+        switch (update.authorization_state['@type']) {
+            case 'authorizationStateWaitPhoneNumber':
+            case 'authorizationStateWaitCode':
+            case 'authorizationStateWaitPassword':
+                if (theme.palette.type !== TYPE_LIGHT) this.props.setTheme(createLightTheme())
+                break
+            default:
+                if (prevTheme && theme.palette.type !== prevTheme.palette.type) {
+                    this.props.setTheme(prevTheme, prevTheme)
                 }
-            })
-
-            this.state = {
-                prevTheme: theme,
-                theme
-            }
-        }
-
-        componentDidMount() {
-            ApplicationStore.on('clientUpdateThemeChanging', this.onClientUpdateThemeChanging)
-            ApplicationStore.on('updateAuthorizationState', this.onUpdateAuthorizationState)
-        }
-
-        componentWillUnmount() {
-            ApplicationStore.removeListener('clientUpdateThemeChanging', this.onClientUpdateThemeChanging)
-            ApplicationStore.removeListener('updateAuthorizationState', this.onUpdateAuthorizationState)
-        }
-
-        onClientUpdateThemeChanging = update => {
-            const { type, primary } = update
-
-            const theme = createMuiTheme({
-                palette: {
-                    type,
-                    primary,
-                    secondary: SECONDARY
-                }
-            })
-
-            const cookies = new Cookies()
-            cookies.set('themeOptions', { type, primary })
-
-            this.setState({ theme }, () => ApplicationStore.emit('clientUpdateThemeChange'))
-        }
-
-        onUpdateAuthorizationState = update => {
-            switch (update.authorization_state['@type']) {
-                case 'authorizationStateWaitPhoneNumber':
-                case 'authorizationStateWaitCode':
-                case 'authorizationStateWaitPassword':
-                    this.setState({
-                        prevTheme: this.state.theme,
-                        theme: createLightTheme()
-                    })
-                    break
-                default:
-                    if (this.state.prevTheme && this.state.theme.type !== this.state.prevTheme.type) {
-                        this.setState({
-                            theme: this.state.prevTheme
-                        })
-                    }
-            }
-        }
-
-        render() {
-            const { theme } = this.state
-
-            return (
-                <StylesProvider injectFirst={false}>
-                    <MuiThemeProvider theme={theme}>
-                        <WrappedComponent {...this.props} />
-                    </MuiThemeProvider>
-                </StylesProvider>
-            )
         }
     }
-    ThemeWrapper.displayName = `WithTheme(${getDisplayName(WrappedComponent)})`
 
-    return ThemeWrapper
+    render() {
+        const { theme, children } = this.props
+        console.log('Theme theme', theme)
+
+        return <ThemeProvider theme={theme}>{children}</ThemeProvider>
+    }
 }
+
+ThemeWrapper.propTypes = {
+    theme: PropTypes.object.isRequired,
+    prevTheme: PropTypes.object,
+    setTheme: PropTypes.func.isRequired,
+}
+
+const mapStateToProps = state => {
+    return {
+        theme: state.theme.current,
+        prevTheme: state.theme.prev,
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        setTheme: (theme, prevTheme = null) => dispatch(setTheme(theme, prevTheme)),
+    }
+}
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(ThemeWrapper)

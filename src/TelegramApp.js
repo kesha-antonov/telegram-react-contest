@@ -18,7 +18,6 @@ import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
 import packageJson from '../package.json'
 import withLanguage from './Language'
-import withTheme from './Theme'
 import AuthFormControl from './Components/Auth/AuthFormControl'
 import InactivePage from './Components/InactivePage'
 import StubPage from './Components/StubPage'
@@ -36,12 +35,12 @@ const MainPage = React.lazy(() => import('./Components/MainPage'))
 const styles = theme => ({
     '@global': {
         a: {
-            color: theme.palette.primary.main
+            color: theme.palette.primary.main,
         },
         code: {
-            color: theme.palette.primary.dark
-        }
-    }
+            color: theme.palette.primary.dark,
+        },
+    },
 })
 
 class TelegramApp extends Component {
@@ -55,7 +54,7 @@ class TelegramApp extends Component {
         this.state = {
             authorizationState: null,
             inactive: false,
-            fatalError: false
+            fatalError: false,
         }
 
         ApplicationStore.setReduxStore(context.store)
@@ -117,7 +116,7 @@ class TelegramApp extends Component {
         TdLibController.send({
             '@type': 'setOption',
             name: 'online',
-            value: { '@type': 'optionValueBoolean', value: true }
+            value: { '@type': 'optionValueBoolean', value: true },
         })
     }
 
@@ -127,7 +126,7 @@ class TelegramApp extends Component {
 
     handleChangePhone = () => {
         this.setState({
-            authorizationState: { '@type': 'authorizationStateWaitPhoneNumber' }
+            authorizationState: { '@type': 'authorizationStateWaitPhoneNumber' },
         })
     }
 
@@ -197,7 +196,11 @@ class TelegramApp extends Component {
         }
 
         return (
-            <div id='app' onDragOver={this.handleDragOver} onDrop={this.handleDrop} onKeyDown={this.handleKeyDown}>
+            <div
+                id='app'
+                onDragOver={this.handleDragOver}
+                onDrop={this.handleDrop}
+                onKeyDown={this.handleKeyDown}>
                 {page}
                 <Dialog
                     transitionDuration={0}
@@ -233,7 +236,7 @@ async function openPinnedChat(index) {
         '@type': 'getChats',
         offset_order: '9223372036854775807',
         offset_chat_id: 0,
-        limit: 10
+        limit: 10,
     })
 
     if (chats) {
@@ -275,7 +278,7 @@ document.addEventListener('keydown', async event => {
                 const chat = await TdLibController.send({
                     '@type': 'createPrivateChat',
                     user_id: UserStore.getMyId(),
-                    force: true
+                    force: true,
                 })
 
                 if (chat) {
@@ -338,7 +341,7 @@ window.onblur = function() {
 
     TdLibController.clientUpdate({
         '@type': 'clientUpdateFocusWindow',
-        focused: false
+        focused: false,
     })
 }
 
@@ -355,7 +358,7 @@ window.onfocus = function() {
 
     TdLibController.clientUpdate({
         '@type': 'clientUpdateFocusWindow',
-        focused: true
+        focused: true,
     })
 }
 
@@ -368,7 +371,6 @@ window.onpopstate = function() {
 const enhance = compose(
     withLanguage,
     withTranslation(),
-    withTheme,
     withStyles(styles)
 )
 

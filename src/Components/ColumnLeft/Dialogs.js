@@ -5,138 +5,144 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import withStyles from '@material-ui/core/styles/withStyles';
-import Search from './Search/Search';
-import DialogsHeader from './DialogsHeader';
-import DialogsList from './DialogsList';
-import UpdatePanel from './UpdatePanel';
-import { borderStyle } from '../Theme';
-import { openChat } from '../../Actions/Client';
-import ApplicationStore from '../../Stores/ApplicationStore';
-import './Dialogs.css';
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import classNames from 'classnames'
+import withStyles from '@material-ui/core/styles/withStyles'
+import Search from './Search/Search'
+import DialogsHeader from './DialogsHeader'
+import DialogsList from './DialogsList'
+import UpdatePanel from './UpdatePanel'
+import { borderStyle } from '../Theme'
+import { openChat } from '../../Actions/Client'
+import ApplicationStore from '../../Stores/ApplicationStore'
+import './Dialogs.css'
 
 const styles = theme => ({
-    ...borderStyle(theme)
-});
+    ...borderStyle(theme),
+})
 
 class Dialogs extends Component {
     constructor(props) {
-        super(props);
+        super(props)
 
-        this.dialogsList = React.createRef();
+        this.dialogsList = React.createRef()
 
         this.state = {
             isChatDetailsVisible: ApplicationStore.isChatDetailsVisible,
             openSearch: false,
             searchChatId: 0,
-            searchText: null
-        };
+            searchText: null,
+        }
     }
 
     shouldComponentUpdate(nextProps, nextState) {
         if (nextState.isChatDetailsVisible !== this.state.isChatDetailsVisible) {
-            return true;
+            return true
         }
 
         if (nextState.openSearch !== this.state.openSearch) {
-            return true;
+            return true
         }
 
         if (nextState.searchChatId !== this.state.searchChatId) {
-            return true;
+            return true
         }
 
         if (nextState.searchText !== this.state.searchText) {
-            return true;
+            return true
         }
 
-        return false;
+        return false
     }
 
     componentDidMount() {
-        ApplicationStore.on('clientUpdateChatDetailsVisibility', this.onClientUpdateChatDetailsVisibility);
-        ApplicationStore.on('clientUpdateSearchChat', this.onClientUpdateSearchChat);
-        ApplicationStore.on('clientUpdateThemeChange', this.onClientUpdateThemeChange);
+        ApplicationStore.on(
+            'clientUpdateChatDetailsVisibility',
+            this.onClientUpdateChatDetailsVisibility
+        )
+        ApplicationStore.on('clientUpdateSearchChat', this.onClientUpdateSearchChat)
+        // ApplicationStore.on('clientUpdateThemeChange', this.onClientUpdateThemeChange);
     }
 
     componentWillUnmount() {
-        ApplicationStore.removeListener('clientUpdateChatDetailsVisibility', this.onClientUpdateChatDetailsVisibility);
-        ApplicationStore.removeListener('clientUpdateSearchChat', this.onClientUpdateSearchChat);
-        ApplicationStore.removeListener('clientUpdateThemeChange', this.onClientUpdateThemeChange);
+        ApplicationStore.removeListener(
+            'clientUpdateChatDetailsVisibility',
+            this.onClientUpdateChatDetailsVisibility
+        )
+        ApplicationStore.removeListener('clientUpdateSearchChat', this.onClientUpdateSearchChat)
+        // ApplicationStore.removeListener('clientUpdateThemeChange', this.onClientUpdateThemeChange);
     }
 
-    onClientUpdateThemeChange = update => {
-        this.forceUpdate();
-    };
+    // onClientUpdateThemeChange = update => {
+    //     this.forceUpdate();
+    // };
 
     onClientUpdateChatDetailsVisibility = update => {
         this.setState({
-            isChatDetailsVisible: ApplicationStore.isChatDetailsVisible
-        });
-    };
+            isChatDetailsVisible: ApplicationStore.isChatDetailsVisible,
+        })
+    }
 
     onClientUpdateSearchChat = update => {
         this.setState({
             openSearch: true,
             searchChatId: update.chatId,
-            searchText: null
-        });
-    };
+            searchText: null,
+        })
+    }
 
     handleHeaderClick = () => {
-        this.dialogsList.current.scrollToTop();
-    };
+        this.dialogsList.current.scrollToTop()
+    }
 
     handleSearch = visible => {
         this.setState({
             openSearch: visible,
             searchChatId: 0,
-            searchText: null
-        });
-    };
+            searchText: null,
+        })
+    }
 
     handleSelectMessage = (chatId, messageId, openSearch) => {
-        const { onSelectChat } = this.props;
+        const { onSelectChat } = this.props
 
-        openChat(chatId, messageId);
+        openChat(chatId, messageId)
 
-        onSelectChat(chatId, messageId);
+        onSelectChat(chatId, messageId)
 
-        const searchChatId = openSearch ? this.state.searchChatId : 0;
-        const searchText = openSearch ? this.state.searchText : null;
+        const searchChatId = openSearch ? this.state.searchChatId : 0
+        const searchText = openSearch ? this.state.searchText : null
 
         this.setState({
             openSearch: openSearch,
             searchChatId: searchChatId,
-            searchText: searchText
-        });
-    };
+            searchText: searchText,
+        })
+    }
 
     handleClose = () => {
         this.setState({
             openSearch: false,
             searchChatId: 0,
-            searchText: null
-        });
-    };
+            searchText: null,
+        })
+    }
 
     handleSearchTextChange = text => {
         this.setState({
-            searchText: text
-        });
-    };
+            searchText: text,
+        })
+    }
 
     render() {
-        const { classes } = this.props;
-        const { isChatDetailsVisible, openSearch, searchChatId, searchText } = this.state;
+        const { classes } = this.props
+        const { isChatDetailsVisible, openSearch, searchChatId, searchText } = this.state
 
         return (
             <div
                 className={classNames(classes.borderColor, 'dialogs', {
-                    'dialogs-third-column': isChatDetailsVisible
+                    'dialogs-third-column': isChatDetailsVisible,
                 })}>
                 <DialogsHeader
                     openSearch={openSearch}
@@ -157,12 +163,12 @@ class Dialogs extends Component {
                 </div>
                 <UpdatePanel />
             </div>
-        );
+        )
     }
 }
 
 Dialogs.propTypes = {
-    onSelectChat: PropTypes.func.isRequired
-};
+    onSelectChat: PropTypes.func.isRequired,
+}
 
-export default withStyles(styles)(Dialogs);
+export default withStyles(styles)(Dialogs)

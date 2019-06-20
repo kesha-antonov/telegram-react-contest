@@ -1,3 +1,5 @@
+// chats
+
 export const ADD_CHAT = 'ADD_CHAT'
 export const UPDATE_CHAT = 'UPDATE_CHAT'
 export const REMOVE_CHAT = 'REMOVE_CHAT'
@@ -14,8 +16,19 @@ export function removeChat(chat) {
     return { type: REMOVE_CHAT, chat }
 }
 
+// currentChatId
+
 export const SET_CURRENT_CHAT_ID = 'SET_CURRENT_CHAT_ID'
 
 export function setCurrentChatId(chatId) {
     return { type: SET_CURRENT_CHAT_ID, chatId }
+}
+
+// theme
+
+export const SET_THEME = 'SET_THEME'
+
+export function setTheme(theme, prevTheme = null) {
+    console.log('setTheme', theme, prevTheme)
+    return { type: SET_THEME, theme, prevTheme }
 }

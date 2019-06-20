@@ -6,7 +6,6 @@
  */
 
 import React from 'react'
-import { Scrollbars } from 'react-custom-scrollbars'
 import DialogControl from '../Tile/DialogControl'
 import { CHAT_SLICE_LIMIT } from '../../Constants'
 import { loadChatsContent } from '../../Utils/File'
@@ -19,6 +18,7 @@ import ApplicationStore from '../../Stores/ApplicationStore'
 import FileStore from '../../Stores/FileStore'
 import TdLibController from '../../Controllers/TdLibController'
 import './DialogsList.css'
+import Scrollbar from '../Scrollbar'
 
 class DialogsList extends React.Component {
     constructor() {
@@ -31,7 +31,7 @@ class DialogsList extends React.Component {
         this.state = {
             chatsIds: [],
             authorizationState: ApplicationStore.getAuthorizationState(),
-            connectionState: ApplicationStore.getConnectionState()
+            connectionState: ApplicationStore.getConnectionState(),
         }
     }
 
@@ -46,6 +46,7 @@ class DialogsList extends React.Component {
     getSnapshotBeforeUpdate(prevProps, prevState) {
         const { current: list } = this.listRef
 
+        console.log('list', list)
         return { scrollTop: list.scrollTop }
     }
 
@@ -288,7 +289,7 @@ class DialogsList extends React.Component {
             '@type': 'getChats',
             offset_chat_id: offsetChatId,
             offset_order: offsetOrder,
-            limit: CHAT_SLICE_LIMIT
+            limit: CHAT_SLICE_LIMIT,
         }).finally(() => {
             this.loading = false
         })
@@ -318,11 +319,11 @@ class DialogsList extends React.Component {
                 if (!supergroup) {
                     supergroup = await TdLibController.send({
                         '@type': 'getSupergroup',
-                        supergroup_id: chat.type.supergroup_id
+                        supergroup_id: chat.type.supergroup_id,
                     })
                     TdLibController.clientUpdate({
                         '@type': 'updateSupergroup',
-                        supergroup
+                        supergroup,
                     })
                 }
             }
@@ -349,24 +350,24 @@ class DialogsList extends React.Component {
         list.scrollTop = 0
     }
 
+    containerRef = listRef => {
+        this.listRef = { current: listRef }
+    }
+
     render() {
         const { chatsIds } = this.state
 
-        const dialogs = chatsIds.map(x => <DialogControl key={x} chatId={x} hidden={this.hiddenChats.has(x)} />)
-
-        /*<Scrollbars*/
-        /*ref={this.listRef}*/
-        /*onScroll={this.handleScroll}*/
-        /*autoHide*/
-        /*autoHideTimeout={500}*/
-        /*autoHideDuration={300}>*/
-        /*{chatsIds}*/
-        /*</Scrollbars>*/
+        const dialogs = chatsIds.map(x => (
+            <DialogControl key={x} chatId={x} hidden={this.hiddenChats.has(x)} />
+        ))
 
         return (
-            <div ref={this.listRef} className='dialogs-list' onScroll={this.handleScroll}>
+            <Scrollbar
+                className='dialogs-list'
+                containerRef={this.containerRef}
+                onScrollY={this.handleScroll}>
                 {dialogs}
-            </div>
+            </Scrollbar>
         )
     }
 }

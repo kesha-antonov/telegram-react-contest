@@ -76,3 +76,17 @@ strong {
     color: #70777b;
     font-size: 14px;
 }
+
+.scrollbar-light .ps__thumb-y {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.scrollbar-dark .ps__thumb-y {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.ps__rail-y:hover > .ps__thumb-y,
+.ps__rail-y:focus > .ps__thumb-y,
+.ps__rail-y.ps--clicking .ps__thumb-y {
+    background-color: #999;
+}

@@ -168,6 +168,7 @@ DialogControl.propTypes = {
     currentChatId: PropTypes.number,
     hidden: PropTypes.bool,
     showSavedMessages: PropTypes.bool,
+    theme: PropTypes.object.isRequired,
 }
 
 DialogControl.defaultProps = {

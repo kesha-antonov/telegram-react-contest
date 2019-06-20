@@ -1,6 +1,8 @@
 import { createStore } from 'redux'
-import chatsReducer from './reducers/chatsReducer'
+import reducers from './reducers'
+import { combineReducers } from 'redux'
 
-const reduxStore = createStore(chatsReducer)
+console.log('reducers', reducers)
+const reduxStore = createStore(combineReducers(reducers))
 
 export default reduxStore
