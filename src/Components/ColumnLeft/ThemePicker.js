@@ -322,7 +322,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
     return {
-        setPalette: palette => dispatch(setPalette(palette)),
+        setPalette: palette => dispatch(setPalette(palette, palette)),
     }
 }
 

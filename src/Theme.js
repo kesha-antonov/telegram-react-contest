@@ -92,12 +92,13 @@ class ThemeWrapper extends React.Component {
             case 'authorizationStateWaitPhoneNumber':
             case 'authorizationStateWaitCode':
             case 'authorizationStateWaitPassword':
-                if (palette.type !== TYPE_LIGHT) {
-                    this.props.setPalette(createLightPalette())
+                const lightPalette = createLightPalette()
+                if (!shallowEqual(lightPalette, palette)) {
+                    this.props.setPalette(lightPalette)
                 }
                 break
             default:
-                if (prevPalette && palette.type !== prevPalette.type) {
+                if (prevPalette && !shallowEqual(prevPalette, palette)) {
                     this.props.setPalette(prevPalette, prevPalette)
                 }
         }
