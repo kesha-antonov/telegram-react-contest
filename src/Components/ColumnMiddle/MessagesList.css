@@ -19,8 +19,7 @@
     flex: 1 1 0;
     display: flex;
     flex-direction: column;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
     -webkit-overflow-scrolling: touch;
     transform: translateZ(0);
 }

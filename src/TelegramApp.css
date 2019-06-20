@@ -78,15 +78,21 @@ strong {
 }
 
 .scrollbar-light .ps__thumb-y {
-    background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.65);
+}
+
+.scrollbar-light .ps__rail-y:hover > .ps__thumb-y,
+.scrollbar-light .ps__rail-y:focus > .ps__thumb-y,
+.scrollbar-light .ps__rail-y.ps--clicking .ps__thumb-y {
+    background-color: rgba(0, 0, 0, 0.95);
 }
 
 .scrollbar-dark .ps__thumb-y {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.65);
 }
 
-.ps__rail-y:hover > .ps__thumb-y,
-.ps__rail-y:focus > .ps__thumb-y,
-.ps__rail-y.ps--clicking .ps__thumb-y {
-    background-color: #999;
+.scrollbar-dark .ps__rail-y:hover > .ps__thumb-y,
+.scrollbar-dark .ps__rail-y:focus > .ps__thumb-y,
+.scrollbar-dark .ps__rail-y.ps--clicking .ps__thumb-y {
+    background-color: rgba(255, 255, 255, 0.95);
 }

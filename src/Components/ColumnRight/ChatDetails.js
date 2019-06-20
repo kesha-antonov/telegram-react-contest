@@ -43,7 +43,7 @@ import {
     getChatFullInfo,
     isPrivateChat,
     getChatUserId,
-    isMeChat
+    isMeChat,
 } from '../../Utils/Chat'
 import { getUserStatusOrder } from '../../Utils/User'
 import { loadUsersContent, loadChatsContent } from '../../Utils/File'
@@ -59,35 +59,36 @@ import OptionStore from '../../Stores/OptionStore'
 import FileStore from '../../Stores/FileStore'
 import ApplicationStore from '../../Stores/ApplicationStore'
 import TdLibController from '../../Controllers/TdLibController'
+import Scrollbar from '../Scrollbar'
 import './ChatDetails.css'
 
 const styles = theme => ({
     closeIconButton: {
-        margin: '8px -2px 8px 12px'
+        margin: '8px -2px 8px 12px',
     },
     nested: {
         // paddingLeft: theme.spacing(4),
     },
     close: {
-        padding: theme.spacing(0.5)
+        padding: theme.spacing(0.5),
     },
     listItem: {
-        padding: '11px 22px'
-    }
+        padding: '11px 22px',
+    },
 })
 
 class ChatDetails extends React.Component {
     constructor(props) {
         super(props)
 
-        this.chatDetailsListRef = React.createRef()
+        this.chatDetailsListRef = null
 
         const { chatId } = this.props
 
         this.members = new Map()
         this.state = {
             prevChatId: chatId,
-            hasGroupsInCommon: false
+            hasGroupsInCommon: false,
         }
     }
 
@@ -95,7 +96,7 @@ class ChatDetails extends React.Component {
         if (props.chatId !== state.prevChatId) {
             return {
                 prevChatId: props.chatId,
-                hasGroupsInCommon: false
+                hasGroupsInCommon: false,
             }
         }
 
@@ -105,12 +106,12 @@ class ChatDetails extends React.Component {
     getSnapshotBeforeUpdate(prevProps, prevState) {
         const { chatId } = this.props
 
-        const list = this.chatDetailsListRef.current
+        const list = this.chatDetailsListRef
         const { scrollTop, scrollHeight, offsetHeight } = list
         const snapshot = {
             scrollTop: scrollTop,
             scrollHeight: scrollHeight,
-            offsetHeight: offsetHeight
+            offsetHeight: offsetHeight,
         }
 
         console.log(
@@ -146,7 +147,7 @@ class ChatDetails extends React.Component {
         }
 
         console.log('chatDetailsListRef', this.chatDetailsListRef)
-        const list = this.chatDetailsListRef.current
+        const list = this.chatDetailsListRef
         const { scrollTop, scrollHeight, offsetHeight } = snapshot
         console.log(
             `[ChatDetails] componentDidUpdate before chatId=${chatId} list.scrollTop=${list.scrollTop} list.offsetHeight=${list.offsetHeight} list.scrollHeight=${list.scrollHeight}`
@@ -258,7 +259,7 @@ class ChatDetails extends React.Component {
             '@type': 'getGroupsInCommon',
             user_id: getChatUserId(chatId),
             offset_chat_id: 0,
-            limit: 1
+            limit: 1,
         })
 
         this.setState({ hasGroupsInCommon: result.chat_ids.length > 0 })
@@ -289,7 +290,11 @@ class ChatDetails extends React.Component {
 
         const TRANSITION_DELAY = 150
         if (
-            ApplicationStore.addScheduledAction(key, NOTIFICATION_AUTO_HIDE_DURATION_MS + 2 * TRANSITION_DELAY, action)
+            ApplicationStore.addScheduledAction(
+                key,
+                NOTIFICATION_AUTO_HIDE_DURATION_MS + 2 * TRANSITION_DELAY,
+                action
+            )
         ) {
             enqueueSnackbar(message, {
                 autoHideDuration: NOTIFICATION_AUTO_HIDE_DURATION_MS,
@@ -301,8 +306,8 @@ class ChatDetails extends React.Component {
                         className={classes.close}
                         onClick={() => ApplicationStore.removeScheduledAction(key)}>
                         <CloseIcon />
-                    </IconButton>
-                ]
+                    </IconButton>,
+                ],
             })
         }
     }
@@ -322,7 +327,7 @@ class ChatDetails extends React.Component {
     }
 
     handleHeaderClick = () => {
-        this.chatDetailsListRef.current.scrollTop = 0
+        this.chatDetailsListRef.scrollTop = 0
     }
 
     handleOpenViewer = () => {
@@ -342,7 +347,7 @@ class ChatDetails extends React.Component {
         if (popup) {
             TdLibController.clientUpdate({
                 '@type': 'clientUpdateDialogChatId',
-                chatId: 0
+                chatId: 0,
             })
         }
     }
@@ -350,7 +355,11 @@ class ChatDetails extends React.Component {
     getContentHeight = () => {
         if (!this.chatDetailsListRef) return 0
 
-        return this.chatDetailsListRef.current.clientHeight
+        return this.chatDetailsListRef.clientHeight
+    }
+
+    onListRef = chatDetailsListRef => {
+        this.chatDetailsListRef = chatDetailsListRef
     }
 
     render() {
@@ -363,7 +372,7 @@ class ChatDetails extends React.Component {
             onOpenGroupsInCommon,
             popup,
             backButton,
-            onClose
+            onClose,
         } = this.props
         const { hasGroupsInCommon } = this.state
 
@@ -372,7 +381,7 @@ class ChatDetails extends React.Component {
             return (
                 <div className='chat-details'>
                     <ChatDetailsHeader onClose={onClose} />
-                    <div ref={this.chatDetailsListRef} className='chat-details-list' />
+                    <Scrollbar containerRef={this.onListRef} className='chat-details-list' />
                 </div>
             )
         }
@@ -413,7 +422,7 @@ class ChatDetails extends React.Component {
                     onClose={onClose}
                     onClick={this.handleHeaderClick}
                 />
-                <div ref={this.chatDetailsListRef} className='chat-details-list'>
+                <Scrollbar containerRef={this.onListRef} className='chat-details-list'>
                     <div className='chat-details-info'>
                         <ChatControl
                             chatId={chatId}
@@ -425,7 +434,10 @@ class ChatDetails extends React.Component {
                     {(username || phoneNumber || bio) && (
                         <List>
                             {username && (
-                                <ListItem button className={classes.listItem} onClick={this.handleUsernameHint}>
+                                <ListItem
+                                    button
+                                    className={classes.listItem}
+                                    onClick={this.handleUsernameHint}>
                                     <ListItemIcon>
                                         <AlternateEmailIcon />
                                     </ListItemIcon>
@@ -440,7 +452,10 @@ class ChatDetails extends React.Component {
                             )}
                             {phoneNumber && (
                                 <>
-                                    <ListItem button className={classes.listItem} onClick={this.handlePhoneHint}>
+                                    <ListItem
+                                        button
+                                        className={classes.listItem}
+                                        onClick={this.handlePhoneHint}>
                                         <ListItemIcon>
                                             <CallIcon />
                                         </ListItemIcon>
@@ -472,7 +487,10 @@ class ChatDetails extends React.Component {
                         {!isMe && <NotificationsListItem chatId={chatId} />}
                         {isGroup && <MoreListItem chatId={chatId} />}
                         {!isGroup && (
-                            <ListItem button className={classes.listItem} onClick={this.handleOpenChat}>
+                            <ListItem
+                                button
+                                className={classes.listItem}
+                                onClick={this.handleOpenChat}>
                                 <ListItemText
                                     inset
                                     primary={
@@ -486,7 +504,11 @@ class ChatDetails extends React.Component {
                     </List>
                     <Divider />
                     <List>
-                        <ListItem button disabled className={classes.listItem} onClick={onOpenSharedMedia}>
+                        <ListItem
+                            button
+                            disabled
+                            className={classes.listItem}
+                            onClick={onOpenSharedMedia}>
                             <ListItemIcon>
                                 <PhotoIcon />
                             </ListItemIcon>
@@ -499,7 +521,10 @@ class ChatDetails extends React.Component {
                             />
                         </ListItem>
                         {hasGroupsInCommon && (
-                            <ListItem button className={classes.listItem} onClick={onOpenGroupsInCommon}>
+                            <ListItem
+                                button
+                                className={classes.listItem}
+                                onClick={onOpenGroupsInCommon}>
                                 <ListItemText
                                     inset
                                     primary={
@@ -517,11 +542,15 @@ class ChatDetails extends React.Component {
                             <List>{items}</List>
                         </>
                     )}
-                </div>
+                </Scrollbar>
             </>
         )
 
-        return popup ? <>{content}</> : <div className={classNames('chat-details', className)}>{content}</div>
+        return popup ? (
+            <>{content}</>
+        ) : (
+            <div className={classNames('chat-details', className)}>{content}</div>
+        )
     }
 }
 
@@ -530,7 +559,7 @@ ChatDetails.propTypes = {
     popup: PropTypes.bool,
     onClose: PropTypes.func,
     onOpenSharedMedia: PropTypes.func,
-    onOpenGroupsInCommon: PropTypes.func
+    onOpenGroupsInCommon: PropTypes.func,
 }
 
 const enhance = compose(

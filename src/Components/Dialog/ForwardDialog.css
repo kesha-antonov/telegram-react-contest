@@ -5,30 +5,35 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-.forward-dialog-list {
+.forward-dialog-list,
+.forward-dialog-search-list-content {
     max-width: 336px;
+}
+
+.forward-dialog-list {
     display: flex;
     flex-wrap: wrap;
     flex: 1 1 auto;
     padding: 12px 24px;
-    overflow-y: auto;
+    overflow: hidden;
 }
 
 .forward-dialog-search-list {
-    max-width: 336px;
     position: absolute;
     left: 0;
     right: 0;
     top: 0;
     bottom: 0;
     z-index: 2;
+}
+
+.forward-dialog-search-list-content {
+    -webkit-overflow-scrolling: touch;
     display: flex;
     flex-wrap: wrap;
     flex: 1 1 auto;
     align-content: start;
     padding: 12px 24px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
 }
 
 .forward-dialog-content {
@@ -53,8 +58,7 @@
     max-height: 150px;
     max-width: 324px;
     min-height: 24px;
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
     -webkit-overflow-scrolling: touch;
     padding: 12px 24px 12px 24px;
     white-space: pre-wrap;

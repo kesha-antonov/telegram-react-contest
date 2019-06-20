@@ -30,6 +30,7 @@ import ChatStore from '../../../Stores/ChatStore'
 import UserStore from '../../../Stores/UserStore'
 import ApplicationStore from '../../../Stores/ApplicationStore'
 import TdLibController from '../../../Controllers/TdLibController'
+import Scrollbar from '../../Scrollbar'
 import './Search.css'
 
 const styles = theme => ({
@@ -48,7 +49,7 @@ class Search extends React.Component {
     constructor(props) {
         super(props)
 
-        this.listRef = React.createRef()
+        this.listRef = null
 
         const { chatId, text } = this.props
 
@@ -168,7 +169,6 @@ class Search extends React.Component {
             }
 
             const results = await Promise.all(promises.map(x => x.catch(e => null)))
-
             const local = this.concatSearchResults(results)
 
             if (sessionId !== this.sessionId) {
@@ -377,7 +377,7 @@ class Search extends React.Component {
     }
 
     handleScroll = () => {
-        const list = this.listRef.current
+        const list = this.listRef
 
         if (list.scrollTop + list.offsetHeight === list.scrollHeight) {
             this.onLoadPrevious()
@@ -480,6 +480,10 @@ class Search extends React.Component {
         onClose()
     }
 
+    onListRef = listRef => {
+        this.listRef = listRef
+    }
+
     render() {
         const { classes, chatId } = this.props
         const { top, recentlyFound, local, global, messages } = this.state
@@ -550,10 +554,10 @@ class Search extends React.Component {
         }
 
         return (
-            <div
-                ref={this.listRef}
+            <Scrollbar
+                containerRef={this.onListRef}
                 className={classNames(classes.search, 'search')}
-                onScroll={this.handleScroll}>
+                onScrollY={this.handleScroll}>
                 {chat && (
                     <div className='search-chat'>
                         <SearchCaption caption='Search messages in' />
@@ -608,7 +612,7 @@ class Search extends React.Component {
                         {globalMessages}
                     </div>
                 )}
-            </div>
+            </Scrollbar>
         )
     }
 }
