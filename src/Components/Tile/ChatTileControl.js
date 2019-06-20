@@ -22,9 +22,9 @@ const styles = {
         position: 'absolute',
         right: 1,
         bottom: 1,
-        zIndex: 1
+        zIndex: 1,
     },
-    statusIcon: {}
+    statusIcon: {},
 }
 
 class ChatTileControl extends Component {
@@ -129,19 +129,23 @@ class ChatTileControl extends Component {
         const src = FileStore.getBlobUrl(blob)
 
         const tileColor = `tile_color_${(Math.abs(chatId) % 8) + 1}`
-        const className = classNames('tile-photo', { [tileColor]: !blob }, { pointer: onSelect })
+        const className = classNames('tile-photo', { pointer: onSelect })
 
         return (
             <div className='chat-tile' onClick={this.handleSelect}>
-                {src ? (
-                    <img className={className} src={src} draggable={false} alt='' />
-                ) : (
-                    <div className={className}>
-                        <span className='tile-text'>{letters}</span>
-                    </div>
-                )}
+                <div className={classNames(className, tileColor)}>
+                    <span className='tile-text'>{letters}</span>
+                    {src && (
+                        <div className={'tile-photo-image'}>
+                            <img className={className} src={src} draggable={false} alt='' />
+                        </div>
+                    )}
+                </div>
                 {showOnline && isPrivateChat(chatId) && (
-                    <ChatStatus classes={{ root: classes.statusRoot, icon: classes.statusIcon }} chatId={chatId} />
+                    <ChatStatus
+                        classes={{ root: classes.statusRoot, icon: classes.statusIcon }}
+                        chatId={chatId}
+                    />
                 )}
             </div>
         )
@@ -153,12 +157,12 @@ ChatTileControl.propTypes = {
     chatId: PropTypes.number.isRequired,
     onSelect: PropTypes.func,
     showSavedMessages: PropTypes.bool,
-    showOnline: PropTypes.bool
+    showOnline: PropTypes.bool,
 }
 
 ChatTileControl.defaultProps = {
     showSavedMessages: true,
-    showOnline: false
+    showOnline: false,
 }
 
 export default withStyles(styles, { withTheme: true })(ChatTileControl)

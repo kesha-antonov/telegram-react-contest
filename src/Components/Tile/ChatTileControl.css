@@ -58,6 +58,15 @@
     position: relative;
     z-index: 1;
     user-select: none;
+    position: relative;
+}
+
+.tile-photo-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
 }
 
 .tile-saved-messages {
