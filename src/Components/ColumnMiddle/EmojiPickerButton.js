@@ -22,6 +22,7 @@ import { EMOJI_PICKER_TIMEOUT_MS } from '../../Constants'
 import ApplicationStore from '../../Stores/ApplicationStore'
 import FileStore from '../../Stores/FileStore'
 import LocalizationStore from '../../Stores/LocalizationStore'
+import StickerStore from '../../Stores/StickerStore'
 import TdLibController from '../../Controllers/TdLibController'
 import './EmojiPickerButton.css'
 import './emojiMart.css'
@@ -88,6 +89,7 @@ class EmojiPickerButton extends Component {
 
     componentDidMount() {
         LocalizationStore.on('clientUpdateLanguageChange', this.removePicker)
+        StickerStore.on('updateInstalledStickerSets', this.onClientUpdateInstalledStickerSets)
     }
 
     componentWillReceiveProps(nextProps) {
@@ -96,6 +98,10 @@ class EmojiPickerButton extends Component {
 
     componentWillUnmount() {
         LocalizationStore.removeListener('clientUpdateLanguageChange', this.removePicker)
+        StickerStore.removeEventListener(
+            'updateInstalledStickerSets',
+            this.onClientUpdateInstalledStickerSets
+        )
     }
 
     removePicker = () => {
@@ -112,8 +118,17 @@ class EmojiPickerButton extends Component {
         }, EMOJI_PICKER_TIMEOUT_MS)
     }
 
-    loadStickerSets = async () => {
-        if (this.sets) return
+    onClientUpdateInstalledStickerSets = async () => {
+        if (!this.stickerSets) return
+
+        await this.loadStickerSets(true)
+
+        const stickersPicker = this.stickersPickerRef.current
+        stickersPicker.loadContent(this.stickerSets, this.sets, true)
+    }
+
+    loadStickerSets = async (force = false) => {
+        if (this.sets && !force) return
 
         this.stickerSets = await TdLibController.send({
             '@type': 'getInstalledStickerSets',

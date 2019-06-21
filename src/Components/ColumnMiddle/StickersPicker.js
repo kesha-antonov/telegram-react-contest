@@ -64,8 +64,8 @@ class StickersPicker extends React.Component {
         this.scrollRef.scrollTop = 0
     }
 
-    loadContent = async (stickerSets, sets) => {
-        if (this.state.stickerSets) return
+    loadContent = async (stickerSets, sets, force = false) => {
+        if (this.state.stickerSets && !force) return
 
         if (!sets) {
             const result = await TdLibController.send({
