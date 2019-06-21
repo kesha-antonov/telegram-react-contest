@@ -110,7 +110,7 @@ class EmojiPickerButton extends Component {
 
     componentWillUnmount() {
         LocalizationStore.removeListener('clientUpdateLanguageChange', this.removePicker)
-        StickerStore.removeEventListener(
+        StickerStore.removeListener(
             'updateInstalledStickerSets',
             this.onClientUpdateInstalledStickerSets
         )
