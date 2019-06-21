@@ -41,6 +41,7 @@ import StickerStore from '../../Stores/StickerStore'
 import TdLibController from '../../Controllers/TdLibController'
 import './InputBoxControl.css'
 
+const EMOJI_END_STRING_REGEX = new RegExp('(?:' + emojiRegex().source + ')+$', '')
 const EmojiPickerButton = React.lazy(() => import('./../ColumnMiddle/EmojiPickerButton'))
 
 const styles = theme => ({
@@ -69,6 +70,8 @@ class InputBoxControl extends Component {
             replyToMessageId: getChatDraftReplyToMessageId(chatId),
             openPasteDialog: false,
         }
+
+        this.newMessageFocused = false
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -224,6 +227,8 @@ class InputBoxControl extends Component {
     }
 
     setInputFocus = () => {
+        if (this.newMessageFocused) return
+
         setTimeout(() => {
             if (this.newMessageRef.current) {
                 const element = this.newMessageRef.current
@@ -585,8 +590,20 @@ class InputBoxControl extends Component {
         })
     }
 
+    tryFocusIfEmojiAdded = () => {
+        if (this.newMessageFocused) return
+
+        const innerText = this.newMessageRef.current.innerText
+
+        if (!innerText || innerText.length === 0) return
+
+        if (EMOJI_END_STRING_REGEX.test(innerText)) this.setInputFocus()
+    }
+
     handleInput = async event => {
         const innerText = this.newMessageRef.current.innerText
+        this.tryFocusIfEmojiAdded()
+
         if (!innerText || innerText.length > 11) {
             this.tryCloseStickerHint()
             return
@@ -631,6 +648,14 @@ class InputBoxControl extends Component {
                 },
             })
         })
+    }
+
+    handleFocus = () => {
+        this.newMessageFocused = true
+    }
+
+    handleBlur = () => {
+        this.newMessageFocused = false
     }
 
     render() {
@@ -678,7 +703,9 @@ class InputBoxControl extends Component {
                                 onKeyDown={this.handleKeyDown}
                                 onKeyUp={this.handleKeyUp}
                                 onPaste={this.handlePaste}
-                                onInput={this.handleInput}>
+                                onInput={this.handleInput}
+                                onFocus={this.handleFocus}
+                                onBlur={this.handleBlur}>
                                 {content}
                             </div>
                         </div>
