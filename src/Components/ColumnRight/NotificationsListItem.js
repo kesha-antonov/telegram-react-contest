@@ -58,7 +58,7 @@ class NotificationsListItem extends NotificationsControl {
 }
 
 NotificationsListItem.propTypes = {
-    chatId: PropTypes.object.isRequired,
+    chatId: PropTypes.number.isRequired,
     chat: PropTypes.object.isRequired,
 }
 
