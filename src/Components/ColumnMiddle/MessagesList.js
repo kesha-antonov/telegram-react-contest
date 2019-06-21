@@ -6,6 +6,7 @@
  */
 
 import React from 'react'
+import PropTypes from 'prop-types'
 import * as ReactDOM from 'react-dom'
 import withStyles from '@material-ui/core/styles/withStyles'
 import classNames from 'classnames'
@@ -31,6 +32,8 @@ import TdLibController from '../../Controllers/TdLibController'
 import './MessagesList.css'
 import SelectChatPlaceholder from './SelectChatPlaceholder'
 import Scrollbar from '../Scrollbar'
+import { compose } from 'recompose'
+import { connect } from 'react-redux'
 
 const ScrollBehaviorEnum = Object.freeze({
     NONE: 'NONE',
@@ -92,7 +95,7 @@ class MessagesList extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        const { chatId, messageId, theme } = this.props
+        const { chatId, chat, messageId, theme } = this.props
         const { playerOpened, history, dragging, clearHistory, selectionActive } = this.state
 
         if (nextProps.theme !== theme) {
@@ -100,6 +103,10 @@ class MessagesList extends React.Component {
         }
 
         if (nextProps.chatId !== chatId) {
+            return true
+        }
+
+        if (nextProps.chat !== chat) {
             return true
         }
 
@@ -131,7 +138,7 @@ class MessagesList extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const { chatId, messageId } = this.props
+        const { chatId, messageId, chat } = this.props
 
         const list = this.listRef
         // console.log(
@@ -142,7 +149,11 @@ class MessagesList extends React.Component {
         //     list.offsetHeight=${list.offsetHeight}`
         // );
 
-        if (prevProps.chatId !== chatId || prevProps.messageId !== messageId) {
+        if (
+            prevProps.chatId !== chatId ||
+            prevProps.messageId !== messageId ||
+            prevProps.chat !== chat
+        ) {
             this.handleSelectChat(chatId, prevProps.chatId, messageId, prevProps.messageId)
         } else {
             this.handleScrollBehavior(snapshot)
@@ -796,7 +807,7 @@ class MessagesList extends React.Component {
     isChatChosed = () => {
         const { chatId } = this.props
 
-        return chatId !== 0
+        return chatId != null && chatId !== 0
     }
 
     handleScroll = () => {
@@ -1108,4 +1119,21 @@ class MessagesList extends React.Component {
     }
 }
 
-export default withStyles(styles, { withTheme: true })(MessagesList)
+const mapStateToProps = state => {
+    return {
+        chatId: state.currentChatId,
+        chat: state.currentChatId ? state.chats.get(state.currentChatId.toString()) : null,
+    }
+}
+
+MessagesList.propTypes = {
+    chatId: PropTypes.number.isRequired,
+    chat: PropTypes.object,
+}
+
+const enhance = compose(
+    connect(mapStateToProps),
+    withStyles(styles, { withTheme: true })
+)
+
+export default enhance(MessagesList)

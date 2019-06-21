@@ -6,6 +6,7 @@
  */
 
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { compose } from 'recompose'
 import withStyles from '@material-ui/core/styles/withStyles'
@@ -18,11 +19,12 @@ import DialogDetails from './ColumnMiddle/DialogDetails'
 import Footer from './Footer'
 import MediaViewer from './Viewer/MediaViewer'
 import ProfileMediaViewer from './Viewer/ProfileMediaViewer'
-import { highlightMessage } from '../Actions/Client'
+import { highlightMessage, openChat } from '../Actions/Client'
 import ChatStore from '../Stores/ChatStore'
 import UserStore from '../Stores/UserStore'
 import ApplicationStore from '../Stores/ApplicationStore'
 import TdLibController from '../Controllers/TdLibController'
+import { connect } from 'react-redux'
 import '../TelegramApp.css'
 
 const styles = theme => ({
@@ -66,6 +68,8 @@ class MainPage extends React.Component {
             this.onClientUpdateProfileMediaViewerContent
         )
         ApplicationStore.on('clientUpdateForward', this.onClientUpdateForward)
+
+        this.tryOpenChatAfterRehydrate()
     }
 
     componentWillUnmount() {
@@ -85,6 +89,13 @@ class MainPage extends React.Component {
             this.onClientUpdateProfileMediaViewerContent
         )
         ApplicationStore.removeListener('clientUpdateForward', this.onClientUpdateForward)
+    }
+
+    tryOpenChatAfterRehydrate = () => {
+        const { currentChatId } = this.props
+        if (currentChatId !== ApplicationStore.getChatId()) {
+            openChat(currentChatId)
+        }
     }
 
     onClientUpdateOpenChat = update => {
@@ -175,8 +186,6 @@ class MainPage extends React.Component {
             forwardInfo,
         } = this.state
 
-        console.log('render MainPage')
-
         return (
             <>
                 <div
@@ -196,9 +205,18 @@ class MainPage extends React.Component {
     }
 }
 
-MainPage.propTypes = {}
+const mapStateToProps = state => {
+    return {
+        currentChatId: state.currentChatId,
+    }
+}
+
+MainPage.propTypes = {
+    currentChatId: PropTypes.number.isRequired,
+}
 
 const enhance = compose(
+    connect(mapStateToProps),
     withLanguage,
     withStyles(styles, { withTheme: true }),
     withSnackbarNotifications

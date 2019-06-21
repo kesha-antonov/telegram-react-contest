@@ -22,16 +22,12 @@ class DialogDetails extends Component {
         super(props)
 
         this.state = {
-            chatId: ApplicationStore.getChatId(),
             messageId: ApplicationStore.getMessageId(),
-            selectedCount: 0
+            selectedCount: 0,
         }
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        if (nextState.chatId !== this.state.chatId) {
-            return true
-        }
         if (nextState.messageId !== this.state.messageId) {
             return true
         }
@@ -48,7 +44,10 @@ class DialogDetails extends Component {
     }
 
     componentWillUnmount() {
-        ApplicationStore.removeListener('clientUpdateChatDetailsVisibility', this.onUpdateChatDetailsVisibility)
+        ApplicationStore.removeListener(
+            'clientUpdateChatDetailsVisibility',
+            this.onUpdateChatDetailsVisibility
+        )
         ApplicationStore.removeListener('clientUpdateChatId', this.onClientUpdateChatId)
     }
 
@@ -58,8 +57,7 @@ class DialogDetails extends Component {
 
     onClientUpdateChatId = update => {
         this.setState({
-            chatId: update.nextChatId,
-            messageId: update.nextMessageId
+            messageId: update.nextMessageId,
         })
     }
 
@@ -108,15 +106,18 @@ class DialogDetails extends Component {
         this.groups = groups.map(x => {
             return (<MessageGroup key={x.key} senderUserId={x.senderUserId} messages={x.messages} onSelectChat={this.props.onSelectChat}/>);
         });*/
-        const { chatId, messageId, selectedCount } = this.state
+        const { messageId, selectedCount } = this.state
         const { isChatDetailsVisible } = ApplicationStore
 
         return (
-            <div className={classNames('dialog-details', { 'dialog-details-third-column': isChatDetailsVisible })}>
-                <Header chatId={chatId} />
+            <div
+                className={classNames('dialog-details', {
+                    'dialog-details-third-column': isChatDetailsVisible,
+                })}>
+                <Header />
                 <HeaderPlayer />
-                <MessagesList innerRef={ref => (this.messagesList = ref)} chatId={chatId} messageId={messageId} />
-                <Footer chatId={chatId} />
+                <MessagesList innerRef={ref => (this.messagesList = ref)} messageId={messageId} />
+                <Footer />
                 <StickerSetDialog />
                 <ChatInfoDialog />
             </div>

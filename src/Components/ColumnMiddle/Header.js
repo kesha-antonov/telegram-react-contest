@@ -15,7 +15,12 @@ import { withTranslation } from 'react-i18next'
 import { compose } from 'recompose'
 import MainMenuButton from './MainMenuButton'
 import HeaderCommand from './HeaderCommand'
-import { getChatSubtitle, getChatTitle, isAccentChatSubtitle, isVerifiedChat } from '../../Utils/Chat'
+import {
+    getChatSubtitle,
+    getChatTitle,
+    isAccentChatSubtitle,
+    isVerifiedChat,
+} from '../../Utils/Chat'
 import { borderStyle } from '../Theme'
 import ChatStore from '../../Stores/ChatStore'
 import UserStore from '../../Stores/UserStore'
@@ -29,30 +34,30 @@ import VerifiedBadgeIcon from '../Icons/VerifiedBadgeIcon'
 
 const styles = theme => ({
     button: {
-        margin: '14px'
+        margin: '14px',
     },
     menuIconButton: {
-        margin: '8px -2px 8px 12px'
+        margin: '8px -2px 8px 12px',
     },
     searchIconButton: {
-        margin: '8px 12px 8px 0'
+        margin: '8px 12px 8px 0',
     },
     messageSearchIconButton: {
-        margin: '8px 0 8px 12px'
+        margin: '8px 0 8px 12px',
     },
     moreIconButton: {
-        margin: '8px 12px 8px 0'
+        margin: '8px 12px 8px 0',
     },
     headerStatusAccentTitle: {
-        color: theme.palette.primary.dark + '!important'
+        color: theme.palette.primary.dark + '!important',
     },
     ...borderStyle(theme),
     titleIcon: {
         marginLeft: 8,
         marginBottom: 3,
         alignSelf: 'flex-end',
-        fontSize: 18
-    }
+        fontSize: 18,
+    },
 })
 
 class Header extends Component {
@@ -61,7 +66,7 @@ class Header extends Component {
 
         this.state = {
             authorizationState: ApplicationStore.getAuthorizationState(),
-            connectionState: ApplicationStore.getConnectionState()
+            connectionState: ApplicationStore.getConnectionState(),
         }
     }
 
@@ -88,7 +93,6 @@ class Header extends Component {
     componentDidMount() {
         ApplicationStore.on('updateConnectionState', this.onUpdateConnectionState)
         ApplicationStore.on('updateAuthorizationState', this.onUpdateAuthorizationState)
-        ApplicationStore.on('clientUpdateChatId', this.onClientUpdateChatId)
 
         MessageStore.on('clientUpdateMessageSelected', this.onClientUpdateMessageSelected)
         MessageStore.on('clientUpdateClearSelection', this.onClientUpdateMessageSelected)
@@ -105,10 +109,15 @@ class Header extends Component {
     componentWillUnmount() {
         ApplicationStore.removeListener('updateConnectionState', this.onUpdateConnectionState)
         ApplicationStore.removeListener('updateAuthorizationState', this.onUpdateAuthorizationState)
-        ApplicationStore.removeListener('clientUpdateChatId', this.onClientUpdateChatId)
 
-        MessageStore.removeListener('clientUpdateMessageSelected', this.onClientUpdateMessageSelected)
-        MessageStore.removeListener('clientUpdateClearSelection', this.onClientUpdateMessageSelected)
+        MessageStore.removeListener(
+            'clientUpdateMessageSelected',
+            this.onClientUpdateMessageSelected
+        )
+        MessageStore.removeListener(
+            'clientUpdateClearSelection',
+            this.onClientUpdateMessageSelected
+        )
 
         ChatStore.removeListener('updateChatOnlineMemberCount', this.onUpdateChatOnlineMemberCount)
         UserStore.removeListener('updateUserStatus', this.onUpdateUserStatus)
@@ -129,10 +138,6 @@ class Header extends Component {
 
     onClientUpdateMessageSelected = update => {
         this.setState({ selectionCount: MessageStore.selectedItems.size })
-    }
-
-    onClientUpdateChatId = update => {
-        this.forceUpdate()
     }
 
     onUpdateConnectionState = update => {
@@ -345,10 +350,16 @@ class Header extends Component {
         return (
             <div className={classNames(classes.borderColor, 'header-details')}>
                 <div
-                    className={classNames('header-status', 'grow', chat ? 'cursor-pointer' : 'cursor-default')}
+                    className={classNames(
+                        'header-status',
+                        'grow',
+                        chat ? 'cursor-pointer' : 'cursor-default'
+                    )}
                     onClick={this.openChatDetails}>
                     <span className='header-status-content'>{title}</span>
-                    {!showProgressAnimation && isVerified && <VerifiedBadgeIcon className={classes.titleIcon} />}
+                    {!showProgressAnimation && isVerified && (
+                        <VerifiedBadgeIcon className={classes.titleIcon} />
+                    )}
                     {showProgressAnimation && (
                         <>
                             <span className='header-progress'>.</span>
@@ -358,7 +369,7 @@ class Header extends Component {
                     )}
                     <span
                         className={classNames('header-status-title', {
-                            [classes.headerStatusAccentTitle]: isAccentSubtitle
+                            [classes.headerStatusAccentTitle]: isAccentSubtitle,
                         })}>
                         {subtitle}
                     </span>
@@ -382,12 +393,12 @@ class Header extends Component {
 
 const mapStateToProps = state => {
     return {
-        chat: state.currentChatId ? state.chats.get(state.currentChatId.toString()) : null
+        chat: state.currentChatId ? state.chats.get(state.currentChatId.toString()) : null,
     }
 }
 
 Header.propTypes = {
-    chat: PropTypes.object
+    chat: PropTypes.object,
 }
 
 const enhance = compose(

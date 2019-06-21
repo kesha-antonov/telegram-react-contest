@@ -7,8 +7,7 @@ import storage from 'redux-persist/lib/storage'
 const persistConfig = {
     key: 'root',
     storage,
-    // whitelist: ['stickersPicker', 'palette', 'currentChatId'],
-    whitelist: ['stickersPicker', 'palette'],
+    whitelist: ['stickersPicker', 'palette', 'currentChatId'],
     version: 'v1',
 }
 

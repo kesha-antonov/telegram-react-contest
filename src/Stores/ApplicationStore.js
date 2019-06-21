@@ -25,7 +25,10 @@ class ApplicationStore extends EventEmitter {
         this.mediaViewerContent = null
         this.profileMediaViewerContent = null
         this.dragging = false
-        this.actionScheduler = new ActionScheduler(this.handleScheduledAction, this.handleCancelScheduledAction)
+        this.actionScheduler = new ActionScheduler(
+            this.handleScheduledAction,
+            this.handleCancelScheduledAction
+        )
 
         this.addTdLibListener()
         this.addStatistics()
@@ -157,12 +160,11 @@ class ApplicationStore extends EventEmitter {
                     nextChatId: update.chatId,
                     nextMessageId: update.messageId,
                     previousChatId: this.chatId,
-                    previousMessageId: this.messageId
+                    previousMessageId: this.messageId,
                 }
 
-                this.setCurrentChatId(update.chatId)
-
                 this.messageId = update.messageId
+                this.setCurrentChatId(update.chatId)
 
                 this.emit('clientUpdateChatId', extendedUpdate)
                 break
@@ -178,7 +180,7 @@ class ApplicationStore extends EventEmitter {
                 TdLibController.send({
                     '@type': 'setOption',
                     name: 'online',
-                    value: { '@type': 'optionValueBoolean', value: update.focused }
+                    value: { '@type': 'optionValueBoolean', value: update.focused },
                 })
 
                 this.emit('clientUpdateFocusWindow', update)
@@ -230,12 +232,11 @@ class ApplicationStore extends EventEmitter {
             nextChatId: chatId,
             nextMessageId: messageId,
             previousChatId: this.chatId,
-            previousMessageId: this.messageId
+            previousMessageId: this.messageId,
         }
 
-        this.setCurrentChatId(chatId)
-
         this.messageId = messageId
+        this.setCurrentChatId(chatId)
 
         this.emit(update['@type'], update)
     }
