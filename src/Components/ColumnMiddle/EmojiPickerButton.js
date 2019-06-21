@@ -25,6 +25,8 @@ import ApplicationStore from '../../Stores/ApplicationStore'
 import FileStore from '../../Stores/FileStore'
 import LocalizationStore from '../../Stores/LocalizationStore'
 import StickerStore from '../../Stores/StickerStore'
+import { connect } from 'react-redux'
+import { setIsActiveStickersPicker } from '../../Stores/ReduxStore/actions'
 import TdLibController from '../../Controllers/TdLibController'
 import './EmojiPickerButton.css'
 import './emojiMart.css'
@@ -55,6 +57,12 @@ const styles = theme => ({
         borderRadius: 0,
         flex: '50%',
     },
+    headerButtonEmojis: {
+        borderTopLeftRadius: 4,
+    },
+    headerButtonStickers: {
+        borderTopRightRadius: 4,
+    },
     pickerRoot: {
         zIndex: theme.zIndex.modal,
         width: 338,
@@ -83,7 +91,6 @@ class EmojiPickerButton extends Component {
 
         this.state = {
             open: false,
-            tab: 0,
             pickerStyle: null,
         }
 
@@ -229,19 +236,22 @@ class EmojiPickerButton extends Component {
     }
 
     handleEmojiClick = () => {
-        this.setState({ tab: 0 })
+        this.props.setIsActiveStickersPicker(false)
     }
 
     handleStickersClick = () => {
         const stickersPicker = this.stickersPickerRef.current
-        const { tab } = this.state
 
         stickersPicker.loadContent(this.stickerSets, this.sets)
 
-        this.setState({ tab: 1 })
-        if (tab === 1) {
+        const { isActiveStickersPicker, setIsActiveStickersPicker } = this.props
+
+        if (isActiveStickersPicker) {
             stickersPicker.scrollTop()
+            return
         }
+
+        setIsActiveStickersPicker(true)
     }
 
     handleStickerSend = sticker => {
@@ -264,8 +274,8 @@ class EmojiPickerButton extends Component {
     }
 
     render() {
-        const { classes, theme, t } = this.props
-        const { open, tab, sticker, pickerStyle } = this.state
+        const { classes, theme, t, isActiveStickersPicker } = this.props
+        const { open, sticker, pickerStyle } = this.state
 
         if (open && !this.picker) {
             const i18n = {
@@ -329,7 +339,7 @@ class EmojiPickerButton extends Component {
                     onMouseEnter={this.handleButtonMouseEnter}
                     onMouseLeave={this.handleButtonMouseLeave}>
                     <SpeedDialIcon
-                        open={tab === 1}
+                        open={isActiveStickersPicker}
                         icon={<InsertEmoticonIcon />}
                         openIcon={<StickerEmojiIcon classes={{ root: classes.stickerEmojiIcon }} />}
                     />
@@ -342,21 +352,27 @@ class EmojiPickerButton extends Component {
                     <div className={classes.pickerEmojisAndStickers}>
                         <div className='emoji-picker-header'>
                             <Button
-                                color={tab === 0 ? 'primary' : 'default'}
-                                className={classes.headerButton}
+                                color={!isActiveStickersPicker ? 'primary' : 'default'}
+                                className={classNames(
+                                    classes.headerButton,
+                                    classes.headerButtonEmojis
+                                )}
                                 onClick={this.handleEmojiClick}>
                                 {t('Emoji')}
                             </Button>
                             <Button
-                                color={tab === 1 ? 'primary' : 'default'}
-                                className={classes.headerButton}
+                                color={isActiveStickersPicker ? 'primary' : 'default'}
+                                className={classNames(
+                                    classes.headerButton,
+                                    classes.headerButtonStickers
+                                )}
                                 onClick={this.handleStickersClick}>
                                 {t('Stickers')}
                             </Button>
                         </div>
                         <div
                             className={classNames('emoji-picker-content', {
-                                'emoji-picker-content-stickers': tab === 1,
+                                'emoji-picker-content-stickers': isActiveStickersPicker,
                             })}>
                             {this.picker}
                             {this.stickersPicker}
@@ -371,9 +387,27 @@ class EmojiPickerButton extends Component {
 
 EmojiPickerButton.propTypes = {
     theme: PropTypes.object.isRequired,
+    isActiveStickersPicker: PropTypes.bool.isRequired,
+    setIsActiveStickersPicker: PropTypes.func.isRequired,
+}
+
+const mapStateToProps = state => {
+    return {
+        isActiveStickersPicker: state.stickersPicker.isActive,
+    }
+}
+
+const mapDispatchToProps = dispatch => {
+    return {
+        setIsActiveStickersPicker: isActive => dispatch(setIsActiveStickersPicker(isActive)),
+    }
 }
 
 const enhance = compose(
+    connect(
+        mapStateToProps,
+        mapDispatchToProps
+    ),
     withStyles(styles, { withTheme: true }),
     withTranslation()
 )
