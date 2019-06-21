@@ -2,11 +2,9 @@ import { SET_PALETTE } from '../actions'
 import blue from '@material-ui/core/colors/blue'
 import { createLightPalette, TYPE_LIGHT, createPalette } from '../../../Theme'
 import { shallowEqual } from 'recompose'
-import Cookies from 'universal-cookie'
 
 function getInitialState() {
-    const cookies = new Cookies()
-    const { type, primary } = cookies.get('themeOptions') || { type: TYPE_LIGHT, primary: blue }
+    const { type, primary } = { type: TYPE_LIGHT, primary: blue }
 
     const palette = createPalette({
         type,

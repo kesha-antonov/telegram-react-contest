@@ -8,7 +8,7 @@ const persistConfig = {
     key: 'root',
     storage,
     // whitelist: ['stickersPicker', 'palette', 'currentChatId'],
-    whitelist: ['stickersPicker'],
+    whitelist: ['stickersPicker', 'palette'],
     version: 'v1',
 }
 

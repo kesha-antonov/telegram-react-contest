@@ -26,7 +26,6 @@ import deepPurple from '@material-ui/core/colors/deepPurple'
 import ApplicationStore from '../../Stores/ApplicationStore'
 import { setPalette } from '../../Stores/ReduxStore/actions'
 import { createPalette } from '../../Theme'
-import Cookies from 'universal-cookie'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
 
@@ -100,8 +99,6 @@ class ThemePicker extends React.Component {
         })
 
         setPalette(newPalette)
-
-        this.savePaletteInCookies(newPalette)
     }
 
     handleAccentChange = event => {
@@ -112,13 +109,6 @@ class ThemePicker extends React.Component {
             primary: this.getColor(event.target.value),
         })
         setPalette(newPalette)
-
-        this.savePaletteInCookies(newPalette)
-    }
-
-    savePaletteInCookies(palette) {
-        const cookies = new Cookies()
-        cookies.set('themeOptions', { type: palette.type, primary: palette.primary })
     }
 
     getColorString = value => {
