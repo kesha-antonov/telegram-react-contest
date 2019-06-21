@@ -15,7 +15,7 @@
 }
 
 .groups-in-common-list {
-    overflow-y: auto;
+    overflow: hidden;
     -webkit-overflow-scrolling: touch;
     flex-grow: 1;
     flex-shrink: 1;

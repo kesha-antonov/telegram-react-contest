@@ -5,79 +5,82 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import ListItem from '@material-ui/core/ListItem';
-import ChatControl from '../Tile/ChatControl';
-import GroupsInCommonHeader from './GroupsInCommonHeader';
-import { getChatUserId } from '../../Utils/Chat';
-import { loadChatsContent } from '../../Utils/File';
-import { openChat } from '../../Actions/Client';
-import FileStore from '../../Stores/FileStore';
-import TdLibController from '../../Controllers/TdLibController';
-import './GroupsInCommon.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import ListItem from '@material-ui/core/ListItem'
+import ChatControl from '../Tile/ChatControl'
+import GroupsInCommonHeader from './GroupsInCommonHeader'
+import { getChatUserId } from '../../Utils/Chat'
+import { loadChatsContent } from '../../Utils/File'
+import { openChat } from '../../Actions/Client'
+import FileStore from '../../Stores/FileStore'
+import TdLibController from '../../Controllers/TdLibController'
+import Scrollbar from '../Scrollbar'
+import './GroupsInCommon.css'
 
 class GroupsInCommon extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         this.state = {
-            chatIds: []
-        };
+            chatIds: [],
+        }
     }
 
     componentDidMount() {
-        const { chatId } = this.props;
+        const { chatId } = this.props
 
-        const userId = getChatUserId(chatId);
-        if (!userId) return;
+        const userId = getChatUserId(chatId)
+        if (!userId) return
 
         TdLibController.send({
             '@type': 'getGroupsInCommon',
             user_id: userId,
             offset_chat_id: 0,
-            limit: 100
+            limit: 100,
         }).then(result => {
-            const store = FileStore.getStore();
-            loadChatsContent(store, result.chat_ids);
+            const store = FileStore.getStore()
+            loadChatsContent(store, result.chat_ids)
 
-            this.setState({ chatIds: result.chat_ids });
-        });
+            this.setState({ chatIds: result.chat_ids })
+        })
     }
 
     handleSelect = chat => {
-        const { popup } = this.props;
+        const { popup } = this.props
 
-        openChat(chat.id);
+        openChat(chat.id)
 
         if (popup) {
             TdLibController.clientUpdate({
                 '@type': 'clientUpdateDialogChatId',
-                chatId: 0
-            });
+                chatId: 0,
+            })
         }
-    };
+    }
 
     render() {
-        const { minHeight, onClose, popup } = this.props;
-        const { chatIds } = this.state;
+        const { minHeight, onClose, popup } = this.props
+        const { chatIds } = this.state
 
         const chats = chatIds.map(x => (
             <ListItem button key={x}>
                 <ChatControl chatId={x} onSelect={this.handleSelect} />
             </ListItem>
-        ));
+        ))
 
         const content = (
             <>
                 <GroupsInCommonHeader onClose={onClose} />
-                <div className='groups-in-common-list' style={{ minHeight }}>
-                    {chats}
-                </div>
+                <Scrollbar>
+                    <div className='groups-in-common-list' style={{ minHeight }}>
+                        {chats}
+                    </div>
+                </Scrollbar>
             </>
-        );
+        )
 
-        return popup ? <>{content}</> : <div className='groups-in-common'>{content}</div>;
+        return popup ? <>{content}</> : <div className='groups-in-common'>{content}</div>
     }
 }
 
@@ -85,12 +88,12 @@ GroupsInCommon.propTypes = {
     chatId: PropTypes.number.isRequired,
     onClose: PropTypes.func.isRequired,
     popup: PropTypes.bool,
-    minHeight: PropTypes.number
-};
+    minHeight: PropTypes.number,
+}
 
 GroupsInCommon.defaultProps = {
     popup: false,
-    minHeight: 0
-};
+    minHeight: 0,
+}
 
-export default GroupsInCommon;
+export default GroupsInCommon
