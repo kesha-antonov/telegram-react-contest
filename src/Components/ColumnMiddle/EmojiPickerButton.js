@@ -123,8 +123,9 @@ class EmojiPickerButton extends Component {
 
         await this.loadStickerSets(true)
 
+        if (!this.stickersPicker) return
         const stickersPicker = this.stickersPickerRef.current
-        stickersPicker.loadContent(this.stickerSets, this.sets, true)
+        await stickersPicker.loadContent(this.stickerSets, this.sets, true, true)
     }
 
     loadStickerSets = async (force = false) => {
@@ -204,7 +205,18 @@ class EmojiPickerButton extends Component {
             }
         }
 
-        this.setState(newState)
+        this.setState(newState, () => {
+            if (!newState.open) return
+
+            this.tryScrollToChosedStickerPack()
+        })
+    }
+
+    tryScrollToChosedStickerPack = () => {
+        const stickersPicker = this.stickersPickerRef.current
+        if (!stickersPicker) return
+
+        stickersPicker.tryScrollToChosedStickerPack()
     }
 
     openPicker = () => {

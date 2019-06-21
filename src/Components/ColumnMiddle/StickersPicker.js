@@ -33,6 +33,9 @@ class StickersPicker extends React.Component {
             position: 0,
         }
 
+        this.chosedStickerPackId = null
+        this.pendingScrollToChosedStickerPack = false
+
         this.loadInViewContentOnScrollEnd = debounce(this.loadInViewContentOnScrollEnd, 100)
         this.loadInViewContentOnScroll = throttle(this.loadInViewContentOnScroll, 2000)
         this.updatePosition = throttle(this.updatePosition, 250)
@@ -64,7 +67,7 @@ class StickersPicker extends React.Component {
         this.scrollRef.scrollTop = 0
     }
 
-    loadContent = async (stickerSets, sets, force = false) => {
+    loadContent = async (stickerSets, sets, force = false, scrollToChosedStickerPack = false) => {
         if (this.state.stickerSets && !force) return
 
         if (!sets) {
@@ -98,6 +101,7 @@ class StickersPicker extends React.Component {
             sets: slicedSets,
             headerStickers,
         })
+        this.pendingScrollToChosedStickerPack = scrollToChosedStickerPack
         this.setsLength = slicedSets.length
     }
 
@@ -144,6 +148,32 @@ class StickersPicker extends React.Component {
         })
     }
 
+    tryScrollToChosedStickerPack = () => {
+        if (!this.pendingScrollToChosedStickerPack) return
+        this.pendingScrollToChosedStickerPack = false
+
+        if (!this.chosedStickerPackId) return
+
+        const { sets } = this.state
+
+        let newPosition = null
+        for (var i in sets) {
+            var set = sets[i]
+            if (set.id === this.chosedStickerPackId) {
+                newPosition = i
+                break
+            }
+        }
+
+        if (newPosition == null) {
+            this.scrollTop()
+            this.chosedStickerPackId = null
+            return
+        }
+
+        this.handleSelectSet(newPosition)
+    }
+
     updatePosition = () => {
         const scroll = this.scrollRef
 
@@ -156,14 +186,16 @@ class StickersPicker extends React.Component {
             if (element) {
                 const node = ReactDOM.findDOMNode(element)
                 if (node) {
-                    firstOffsetTop = pos === 0 ? node.offsetTop : firstOffsetTop
+                    if (pos === 0) firstOffsetTop = node.offsetTop
 
                     const offsetTop = node.offsetTop - firstOffsetTop
-                    if (node && offsetTop <= scroll.scrollTop) {
+                    if (offsetTop <= scroll.scrollTop) {
                         const diff = Math.abs(scroll.scrollTop - offsetTop)
                         if (diff <= minDiff) {
                             minDiff = diff
                             position = pos
+
+                            if (position > 0) this.chosedStickerPackId = x.id
                         }
                     }
                 }
@@ -312,7 +344,9 @@ class StickersPicker extends React.Component {
         const { scrollRef } = this
 
         if (position < sets.length) {
-            const element = this.itemsMap.get(sets[position].id)
+            const setId = sets[position].id
+            const element = this.itemsMap.get(setId)
+            this.chosedStickerPackId = setId
             if (element) {
                 const node = ReactDOM.findDOMNode(element)
                 if (node) {
