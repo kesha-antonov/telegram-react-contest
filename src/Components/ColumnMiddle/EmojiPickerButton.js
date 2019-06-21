@@ -180,6 +180,8 @@ class EmojiPickerButton extends Component {
     updatePicker = open => {
         let newState = { open }
 
+        if (this.state.open === newState.open) return
+
         if (newState.open) {
             const bounds = this.pickerButtonRef.current.getBoundingClientRect()
             newState['pickerStyle'] = {
@@ -190,8 +192,8 @@ class EmojiPickerButton extends Component {
         this.setState(newState)
     }
 
-    switchPicker = () => {
-        this.updatePicker(!this.state.open)
+    openPicker = () => {
+        this.updatePicker(true)
     }
 
     handleEmojiClick = () => {
@@ -291,7 +293,7 @@ class EmojiPickerButton extends Component {
                     ref={this.pickerButtonRef}
                     className={classes.iconButton}
                     aria-label='Emoticon'
-                    onClick={this.switchPicker}
+                    onClick={this.openPicker}
                     onMouseEnter={this.handleButtonMouseEnter}
                     onMouseLeave={this.handleButtonMouseLeave}>
                     <InsertEmoticonIcon />
