@@ -17,7 +17,6 @@ import DialogMetaControl from './DialogMetaControl'
 import { openChat } from '../../Actions/Client'
 import SupergroupStore from '../../Stores/SupergroupStore'
 import './DialogControl.css'
-import VolumeOffIcon from '@material-ui/icons/VolumeOff'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { isChatMuted } from '../../Utils/Chat'
@@ -62,16 +61,6 @@ const styles = theme => ({
         alignItems: 'center',
         justifyContent: 'flex-start',
         overflow: 'hidden',
-    },
-    titleIcon: {
-        marginLeft: 5,
-        fontSize: 15,
-    },
-    volumeOffIconUnselectedColor: {
-        color: theme.palette.grey[400],
-    },
-    volumeOffIconSelectedColor: {
-        color: theme.palette.grey[300],
     },
 })
 
@@ -138,16 +127,7 @@ class DialogControl extends Component {
                                     chatId={chatId}
                                     highlightVerifiedBadge={isSelected}
                                 />
-                                {isChatMuted(chat) && (
-                                    <VolumeOffIcon
-                                        color={isSelected ? 'action' : 'primary'}
-                                        className={classes.titleIcon}
-                                        classes={{
-                                            colorPrimary: classes.volumeOffIconUnselectedColor,
-                                            colorAction: classes.volumeOffIconSelectedColor,
-                                        }}
-                                    />
-                                )}
+                                {isChatMuted(chat) && <i className='dialog-badge-muted' />}
                             </div>
                             <DialogMetaControl chatId={chatId} />
                         </div>
