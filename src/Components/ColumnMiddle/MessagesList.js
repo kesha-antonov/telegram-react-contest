@@ -30,10 +30,11 @@ import ApplicationStore from '../../Stores/ApplicationStore'
 import PlayerStore from '../../Stores/PlayerStore'
 import TdLibController from '../../Controllers/TdLibController'
 import './MessagesList.css'
-import SelectChatPlaceholder from './SelectChatPlaceholder'
+import ChatTextPlaceholder from './ChatTextPlaceholder'
 import Scrollbar from '../Scrollbar'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
+import { withTranslation } from 'react-i18next'
 
 const ScrollBehaviorEnum = Object.freeze({
     NONE: 'NONE',
@@ -1060,7 +1061,7 @@ class MessagesList extends React.Component {
     }
 
     render() {
-        const { classes, chatId } = this.props
+        const { classes, chatId, t } = this.props
         const { history, separatorMessageId, clearHistory, selectionActive } = this.state
 
         // console.log(`MessagesList.render clearHistory=${clearHistory}`, history);
@@ -1101,14 +1102,18 @@ class MessagesList extends React.Component {
                     className='messages-list-wrapper'
                     onScrollY={this.handleScroll}>
                     {this.isChatChosed() ? (
-                        <>
-                            <div className='messages-list-top' />
-                            <div ref={this.itemsRef} className='messages-list-items'>
-                                {this.messages}
-                            </div>
-                        </>
+                        this.completed && this.messages.length === 0 ? (
+                            <ChatTextPlaceholder text={t('ChatNoMessages')} />
+                        ) : (
+                            <>
+                                <div className='messages-list-top' />
+                                <div ref={this.itemsRef} className='messages-list-items'>
+                                    {this.messages}
+                                </div>
+                            </>
+                        )
                     ) : (
-                        <SelectChatPlaceholder />
+                        <ChatTextPlaceholder text={t('ChatTextPlaceholder')} />
                     )}
                 </Scrollbar>
                 <PinnedMessage chatId={chatId} />
@@ -1133,6 +1138,7 @@ MessagesList.propTypes = {
 
 const enhance = compose(
     connect(mapStateToProps),
+    withTranslation(),
     withStyles(styles, { withTheme: true })
 )
 

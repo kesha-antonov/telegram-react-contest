@@ -5,14 +5,16 @@ const ru = {
         StartText: 'Пожалуйста, укажите код страны и свой номер телефона.',
         Next: 'Далее',
         Remove: 'Удалить',
-        InvalidPhoneNumber: 'Некорректный номер телефона. Пожалуйста, проверьте номер и попробуйте ещё раз.',
+        InvalidPhoneNumber:
+            'Некорректный номер телефона. Пожалуйста, проверьте номер и попробуйте ещё раз.',
         More: 'Ещё',
         SendMessage: 'Отправить сообщение',
         ChatInfo: 'Информация о чате',
         ChannelInfo: 'Информация о канале',
         Stickers: 'СТИКЕРЫ',
         Emoji: 'ЕМОДЗИ',
-        SelectChatPlaceholder: 'Выберите, кому хотели бы написать'
+        SelectChatPlaceholder: 'Выберите, кому хотели бы написать',
+        ChatNoMessages: 'Здесь пока ничего нет...',
     },
     emoji: {
         Search: 'Поиск',
@@ -28,14 +30,14 @@ const ru = {
         Objects: 'Предметы',
         Symbols: 'Символы',
         Flags: 'Флаги',
-        Custom: 'Пользовательские'
+        Custom: 'Пользовательские',
     },
     translation: {
         AppTitle: 'Телеграм',
         Loading: 'Загрузка',
         Connecting: 'Соединение',
-        Updating: 'Обновление'
-    }
+        Updating: 'Обновление',
+    },
 }
 
 export default ru

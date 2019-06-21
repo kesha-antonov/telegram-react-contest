@@ -12,7 +12,8 @@ const en = {
         ChannelInfo: 'Channel Info',
         Stickers: 'STICKERS',
         Emoji: 'EMOJI',
-        SelectChatPlaceholder: 'Select a chat to start messaging'
+        SelectChatPlaceholder: 'Select a chat to start messaging',
+        ChatNoMessages: 'No messages here yet',
     },
     emoji: {
         Search: 'Search',
@@ -28,14 +29,14 @@ const en = {
         Objects: 'Objects',
         Symbols: 'Symbols',
         Flags: 'Flags',
-        Custom: 'Custom'
+        Custom: 'Custom',
     },
     translation: {
         AppTitle: 'Telegram',
         Loading: 'Loading',
         Connecting: 'Connecting',
-        Updating: 'Updating'
-    }
+        Updating: 'Updating',
+    },
 }
 
 export default en
