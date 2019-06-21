@@ -25,7 +25,12 @@ import IconButton from '@material-ui/core/IconButton'
 import InputBoxHeader from './InputBoxHeader'
 import OutputTypingManager from '../../Utils/OutputTypingManager'
 import { getSize, readImageSize } from '../../Utils/Common'
-import { getChatDraft, getChatDraftReplyToMessageId, isMeChat, isPrivateChat } from '../../Utils/Chat'
+import {
+    getChatDraft,
+    getChatDraftReplyToMessageId,
+    isMeChat,
+    isPrivateChat,
+} from '../../Utils/Chat'
 import { borderStyle } from '../Theme'
 import { PHOTO_SIZE } from '../../Constants'
 import MessageStore from '../../Stores/MessageStore'
@@ -40,12 +45,12 @@ const EmojiPickerButton = React.lazy(() => import('./../ColumnMiddle/EmojiPicker
 
 const styles = theme => ({
     iconButton: {
-        margin: '8px 0'
+        margin: '8px 0',
     },
     closeIconButton: {
-        margin: 0
+        margin: 0,
     },
-    ...borderStyle(theme)
+    ...borderStyle(theme),
 })
 
 const EMOJI_REGEX = emojiRegex()
@@ -64,7 +69,7 @@ class InputBoxControl extends Component {
         this.state = {
             chatId: chatId,
             replyToMessageId: getChatDraftReplyToMessageId(chatId),
-            openPasteDialog: false
+            openPasteDialog: false,
         }
     }
 
@@ -108,7 +113,10 @@ class InputBoxControl extends Component {
     }
 
     componentWillUnmount() {
-        const newChatDraftMessage = this.getNewChatDraftMessage(this.state.chatId, this.state.replyToMessageId)
+        const newChatDraftMessage = this.getNewChatDraftMessage(
+            this.state.chatId,
+            this.state.replyToMessageId
+        )
         this.setChatDraftMessage(newChatDraftMessage)
 
         ApplicationStore.removeListener('clientUpdateChatId', this.onClientUpdateChatId)
@@ -131,10 +139,10 @@ class InputBoxControl extends Component {
             '@type': 'inputMessageSticker',
             sticker: {
                 '@type': 'inputFileId',
-                id: sticker.id
+                id: sticker.id,
             },
             width,
-            height
+            height,
         }
 
         if (thumbnail) {
@@ -143,10 +151,10 @@ class InputBoxControl extends Component {
             content.thumbnail = {
                 thumbnail: {
                     '@type': 'inputFileId',
-                    id: photo.id
+                    id: photo.id,
                 },
                 width: thumbnailWidth,
-                height: thumbnailHeight
+                height: thumbnailHeight,
             }
         }
 
@@ -154,7 +162,7 @@ class InputBoxControl extends Component {
 
         TdLibController.clientUpdate({
             '@type': 'clientUpdateLocalStickersHint',
-            hint: null
+            hint: null,
         })
     }
 
@@ -181,7 +189,7 @@ class InputBoxControl extends Component {
         this.setState({
             chatId: update.nextChatId,
             replyToMessageId: getChatDraftReplyToMessageId(update.nextChatId),
-            openPasteDialog: false
+            openPasteDialog: false,
         })
     }
 
@@ -245,7 +253,7 @@ class InputBoxControl extends Component {
         TdLibController.send({
             '@type': 'setChatDraftMessage',
             chat_id: chatId,
-            draft_message: draftMessage
+            draft_message: draftMessage,
         })
     }
 
@@ -257,7 +265,11 @@ class InputBoxControl extends Component {
         let previousDraft = ''
         let previousReplyToMessageId = 0
         const { draft_message } = chat
-        if (draft_message && draft_message.input_message_text && draft_message.input_message_text.text) {
+        if (
+            draft_message &&
+            draft_message.input_message_text &&
+            draft_message.input_message_text.text
+        ) {
             const { reply_to_message_id, input_message_text } = draft_message
 
             previousReplyToMessageId = reply_to_message_id
@@ -275,11 +287,11 @@ class InputBoxControl extends Component {
                     text: {
                         '@type': 'formattedText',
                         text: newDraft,
-                        entities: null
+                        entities: null,
                     },
                     disable_web_page_preview: true,
-                    clear_draft: false
-                }
+                    clear_draft: false,
+                },
             }
 
             return { chatId: chatId, draftMessage: draftMessage }
@@ -302,18 +314,19 @@ class InputBoxControl extends Component {
             text: {
                 '@type': 'formattedText',
                 text: text,
-                entities: null
+                entities: null,
             },
             disable_web_page_preview: false,
-            clear_draft: true
+            clear_draft: true,
         }
 
         this.onSendInternal(content, false, result => {})
+        this.tryCloseStickerHint()
     }
 
     handleAttachPoll = () => {
         TdLibController.clientUpdate({
-            '@type': 'clientUpdateNewPoll'
+            '@type': 'clientUpdateNewPoll',
         })
     }
 
@@ -357,7 +370,12 @@ class InputBoxControl extends Component {
         let innerText = this.newMessageRef.current.innerText
         let innerHTML = this.newMessageRef.current.innerHTML
 
-        if (innerText && innerText === '\n' && innerHTML && (innerHTML === '<br>' || innerHTML === '<div><br></div>')) {
+        if (
+            innerText &&
+            innerText === '\n' &&
+            innerHTML &&
+            (innerHTML === '<br>' || innerHTML === '<div><br></div>')
+        ) {
             this.newMessageRef.current.innerHTML = ''
         }
 
@@ -375,7 +393,12 @@ class InputBoxControl extends Component {
         const innerText = this.newMessageRef.current.innerText
         const innerHTML = this.newMessageRef.current.innerHTML
 
-        if (innerText && innerText === '\n' && innerHTML && (innerHTML === '<br>' || innerHTML === '<div><br></div>')) {
+        if (
+            innerText &&
+            innerText === '\n' &&
+            innerHTML &&
+            (innerHTML === '<br>' || innerHTML === '<div><br></div>')
+        ) {
             this.newMessageRef.current.innerHTML = ''
         }
 
@@ -408,7 +431,7 @@ class InputBoxControl extends Component {
             '@type': 'inputMessagePhoto',
             photo: { '@type': 'inputFileBlob', name: file.name, data: file },
             width: file.photoWidth,
-            height: file.photoHeight
+            height: file.photoHeight,
         }
 
         this.onSendInternal(content, true, result => {
@@ -430,10 +453,12 @@ class InputBoxControl extends Component {
 
         const content = {
             '@type': 'inputMessageDocument',
-            document: { '@type': 'inputFileBlob', name: file.name, data: file }
+            document: { '@type': 'inputFileBlob', name: file.name, data: file },
         }
 
-        this.onSendInternal(content, true, result => FileStore.uploadFile(result.content.document.document.id, result))
+        this.onSendInternal(content, true, result =>
+            FileStore.uploadFile(result.content.document.document.id, result)
+        )
     }
 
     handlePaste = event => {
@@ -482,8 +507,16 @@ class InputBoxControl extends Component {
     }
 
     handleSendingMessage = (message, blob) => {
-        if (message && message.sending_state && message.sending_state['@type'] === 'messageSendingStatePending') {
-            if (message.content && message.content['@type'] === 'messagePhoto' && message.content.photo) {
+        if (
+            message &&
+            message.sending_state &&
+            message.sending_state['@type'] === 'messageSendingStatePending'
+        ) {
+            if (
+                message.content &&
+                message.content['@type'] === 'messagePhoto' &&
+                message.content.photo
+            ) {
                 let size = getSize(message.content.photo.sizes, PHOTO_SIZE)
                 if (!size) return
 
@@ -503,13 +536,15 @@ class InputBoxControl extends Component {
         if (!content) return
 
         try {
-            await ApplicationStore.invokeScheduledAction(`clientUpdateClearHistory chatId=${chatId}`)
+            await ApplicationStore.invokeScheduledAction(
+                `clientUpdateClearHistory chatId=${chatId}`
+            )
 
             let result = await TdLibController.send({
                 '@type': 'sendMessage',
                 chat_id: chatId,
                 reply_to_message_id: replyToMessageId,
-                input_message_content: content
+                input_message_content: content,
             })
 
             this.setState({ replyToMessageId: 0 }, () => {
@@ -526,7 +561,7 @@ class InputBoxControl extends Component {
             TdLibController.send({
                 '@type': 'viewMessages',
                 chat_id: chatId,
-                message_ids: [result.id]
+                message_ids: [result.id],
             })
 
             callback(result)
@@ -542,6 +577,16 @@ class InputBoxControl extends Component {
         this.handleInput()
     }
 
+    tryCloseStickerHint = () => {
+        const { hint } = StickerStore
+        if (!hint) return
+
+        TdLibController.clientUpdate({
+            '@type': 'clientUpdateLocalStickersHint',
+            hint: null,
+        })
+    }
+
     handleInput = async event => {
         const innerText = this.newMessageRef.current.innerText
         if (!innerText || innerText.length > 11) {
@@ -549,10 +594,10 @@ class InputBoxControl extends Component {
             if (hint) {
                 TdLibController.clientUpdate({
                     '@type': 'clientUpdateLocalStickersHint',
-                    hint: null
+                    hint: null,
                 })
             }
-
+            this.tryCloseStickerHint()
             return
         }
 
@@ -561,14 +606,6 @@ class InputBoxControl extends Component {
         const t1 = performance.now()
         console.log('Matched ' + (t1 - t0) + 'ms', match)
         if (!match || innerText !== match[0]) {
-            const { hint } = StickerStore
-            if (hint) {
-                TdLibController.clientUpdate({
-                    '@type': 'clientUpdateLocalStickersHint',
-                    hint: null
-                })
-            }
-
             return
         }
 
@@ -576,30 +613,30 @@ class InputBoxControl extends Component {
         TdLibController.send({
             '@type': 'getStickers',
             emoji: match[0],
-            limit: 100
+            limit: 100,
         }).then(stickers => {
             TdLibController.clientUpdate({
                 '@type': 'clientUpdateLocalStickersHint',
                 hint: {
                     timestamp,
                     emoji: match[0],
-                    stickers
-                }
+                    stickers,
+                },
             })
         })
 
         TdLibController.send({
             '@type': 'searchStickers',
             emoji: match[0],
-            limit: 100
+            limit: 100,
         }).then(stickers => {
             TdLibController.clientUpdate({
                 '@type': 'clientUpdateRemoteStickersHint',
                 hint: {
                     timestamp,
                     emoji: match[0],
-                    stickers
-                }
+                    stickers,
+                },
             })
         })
     }
@@ -656,7 +693,9 @@ class InputBoxControl extends Component {
                         <div className='inputbox-right-column'>
                             <React.Suspense
                                 fallback={
-                                    <IconButton className={classes.iconButton} aria-label='Emoticon'>
+                                    <IconButton
+                                        className={classes.iconButton}
+                                        aria-label='Emoticon'>
                                         <InsertEmoticonIcon />
                                     </IconButton>
                                 }>
@@ -666,7 +705,10 @@ class InputBoxControl extends Component {
                             {/*<IconButton>*/}
                             {/*<KeyboardVoiceIcon />*/}
                             {/*</IconButton>*/}
-                            <IconButton className={classes.iconButton} aria-label='Send' onClick={this.handleSubmit}>
+                            <IconButton
+                                className={classes.iconButton}
+                                aria-label='Send'
+                                onClick={this.handleSubmit}>
                                 <SendIcon />
                             </IconButton>
                         </div>
