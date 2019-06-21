@@ -5,7 +5,6 @@ const initialState = {
 }
 
 export default function stickersPicker(state = initialState, action) {
-    console.log('stickersPicker', state, action)
     switch (action.type) {
         case SET_IS_ACTIVE_STICKERS_PICKER:
             return { ...state, isActive: action.isActive }

@@ -34,7 +34,6 @@ export function clearCurrentChatId() {
 export const SET_PALETTE = 'SET_PALETTE'
 
 export function setPalette(palette, prevPalette = null) {
-    console.log('setPalette', palette, prevPalette)
     return { type: SET_PALETTE, palette, prevPalette }
 }
 
@@ -43,6 +42,5 @@ export function setPalette(palette, prevPalette = null) {
 export const SET_IS_ACTIVE_STICKERS_PICKER = 'SET_IS_ACTIVE_STICKERS_PICKER'
 
 export function setIsActiveStickersPicker(isActive) {
-    console.log('setIsActiveStickersPicker', isActive)
     return { type: SET_IS_ACTIVE_STICKERS_PICKER, isActive }
 }
