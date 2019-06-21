@@ -26,40 +26,38 @@ import {
     getUnread,
     getSenderUserId,
     getWebPage,
-    openMedia
+    openMedia,
 } from '../../Utils/Message'
 import { canSendMessages } from '../../Utils/Chat'
 import { openUser, openChat, selectMessage } from '../../Actions/Client'
 import MessageStore from '../../Stores/MessageStore'
 import TdLibController from '../../Controllers/TdLibController'
+import { EMOJI_WHOLE_STRING_REGEX } from '../../Constants'
 import './Message.css'
-import emojiRegex from 'emoji-regex/es2015/index.js'
 
 const styles = theme => ({
     message: {
-        backgroundColor: 'transparent'
+        backgroundColor: 'transparent',
     },
     messageAuthorColor: {
-        color: theme.palette.primary.main
+        color: theme.palette.primary.main,
     },
     messageSelected: {
-        backgroundColor: theme.palette.primary.main + '22'
+        backgroundColor: theme.palette.primary.main + '22',
     },
     '@keyframes highlighted': {
         from: { backgroundColor: theme.palette.primary.main + '22' },
-        to: { backgroundColor: 'transparent' }
+        to: { backgroundColor: 'transparent' },
     },
     messageHighlighted: {
-        animation: '$highlighted 4s ease-out'
+        animation: '$highlighted 4s ease-out',
     },
     textOnlyWithEmojis: {
         fontSize: '4em',
         lineHeight: '1em',
-        paddingTop: '10px'
-    }
+        paddingTop: '10px',
+    },
 })
-
-const EMOJI_WHOLE_STRING_REGEX = new RegExp('^(?:' + emojiRegex().source + ')+$', '')
 
 class Message extends Component {
     constructor(props) {
@@ -70,12 +68,12 @@ class Message extends Component {
             this.state = {
                 message: MessageStore.get(chatId, messageId),
                 selected: false,
-                highlighted: false
+                highlighted: false,
             }
         } else {
             this.state = {
                 selected: false,
-                highlighted: false
+                highlighted: false,
             }
         }
     }
@@ -129,8 +127,14 @@ class Message extends Component {
     }
 
     componentWillUnmount() {
-        MessageStore.removeListener('clientUpdateMessageHighlighted', this.onClientUpdateMessageHighlighted)
-        MessageStore.removeListener('clientUpdateMessageSelected', this.onClientUpdateMessageSelected)
+        MessageStore.removeListener(
+            'clientUpdateMessageHighlighted',
+            this.onClientUpdateMessageHighlighted
+        )
+        MessageStore.removeListener(
+            'clientUpdateMessageSelected',
+            this.onClientUpdateMessageSelected
+        )
         MessageStore.removeListener('clientUpdateClearSelection', this.onClientUpdateClearSelection)
         MessageStore.removeListener('updateMessageContent', this.onUpdateMessageContent)
         MessageStore.removeListener('updateMessageEdited', this.onUpdateMessageEdited)
@@ -245,7 +249,7 @@ class Message extends Component {
             TdLibController.clientUpdate({
                 '@type': 'clientUpdateReply',
                 chatId: chatId,
-                messageId: messageId
+                messageId: messageId,
             })
             return
         }
@@ -256,8 +260,8 @@ class Message extends Component {
                 '@type': 'clientUpdateForward',
                 info: {
                     chatId: chatId,
-                    messageIds: [messageId]
-                }
+                    messageIds: [messageId],
+                },
             })
         }
     }
@@ -300,7 +304,8 @@ class Message extends Component {
 
         const text = getText(message)
         const textOnlyWithEmojis =
-            message.content['@type'] === 'messageText' && EMOJI_WHOLE_STRING_REGEX.test(message.content.text.text)
+            message.content['@type'] === 'messageText' &&
+            EMOJI_WHOLE_STRING_REGEX.test(message.content.text.text)
 
         const webPage = getWebPage(message)
         const date = getDate(message)
@@ -336,12 +341,23 @@ class Message extends Component {
                 <div className='message-wrapper'>
                     <i className='message-select-tick' />
                     {this.unread && (
-                        <MessageStatus chatId={chatId} messageId={messageId} sendingState={sending_state} />
+                        <MessageStatus
+                            chatId={chatId}
+                            messageId={messageId}
+                            sendingState={sending_state}
+                        />
                     )}
                     {tile}
                     <div className='message-content'>
                         <div className='message-title'>
-                            {!forward_info && <MessageAuthor chatId={chatId} openChat userId={senderUserId} openUser />}
+                            {!forward_info && (
+                                <MessageAuthor
+                                    chatId={chatId}
+                                    openChat
+                                    userId={senderUserId}
+                                    openUser
+                                />
+                            )}
                             {forward_info && <Forward forwardInfo={forward_info} />}
                             <div className='message-meta'>
                                 <span>&nbsp;</span>
@@ -361,15 +377,23 @@ class Message extends Component {
                                 </a>
                             </div>
                         </div>
-                        {Boolean(reply_to_message_id) && <Reply chatId={chatId} messageId={reply_to_message_id} />}
+                        {Boolean(reply_to_message_id) && (
+                            <Reply chatId={chatId} messageId={reply_to_message_id} />
+                        )}
                         {media}
                         <div
                             className={classNames('message-text', {
-                                [classes.textOnlyWithEmojis]: textOnlyWithEmojis
+                                [classes.textOnlyWithEmojis]: textOnlyWithEmojis,
                             })}>
                             {text}
                         </div>
-                        {webPage && <WebPage chatId={chatId} messageId={messageId} openMedia={this.openMedia} />}
+                        {webPage && (
+                            <WebPage
+                                chatId={chatId}
+                                messageId={messageId}
+                                openMedia={this.openMedia}
+                            />
+                        )}
                     </div>
                 </div>
             </div>

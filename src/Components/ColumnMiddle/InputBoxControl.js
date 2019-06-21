@@ -32,7 +32,7 @@ import {
     isPrivateChat,
 } from '../../Utils/Chat'
 import { borderStyle } from '../Theme'
-import { PHOTO_SIZE } from '../../Constants'
+import { PHOTO_SIZE, EMOJI_WHOLE_STRING_REGEX } from '../../Constants'
 import MessageStore from '../../Stores/MessageStore'
 import ChatStore from '../../Stores/ChatStore'
 import ApplicationStore from '../../Stores/ApplicationStore'
@@ -52,8 +52,6 @@ const styles = theme => ({
     },
     ...borderStyle(theme),
 })
-
-const EMOJI_REGEX = emojiRegex()
 
 class InputBoxControl extends Component {
     constructor(props) {
@@ -590,22 +588,16 @@ class InputBoxControl extends Component {
     handleInput = async event => {
         const innerText = this.newMessageRef.current.innerText
         if (!innerText || innerText.length > 11) {
-            const { hint } = StickerStore
-            if (hint) {
-                TdLibController.clientUpdate({
-                    '@type': 'clientUpdateLocalStickersHint',
-                    hint: null,
-                })
-            }
             this.tryCloseStickerHint()
             return
         }
 
         const t0 = performance.now()
-        let match = EMOJI_REGEX.exec(innerText)
+        let match = EMOJI_WHOLE_STRING_REGEX.exec(innerText)
         const t1 = performance.now()
         console.log('Matched ' + (t1 - t0) + 'ms', match)
         if (!match || innerText !== match[0]) {
+            this.tryCloseStickerHint()
             return
         }
 
