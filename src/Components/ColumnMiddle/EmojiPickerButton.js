@@ -14,6 +14,8 @@ import { withTranslation } from 'react-i18next'
 import Button from '@material-ui/core/Button'
 import IconButton from '@material-ui/core/IconButton'
 import InsertEmoticonIcon from '@material-ui/icons/InsertEmoticon'
+import StickerEmojiIcon from 'mdi-material-ui/StickerEmoji'
+import SpeedDialIcon from '@material-ui/lab/SpeedDialIcon'
 import { Picker as EmojiPicker } from 'emoji-mart'
 import StickerPreview from './StickerPreview'
 import StickersPicker from './StickersPicker'
@@ -69,6 +71,9 @@ const styles = theme => ({
     },
     pickerEmojisAndStickers: {
         overflowX: 'hidden',
+    },
+    stickerEmojiIcon: {
+        transform: 'rotate(-20deg)',
     },
 })
 
@@ -323,7 +328,11 @@ class EmojiPickerButton extends Component {
                     onClick={this.openPicker}
                     onMouseEnter={this.handleButtonMouseEnter}
                     onMouseLeave={this.handleButtonMouseLeave}>
-                    <InsertEmoticonIcon />
+                    <SpeedDialIcon
+                        open={tab === 1}
+                        icon={<InsertEmoticonIcon />}
+                        openIcon={<StickerEmojiIcon classes={{ root: classes.stickerEmojiIcon }} />}
+                    />
                 </IconButton>
                 <div
                     className={classNames(classes.pickerRoot, { [classes.pickerRootOpened]: open })}
