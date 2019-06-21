@@ -7,48 +7,49 @@
 
 class Animator {
     constructor(duration, options = []) {
-        this.options = options;
-        this.duration = duration;
+        this.options = options
+        this.duration = duration
     }
 
     static outSine(n) {
-        return Math.sin((n * Math.PI) / 2);
+        return Math.sin((n * Math.PI) / 2)
     }
 
     start = () => {
-        this.stopped = false;
-        this.id = requestAnimationFrame(this.startAnim);
-    };
+        this.stopped = false
+        this.id = requestAnimationFrame(this.startAnim)
+    }
 
     startAnim = timeStamp => {
-        const { start, duration } = this;
+        const { start, duration } = this
 
-        this.start = timeStamp;
-        this.end = start + duration;
-        this.draw(timeStamp);
-    };
+        this.start = timeStamp
+        this.end = start + duration
+        this.draw(timeStamp)
+    }
 
     draw = now => {
-        const { stopped, duration, start, options } = this;
+        const { stopped, duration, start, options } = this
 
-        if (stopped) return;
-        if (now - start >= duration) this.stopped = true;
+        if (stopped) return
+        if (now - start >= duration) this.stopped = true
 
-        const p = (now - start) / duration;
-        const val = Animator.outSine(p);
+        let p = (now - start) / duration
+        if (p > 1) p = 1
+        const val = Animator.outSine(p)
 
         options.forEach(x => {
-            const { from, to, func } = x;
-            func(from + (to - from) * val);
-        });
+            const { from, to, func } = x
+            func(from + (to - from) * val)
+        })
 
-        this.id = requestAnimationFrame(this.draw);
-    };
+        this.id = requestAnimationFrame(this.draw)
+    }
 
     stop = () => {
-        this.stopped = true;
-        cancelAnimationFrame(this.id);
-    };
+        this.stopped = true
+        cancelAnimationFrame(this.id)
+    }
 }
 
-export default Animator;
+export default Animator

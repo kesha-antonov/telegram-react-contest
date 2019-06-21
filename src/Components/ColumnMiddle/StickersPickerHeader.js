@@ -19,7 +19,7 @@ import './StickersPickerHeader.css'
 
 const styles = theme => ({
     ...borderStyle(theme),
-    ...accentStyles(theme)
+    ...accentStyles(theme),
 })
 
 class StickersPickerHeader extends React.Component {
@@ -37,19 +37,16 @@ class StickersPickerHeader extends React.Component {
     }
 
     componentWillUnmount() {
-        StickerStore.removeListener('clientUpdateStickerSetPosition', this.onClientUpdateStickerSetPosition)
+        StickerStore.removeListener(
+            'clientUpdateStickerSetPosition',
+            this.onClientUpdateStickerSetPosition
+        )
     }
 
     onClientUpdateStickerSetPosition = update => {
         const { position } = update
 
-        this.setState({ position })
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevState.position !== this.state.position) {
-            this.scrollToPosition()
-        }
+        if (position !== this.state.position) this.setState({ position }, this.scrollToPosition)
     }
 
     scrollToPosition = () => {
@@ -73,7 +70,7 @@ class StickersPickerHeader extends React.Component {
             {
                 from: scrollFrom,
                 to: scrollTo,
-                func: left => (scroll.scrollLeft = left)
+                func: left => (scroll.scrollLeft = left),
             },
             {
                 from:
@@ -81,8 +78,8 @@ class StickersPickerHeader extends React.Component {
                         ? anchorTo - Math.sign(anchorTo - anchorFrom) * 338
                         : anchorFrom,
                 to: anchorTo,
-                func: left => (anchorNode.style.left = left + 'px')
-            }
+                func: left => (anchorNode.style.left = left + 'px'),
+            },
         ])
         this.animator.start()
     }
@@ -99,8 +96,9 @@ class StickersPickerHeader extends React.Component {
 
     handleSelect = sticker => {
         const { stickers, onSelect } = this.props
+        const position = stickers.indexOf(sticker)
 
-        onSelect(stickers.indexOf(sticker))
+        onSelect(position)
     }
 
     render() {
@@ -120,11 +118,17 @@ class StickersPickerHeader extends React.Component {
 
         return (
             <div className={classNames('stickers-picker-header', classes.borderColor)}>
-                <div ref={this.scrollRef} className='stickers-picker-header-scroll' onWheel={this.handleWheel}>
+                <div
+                    ref={this.scrollRef}
+                    className='stickers-picker-header-scroll'
+                    onWheel={this.handleWheel}>
                     <div className='stickers-picker-header-items'>{items}</div>
                     <div
                         ref={this.anchorRef}
-                        className={classNames('stickers-picker-header-anchor', classes.accentBackgroundDark)}
+                        className={classNames(
+                            'stickers-picker-header-anchor',
+                            classes.accentBackgroundDark
+                        )}
                     />
                 </div>
             </div>
@@ -134,7 +138,7 @@ class StickersPickerHeader extends React.Component {
 
 StickersPickerHeader.propTypes = {
     stickers: PropTypes.array.isRequired,
-    onSelect: PropTypes.func.isRequired
+    onSelect: PropTypes.func.isRequired,
 }
 
 export default withStyles(styles)(StickersPickerHeader)
