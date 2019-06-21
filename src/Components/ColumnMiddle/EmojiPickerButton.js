@@ -26,6 +26,24 @@ import TdLibController from '../../Controllers/TdLibController'
 import './EmojiPickerButton.css'
 import './emojiMart.css'
 
+const isiOS = (function IIFE() {
+    var iDevices = [
+        'iPad Simulator',
+        'iPhone Simulator',
+        'iPod Simulator',
+        'iPad',
+        'iPhone',
+        'iPod',
+        'MacIntel',
+    ]
+
+    if (!!navigator.platform) {
+        return iDevices.indexOf(navigator.platform) > -1
+    }
+
+    return /iPad|iPhone|iPod|Mac\sOS\sX/.test(navigator.userAgent) && !window.MSStream
+})()
+
 const styles = theme => ({
     iconButton: {
         margin: '8px 0px',
@@ -245,6 +263,7 @@ class EmojiPickerButton extends Component {
                     color={theme.palette.primary.dark}
                     i18n={i18n}
                     style={{ width: 338, overflowX: 'hidden' }}
+                    native={isiOS}
                 />
             )
 
