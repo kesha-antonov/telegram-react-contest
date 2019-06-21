@@ -22,8 +22,6 @@
     width: 300px;
     max-height: 330px;
     padding: 0 12px;
-    overflow-x: hidden;
-    overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     box-sizing: border-box;
 }
