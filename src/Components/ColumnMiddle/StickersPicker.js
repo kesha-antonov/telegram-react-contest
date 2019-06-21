@@ -64,6 +64,8 @@ class StickersPicker extends React.Component {
     }
 
     scrollTop = () => {
+        if (!this.scrollRef) return
+
         this.scrollRef.scrollTop = 0
     }
 

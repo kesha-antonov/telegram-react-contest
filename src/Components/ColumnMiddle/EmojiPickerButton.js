@@ -143,41 +143,52 @@ class EmojiPickerButton extends Component {
     loadStickerSets = async (force = false) => {
         if (this.sets && !force) return
 
-        this.stickerSets = await TdLibController.send({
-            '@type': 'getInstalledStickerSets',
-            is_masks: false,
+        if (this.loadStickerSetsPromise) {
+            await this.loadStickerSetsPromise
+            return
+        }
+
+        this.loadStickerSetsPromise = new Promise(async resolve => {
+            this.stickerSets = await TdLibController.send({
+                '@type': 'getInstalledStickerSets',
+                is_masks: false,
+            })
+
+            const promises = []
+            this.stickerSets.sets.forEach(x => {
+                promises.push(
+                    TdLibController.send({
+                        '@type': 'getStickerSet',
+                        set_id: x.id,
+                    })
+                )
+            })
+
+            this.sets = await Promise.all(promises)
+
+            const node = this.stickersPickerRef.current
+
+            const store = FileStore.getStore()
+            const previewSets = this.sets.slice(0, 5).reverse()
+            previewSets.forEach(x => {
+                loadStickerSetContent(store, x)
+                node.loadedSets.set(x.id, x.id)
+            })
+
+            const previewStickers = this.sets.reduce((stickers, set) => {
+                if (set.stickers.length > 0) {
+                    stickers.push(set.stickers[0])
+                }
+                return stickers
+            }, [])
+            previewStickers.forEach(x => {
+                loadStickerThumbnailContent(store, x)
+            })
+
+            this.loadStickerSetsPromise = null
+            resolve()
         })
-
-        const promises = []
-        this.stickerSets.sets.forEach(x => {
-            promises.push(
-                TdLibController.send({
-                    '@type': 'getStickerSet',
-                    set_id: x.id,
-                })
-            )
-        })
-
-        this.sets = await Promise.all(promises)
-
-        const node = this.stickersPickerRef.current
-
-        const store = FileStore.getStore()
-        const previewSets = this.sets.slice(0, 5).reverse()
-        previewSets.forEach(x => {
-            loadStickerSetContent(store, x)
-            node.loadedSets.set(x.id, x.id)
-        })
-
-        const previewStickers = this.sets.reduce((stickers, set) => {
-            if (set.stickers.length > 0) {
-                stickers.push(set.stickers[0])
-            }
-            return stickers
-        }, [])
-        previewStickers.forEach(x => {
-            loadStickerThumbnailContent(store, x)
-        })
+        await this.loadStickerSetsPromise
     }
 
     handleButtonMouseLeave = () => {
@@ -217,9 +228,13 @@ class EmojiPickerButton extends Component {
             }
         }
 
-        this.setState(newState, () => {
+        this.setState(newState, async () => {
             if (!newState.open) return
 
+            if (this.props.isActiveStickersPicker) {
+                await this.loadStickerSets()
+                this.tryLoadStickersPacks()
+            }
             this.tryScrollToChosedStickerPack()
         })
     }
@@ -239,14 +254,20 @@ class EmojiPickerButton extends Component {
         this.props.setIsActiveStickersPicker(false)
     }
 
-    handleStickersClick = () => {
+    tryLoadStickersPacks = () => {
         const stickersPicker = this.stickersPickerRef.current
+        if (!stickersPicker) return
 
         stickersPicker.loadContent(this.stickerSets, this.sets)
+    }
+
+    handleStickersClick = () => {
+        this.tryLoadStickersPacks()
 
         const { isActiveStickersPicker, setIsActiveStickersPicker } = this.props
 
         if (isActiveStickersPicker) {
+            const stickersPicker = this.stickersPickerRef.current
             stickersPicker.scrollTop()
             return
         }

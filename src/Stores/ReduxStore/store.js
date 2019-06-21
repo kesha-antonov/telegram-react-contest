@@ -1,8 +1,25 @@
 import { createStore } from 'redux'
 import reducers from './reducers'
 import { combineReducers } from 'redux'
+import { persistReducer, persistStore } from 'redux-persist'
+import storage from 'redux-persist/lib/storage'
 
-console.log('reducers', reducers)
-const reduxStore = createStore(combineReducers(reducers))
+const persistConfig = {
+    key: 'root',
+    storage,
+    // whitelist: ['stickersPicker', 'palette', 'currentChatId'],
+    whitelist: ['stickersPicker'],
+    version: 'v1',
+}
 
-export default reduxStore
+const rootReducer = combineReducers(reducers)
+
+const persistedReducer = persistReducer(persistConfig, rootReducer)
+
+export default () => {
+    const store = createStore(persistedReducer)
+    let persistor = persistStore(store, null, () => {
+        console.log('rehydrated', store.getState())
+    })
+    return { store, persistor }
+}

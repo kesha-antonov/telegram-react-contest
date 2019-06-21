@@ -42,6 +42,7 @@
     "recompose": "^0.30.0",
     "redux": "^4.0.1",
     "redux-devtools": "^3.5.0",
+    "redux-persist": "^5.10.0",
     "sw-precache-cra": "^1.0.0-alpha.2",
     "tdweb": "^1.4.3",
     "universal-cookie": "^4.0.0"

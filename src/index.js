@@ -13,19 +13,24 @@ import registerServiceWorker from './registerServiceWorker'
 import Cookies from 'universal-cookie'
 import { OPTIMIZATIONS_FIRST_START } from './Constants'
 import './index.css'
-import reduxStore from './Stores/ReduxStore/store'
+import createReduxStore from './Stores/ReduxStore/store'
+import { PersistGate } from 'redux-persist/integration/react'
 import { Provider } from 'react-redux'
 import StylesProvider from '@material-ui/styles/StylesProvider'
 import Theme from './Theme'
 
+const { store: reduxStore, persistor: reduxPersistor } = createReduxStore()
+
 ReactDOM.render(
     <StylesProvider injectFirst={false}>
         <Provider store={reduxStore}>
-            <Theme>
-                <Router>
-                    <Route path='' component={TelegramApp} />
-                </Router>
-            </Theme>
+            <PersistGate loading={null} persistor={reduxPersistor}>
+                <Theme>
+                    <Router>
+                        <Route path='' component={TelegramApp} />
+                    </Router>
+                </Theme>
+            </PersistGate>
         </Provider>
     </StylesProvider>,
     document.getElementById('root')
