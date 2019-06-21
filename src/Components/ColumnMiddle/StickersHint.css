@@ -12,11 +12,15 @@
     left: 0;
     right: 0;
     bottom: 0;
-    max-height: 190px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+}
+
+.stickers-hint-content {
+    max-height: 190px;
     display: flex;
     flex-wrap: wrap;
+    overflow: hidden;
 }
 
 .sticker-hints-item {
