@@ -304,6 +304,7 @@ class Message extends Component {
 
         const text = getText(message)
         const textOnlyWithEmojis =
+            message.content &&
             message.content['@type'] === 'messageText' &&
             EMOJI_WHOLE_STRING_REGEX.test(message.content.text.text)
 
