@@ -5,22 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { compose } from 'recompose';
-import withStyles from '@material-ui/core/styles/withStyles';
-import { withTranslation } from 'react-i18next';
-import CloseIcon from '@material-ui/icons/Close';
-import IconButton from '@material-ui/core/IconButton';
-import ReplyTile from '../Tile/ReplyTile';
-import { accentStyles, borderStyle } from '../Theme';
-import { getContent, getReplyPhotoSize, isDeletedMessage } from '../../Utils/Message';
-import { openChat } from '../../Actions/Client';
-import ChatStore from '../../Stores/ChatStore';
-import MessageStore from '../../Stores/MessageStore';
-import TdLibController from '../../Controllers/TdLibController';
-import './PinnedMessage.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import classNames from 'classnames'
+import { compose } from 'recompose'
+import withStyles from '@material-ui/core/styles/withStyles'
+import { withTranslation } from 'react-i18next'
+import CloseIcon from '@material-ui/icons/Close'
+import IconButton from '@material-ui/core/IconButton'
+import ReplyTile from '../Tile/ReplyTile'
+import { accentStyles, borderStyle } from '../Theme'
+import { getContent, getReplyPhotoSize, isDeletedMessage } from '../../Utils/Message'
+import { openChat } from '../../Actions/Client'
+import ChatStore from '../../Stores/ChatStore'
+import MessageStore from '../../Stores/MessageStore'
+import TdLibController from '../../Controllers/TdLibController'
+import { connect } from 'react-redux'
+import './PinnedMessage.css'
 
 const styles = theme => ({
     ...accentStyles(theme),
@@ -30,145 +31,133 @@ const styles = theme => ({
     },
     pinnedMessage: {
         background: theme.palette.type === 'dark' ? theme.palette.background.default : '#FFFFFF',
-        color: theme.palette.text.primary
-    }
-});
+        color: theme.palette.text.primary,
+    },
+})
 
 class PinnedMessage extends React.Component {
-    constructor(props) {
-        super(props);
+    componentDidUpdate(prevProps) {
+        const { chat } = this.props
 
-        const chat = ChatStore.get(props.chatId);
-        this.state = {
-            prevPropsChatId: props.chatId,
-            messageId: chat && chat.pinned_message_id ? chat.pinned_message_id : 0
-        };
-    }
-
-    static getDerivedStateFromProps(props, state) {
-        const { prevPropsChatId } = state;
-        const { chatId } = props;
-
-        if (prevPropsChatId !== chatId) {
-            const chat = ChatStore.get(chatId);
-            //console.log('PinnedMessage.getDerivedStateFromProps', chat, chat.pinned_message_id);
-            return {
-                prevPropsChatId: chatId,
-                messageId: chat && chat.pinned_message_id ? chat.pinned_message_id : 0
-            };
-        }
-
-        return null;
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        const { messageId } = this.state;
-
-        if (messageId && prevState.messageId !== messageId) {
-            this.loadContent();
+        if (
+            chat &&
+            chat.pinned_message_id &&
+            chat !== prevProps.chat &&
+            (!prevProps.chat || chat.pinned_message_id !== prevProps.chat.pinned_message_id)
+        ) {
+            this.loadContent()
         }
     }
 
     componentDidMount() {
-        this.loadContent();
+        this.loadContent()
 
-        ChatStore.on('updateChatPinnedMessage', this.onUpdateChatPinnedMessage);
+        ChatStore.on('updateChatPinnedMessage', this.onUpdateChatPinnedMessage)
     }
 
     componentWillUnmount() {
-        ChatStore.removeListener('updateChatPinnedMessage', this.onUpdateChatPinnedMessage);
+        ChatStore.removeListener('updateChatPinnedMessage', this.onUpdateChatPinnedMessage)
     }
 
     onUpdateChatPinnedMessage = update => {
-        const { chat_id, pinned_message_id } = update;
-        const { chatId } = this.props;
+        const { chat_id, pinned_message_id } = update
+        const { chat } = this.props
 
-        if (chatId !== chat_id) return;
+        if (!chat || chat.id !== chat_id) return
 
-        this.setState({ messageId: pinned_message_id });
-    };
+        this.loadContent()
+    }
 
     loadContent = () => {
-        const { chatId } = this.props;
-        const { messageId } = this.state;
+        const { chat } = this.props
+        if (!chat) return
 
-        if (!chatId) return;
-        if (!messageId) return;
+        const { pinned_message_id } = chat
+        if (!pinned_message_id) return
 
-        const message = MessageStore.get(chatId, messageId);
-        if (message) return;
+        const message = MessageStore.get(chat.id, pinned_message_id)
+        if (message) return
 
         TdLibController.send({
             '@type': 'getMessage',
-            chat_id: chatId,
-            message_id: messageId
+            chat_id: chat.id,
+            message_id: pinned_message_id,
         })
             .then(result => {
-                MessageStore.set(result);
-                this.forceUpdate();
+                MessageStore.set(result)
+                this.forceUpdate()
             })
             .catch(error => {
-                const deletedMessage = {
-                    '@type': 'deletedMessage',
-                    chat_id: chatId,
-                    id: messageId,
-                    content: null
-                };
-                MessageStore.set(deletedMessage);
-                this.forceUpdate();
-            });
-    };
+                this.deletePinnedMessage()
+            })
+    }
 
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
-        const { chatId, t, theme } = this.props;
-        const { messageId } = this.state;
+    deletePinnedMessage = () => {
+        const { chat } = this.props
+        if (!chat) return
+
+        const { pinned_message_id } = chat
+        if (!pinned_message_id) return
+
+        const deletedMessage = {
+            '@type': 'deletedMessage',
+            chat_id: chat.id,
+            id: pinned_message_id,
+            content: null,
+        }
+        MessageStore.set(deletedMessage)
+        this.forceUpdate()
+    }
+
+    shouldComponentUpdate(nextProps) {
+        const { chat, t, theme } = this.props
 
         if (nextProps.t !== t) {
-            return true;
+            return true
         }
 
         if (nextProps.theme !== theme) {
-            return true;
+            return true
         }
 
-        if (nextProps.chatId !== chatId) {
-            return true;
+        if (nextProps.chat !== chat) {
+            return true
         }
 
-        if (nextState.messageId !== messageId) {
-            return true;
-        }
-
-        return false;
+        return false
     }
 
     handleClick = event => {
-        const { chatId } = this.props;
-        const { messageId } = this.state;
+        const { chat } = this.props
+        if (!chat) return
+        if (!chat.pinned_message_id) return
 
-        if (!messageId) return;
-
-        openChat(chatId, messageId);
-    };
+        openChat(chat.id, chat.pinned_message_id)
+    }
 
     handleDelete = event => {
-        event.preventDefault();
-        event.stopPropagation();
-    };
+        event.preventDefault()
+        event.stopPropagation()
+
+        this.deletePinnedMessage()
+    }
 
     render() {
-        const { chatId, classes, t } = this.props;
-        const { messageId } = this.state;
+        const { chat, classes, t } = this.props
+        if (!chat) return null
 
-        const message = MessageStore.get(chatId, messageId);
-        //console.log('PinnedMessage.message', chatId, messageId, message);
-        if (!message) return null;
+        const { pinned_message_id } = chat
+        if (!pinned_message_id) return null
 
-        let content = !message ? t('Loading') : getContent(message, t);
-        const photoSize = getReplyPhotoSize(chatId, messageId);
+        const message = MessageStore.get(chat.id, pinned_message_id)
+        console.log('PinnedMessage.message', chat.id, pinned_message_id, message)
+        if (!message) return null
+
+        let content = !message ? t('Loading') : getContent(message, t)
+        const photoSize = getReplyPhotoSize(chat.id, pinned_message_id)
 
         if (isDeletedMessage(message)) {
-            content = t('DeletedMessage');
+            content = t('DeletedMessage')
         }
 
         return (
@@ -177,7 +166,13 @@ class PinnedMessage extends React.Component {
                 onClick={this.handleClick}>
                 <div className='pinned-message-wrapper'>
                     <div className={classNames('reply-border', classes.accentBackgroundLight)} />
-                    {photoSize && <ReplyTile chatId={chatId} messageId={messageId} photoSize={photoSize} />}
+                    {photoSize && (
+                        <ReplyTile
+                            chatId={chat.id}
+                            messageId={pinned_message_id}
+                            photoSize={photoSize}
+                        />
+                    )}
                     <div className='pinned-message-content'>
                         <div className={classNames('reply-content-title', classes.accentColorMain)}>
                             {t('PinnedMessage')}
@@ -191,17 +186,24 @@ class PinnedMessage extends React.Component {
                     </div>
                 </div>
             </div>
-        );
+        )
+    }
+}
+
+const mapStateToProps = state => {
+    return {
+        chat: state.currentChatId ? state.chats.get(state.currentChatId.toString()) : null,
     }
 }
 
 PinnedMessage.propTypes = {
-    chatId: PropTypes.number.isRequired
-};
+    chat: PropTypes.object,
+}
 
 const enhance = compose(
+    connect(mapStateToProps),
     withStyles(styles, { withTheme: true }),
     withTranslation()
-);
+)
 
-export default enhance(PinnedMessage);
+export default enhance(PinnedMessage)

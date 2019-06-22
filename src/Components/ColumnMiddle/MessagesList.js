@@ -1132,7 +1132,7 @@ class MessagesList extends React.Component {
                         <ChatTextPlaceholder text={t('SelectChatPlaceholder')} />
                     )}
                 </Scrollbar>
-                <PinnedMessage chatId={chatId} />
+                <PinnedMessage />
                 <FilesDropTarget />
                 <StickersHint />
             </div>
