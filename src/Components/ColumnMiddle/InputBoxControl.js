@@ -6,6 +6,7 @@
  */
 
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { compose } from 'recompose'
 import emojiRegex from 'emoji-regex'
@@ -39,6 +40,7 @@ import ApplicationStore from '../../Stores/ApplicationStore'
 import FileStore from '../../Stores/FileStore'
 import StickerStore from '../../Stores/StickerStore'
 import TdLibController from '../../Controllers/TdLibController'
+import { connect } from 'react-redux'
 import './InputBoxControl.css'
 
 const EMOJI_END_STRING_REGEX = new RegExp('(?:' + emojiRegex().source + ')+$', '')
@@ -62,12 +64,9 @@ class InputBoxControl extends Component {
         this.attachPhotoRef = React.createRef()
         this.newMessageRef = React.createRef()
 
-        const chatId = ApplicationStore.getChatId()
-
         this.innerHTML = null
         this.state = {
-            chatId: chatId,
-            replyToMessageId: getChatDraftReplyToMessageId(chatId),
+            replyToMessageId: getChatDraftReplyToMessageId(props.chatId),
             openPasteDialog: false,
         }
 
@@ -75,8 +74,8 @@ class InputBoxControl extends Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        const { theme, t } = this.props
-        const { chatId, replyToMessageId, openPasteDialog } = this.state
+        const { theme, t, chatId } = this.props
+        const { replyToMessageId, openPasteDialog } = this.state
 
         if (nextProps.theme !== theme) {
             return true
@@ -86,7 +85,7 @@ class InputBoxControl extends Component {
             return true
         }
 
-        if (nextState.chatId !== chatId) {
+        if (nextProps.chatId !== chatId) {
             return true
         }
 
@@ -118,14 +117,14 @@ class InputBoxControl extends Component {
     }
 
     getSnapshotBeforeUpdate(prevProps, prevState) {
-        if (prevState.chatId === this.state.chatId) return null
+        if (prevProps.chatId === this.props.chatId) return null
 
-        return this.getNewChatDraftMessage(prevState.chatId, prevState.replyToMessageId)
+        return this.getNewChatDraftMessage(prevProps.chatId, prevState.replyToMessageId)
     }
 
     componentWillUnmount() {
         const newChatDraftMessage = this.getNewChatDraftMessage(
-            this.state.chatId,
+            this.props.chatId,
             this.state.replyToMessageId
         )
         this.setChatDraftMessage(newChatDraftMessage)
@@ -169,7 +168,7 @@ class InputBoxControl extends Component {
             }
         }
 
-        this.onSendInternal(content, true, result => {})
+        this.onSendInternal(content, true)
 
         TdLibController.clientUpdate({
             '@type': 'clientUpdateLocalStickersHint',
@@ -178,7 +177,7 @@ class InputBoxControl extends Component {
     }
 
     onClientUpdateReply = update => {
-        const { chatId: currentChatId } = this.state
+        const { chatId: currentChatId } = this.props
         const { chatId, messageId } = update
 
         if (currentChatId !== chatId) {
@@ -193,14 +192,13 @@ class InputBoxControl extends Component {
     }
 
     onClientUpdateChatId = update => {
-        const { chatId } = this.state
-        if (chatId === update.nextChatId) return
+        const replyToMessageId = getChatDraftReplyToMessageId(update.nextChatId)
+        if (replyToMessageId === this.state.replyToMessageId) return
 
         this.innerHTML = null
         this.setState(
             {
-                chatId: update.nextChatId,
-                replyToMessageId: getChatDraftReplyToMessageId(update.nextChatId),
+                replyToMessageId,
                 openPasteDialog: false,
             },
             () => {
@@ -212,7 +210,7 @@ class InputBoxControl extends Component {
     }
 
     setDraft = () => {
-        const { chatId } = this.state
+        const { chatId } = this.props
 
         const element = this.newMessageRef.current
 
@@ -297,7 +295,7 @@ class InputBoxControl extends Component {
                 },
             }
 
-            return { chatId: chatId, draftMessage: draftMessage }
+            return { chatId, draftMessage: draftMessage }
         }
 
         return null
@@ -323,7 +321,7 @@ class InputBoxControl extends Component {
             clear_draft: true,
         }
 
-        this.onSendInternal(content, false, result => {})
+        this.onSendInternal(content, false)
         this.tryCloseStickerHint()
     }
 
@@ -386,7 +384,7 @@ class InputBoxControl extends Component {
     }
 
     handleKeyUp = () => {
-        const { chatId } = this.state
+        const { chatId } = this.props
 
         const chat = ChatStore.get(chatId)
         if (!chat) return
@@ -448,7 +446,7 @@ class InputBoxControl extends Component {
     }
 
     handleSendPoll = poll => {
-        this.onSendInternal(poll, true, () => {})
+        this.onSendInternal(poll, true)
     }
 
     handleSendDocument = file => {
@@ -532,8 +530,10 @@ class InputBoxControl extends Component {
         }
     }
 
-    onSendInternal = async (content, clearDraft, callback) => {
-        const { chatId, replyToMessageId } = this.state
+    onSendInternal = async (content, clearDraft, callback = null) => {
+        const { chatId } = this.props
+        const { replyToMessageId } = this.state
+        console.log('onSendInternal', content, clearDraft, callback, chatId, replyToMessageId)
 
         if (!chatId) return
         if (!content) return
@@ -553,7 +553,7 @@ class InputBoxControl extends Component {
             this.setState({ replyToMessageId: 0 }, () => {
                 if (clearDraft) {
                     const newChatDraftMessage = this.getNewChatDraftMessage(
-                        this.state.chatId,
+                        this.props.chatId,
                         this.state.replyToMessageId
                     )
                     this.setChatDraftMessage(newChatDraftMessage)
@@ -567,7 +567,7 @@ class InputBoxControl extends Component {
                 message_ids: [result.id],
             })
 
-            callback(result)
+            callback && callback(result)
         } catch (error) {
             alert('sendMessage error ' + JSON.stringify(error))
         }
@@ -659,8 +659,8 @@ class InputBoxControl extends Component {
     }
 
     render() {
-        const { classes, t } = this.props
-        const { chatId, replyToMessageId, openPasteDialog } = this.state
+        const { classes, t, chatId } = this.props
+        const { replyToMessageId, openPasteDialog } = this.state
 
         const content = this.innerHTML !== null ? this.innerHTML : null
 
@@ -761,7 +761,18 @@ class InputBoxControl extends Component {
     }
 }
 
+const mapStateToProps = state => {
+    return {
+        chatId: state.currentChatId,
+    }
+}
+
+InputBoxControl.propTypes = {
+    chatId: PropTypes.number.isRequired,
+}
+
 const enhance = compose(
+    connect(mapStateToProps),
     withStyles(styles, { withTheme: true }),
     withTranslation()
 )

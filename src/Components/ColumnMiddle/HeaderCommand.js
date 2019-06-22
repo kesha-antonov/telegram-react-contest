@@ -5,184 +5,198 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { compose } from 'recompose';
-import { withTranslation } from 'react-i18next';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox/';
-import withStyles from '@material-ui/core/styles/withStyles';
-import { borderStyle } from '../Theme';
-import { canSendMessages, getChatShortTitle, isPrivateChat } from '../../Utils/Chat';
-import MessageStore from '../../Stores/MessageStore';
-import ApplicationStore from '../../Stores/ApplicationStore';
-import TdLibController from '../../Controllers/TdLibController';
-import './HeaderCommand.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import classNames from 'classnames'
+import { compose } from 'recompose'
+import { withTranslation } from 'react-i18next'
+import Button from '@material-ui/core/Button'
+import Dialog from '@material-ui/core/Dialog'
+import DialogActions from '@material-ui/core/DialogActions'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogContentText from '@material-ui/core/DialogContentText'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import Checkbox from '@material-ui/core/Checkbox/'
+import withStyles from '@material-ui/core/styles/withStyles'
+import { borderStyle } from '../Theme'
+import { canSendMessages, getChatShortTitle, isPrivateChat } from '../../Utils/Chat'
+import MessageStore from '../../Stores/MessageStore'
+import TdLibController from '../../Controllers/TdLibController'
+import { connect } from 'react-redux'
+import './HeaderCommand.css'
 
 const styles = theme => ({
     buttonLeft: {
         margin: '14px 0 14px 14px',
-        minWidth: '100px'
+        minWidth: '100px',
     },
     buttonRight: {
         margin: '14px 14px 14px 0',
-        minWidth: '100px'
+        minWidth: '100px',
     },
-    ...borderStyle(theme)
-});
+    ...borderStyle(theme),
+})
 
 class HeaderCommand extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         this.state = {
-            openDeleteDialog: false
-        };
+            openDeleteDialog: false,
+        }
     }
 
     handleCancel = () => {
-        TdLibController.clientUpdate({ '@type': 'clientUpdateClearSelection' });
-    };
+        TdLibController.clientUpdate({ '@type': 'clientUpdateClearSelection' })
+    }
 
     handleDelete = () => {
-        let canBeDeletedForAllUsers = true;
+        let canBeDeletedForAllUsers = true
         for (let { chatId, messageId } of MessageStore.selectedItems.values()) {
-            const message = MessageStore.get(chatId, messageId);
+            const message = MessageStore.get(chatId, messageId)
             if (!message) {
-                canBeDeletedForAllUsers = false;
-                break;
+                canBeDeletedForAllUsers = false
+                break
             }
             if (!message.can_be_deleted_for_all_users) {
-                canBeDeletedForAllUsers = false;
-                break;
+                canBeDeletedForAllUsers = false
+                break
             }
         }
 
         this.setState({
             openDeleteDialog: true,
             canBeDeletedForAllUsers: canBeDeletedForAllUsers,
-            revoke: canBeDeletedForAllUsers
-        });
-    };
+            revoke: canBeDeletedForAllUsers,
+        })
+    }
 
     handleDeleteContinue = () => {
-        const { revoke } = this.state;
+        const { revoke } = this.state
 
-        let id;
-        const messageIds = [];
+        let id
+        const messageIds = []
         for (let { chatId, messageId } of MessageStore.selectedItems.values()) {
-            id = chatId;
-            messageIds.push(messageId);
+            id = chatId
+            messageIds.push(messageId)
         }
 
-        this.handleCancel();
+        this.handleCancel()
 
         TdLibController.send({
             '@type': 'deleteMessages',
             chat_id: id,
             message_ids: messageIds,
-            revoke: revoke
-        });
-    };
+            revoke: revoke,
+        })
+    }
 
     handleRevokeChange = () => {
-        this.setState({ revoke: !this.state.revoke });
-    };
+        this.setState({ revoke: !this.state.revoke })
+    }
 
     handleCloseDelete = () => {
-        this.setState({ openDeleteDialog: false });
-    };
+        this.setState({ openDeleteDialog: false })
+    }
 
     handleForward = () => {
-        let id;
-        const messageIds = [];
+        let id
+        const messageIds = []
         for (let { chatId, messageId } of MessageStore.selectedItems.values()) {
-            id = chatId;
-            messageIds.push(messageId);
+            id = chatId
+            messageIds.push(messageId)
         }
 
-        this.handleCancel();
+        this.handleCancel()
 
         TdLibController.clientUpdate({
             '@type': 'clientUpdateForward',
             info: {
                 chatId: id,
-                messageIds: messageIds
-            }
-        });
-    };
+                messageIds: messageIds,
+            },
+        })
+    }
 
     handleReply = () => {
-        if (MessageStore.selectedItems.size !== 1) return;
+        if (MessageStore.selectedItems.size !== 1) return
 
-        const { chatId, messageId } = MessageStore.selectedItems.values().next().value;
+        const { chatId, messageId } = MessageStore.selectedItems.values().next().value
 
-        this.handleCancel();
+        this.handleCancel()
 
-        TdLibController.clientUpdate({ '@type': 'clientUpdateReply', chatId: chatId, messageId: messageId });
-    };
+        TdLibController.clientUpdate({
+            '@type': 'clientUpdateReply',
+            chatId: chatId,
+            messageId: messageId,
+        })
+    }
 
     render() {
-        const { classes, t, count } = this.props;
-        const { openDeleteDialog, canBeDeletedForAllUsers, revoke } = this.state;
+        const { classes, t, count, chatId } = this.props
+        const { openDeleteDialog, canBeDeletedForAllUsers, revoke } = this.state
 
-        const chatId = ApplicationStore.getChatId();
-
-        let canBeDeleted = true;
+        let canBeDeleted = true
         for (let { chatId, messageId } of MessageStore.selectedItems.values()) {
-            const message = MessageStore.get(chatId, messageId);
+            const message = MessageStore.get(chatId, messageId)
             if (!message) {
-                canBeDeleted = false;
-                break;
+                canBeDeleted = false
+                break
             }
             if (!message.can_be_deleted_only_for_self && !message.can_be_deleted_for_all_users) {
-                canBeDeleted = false;
-                break;
+                canBeDeleted = false
+                break
             }
         }
 
-        let canBeForwarded = true;
+        let canBeForwarded = true
         for (let { chatId, messageId } of MessageStore.selectedItems.values()) {
-            const message = MessageStore.get(chatId, messageId);
+            const message = MessageStore.get(chatId, messageId)
             if (!message) {
-                canBeForwarded = false;
-                break;
+                canBeForwarded = false
+                break
             }
             if (!message.can_be_forwarded) {
-                canBeDeleted = false;
-                break;
+                canBeDeleted = false
+                break
             }
         }
 
-        const canBeReplied = count === 1 && canSendMessages(chatId);
+        const canBeReplied = count === 1 && canSendMessages(chatId)
 
         return (
             <>
                 <div className={classNames(classes.borderColor, 'header-command')}>
                     {canBeForwarded && (
-                        <Button color='primary' className={classes.buttonLeft} onClick={this.handleForward}>
+                        <Button
+                            color='primary'
+                            className={classes.buttonLeft}
+                            onClick={this.handleForward}>
                             {count <= 1 ? t('Forward') : `${t('Forward')} ${count}`}
                         </Button>
                     )}
                     {canBeDeleted && (
-                        <Button color='primary' className={classes.buttonLeft} onClick={this.handleDelete}>
+                        <Button
+                            color='primary'
+                            className={classes.buttonLeft}
+                            onClick={this.handleDelete}>
                             {count <= 1 ? t('Delete') : `${t('Delete')} ${count}`}
                         </Button>
                     )}
                     {canBeReplied && (
-                        <Button color='primary' className={classes.buttonLeft} onClick={this.handleReply}>
+                        <Button
+                            color='primary'
+                            className={classes.buttonLeft}
+                            onClick={this.handleReply}>
                             {t('Reply')}
                         </Button>
                     )}
                     <div className='header-command-space' />
-                    <Button color='primary' className={classes.buttonRight} onClick={this.handleCancel}>
+                    <Button
+                        color='primary'
+                        className={classes.buttonRight}
+                        onClick={this.handleCancel}>
                         {t('Cancel')}
                     </Button>
                 </div>
@@ -201,10 +215,16 @@ class HeaderCommand extends React.Component {
                         {canBeDeletedForAllUsers && (
                             <FormControlLabel
                                 control={
-                                    <Checkbox checked={revoke} onChange={this.handleRevokeChange} color='primary' />
+                                    <Checkbox
+                                        checked={revoke}
+                                        onChange={this.handleRevokeChange}
+                                        color='primary'
+                                    />
                                 }
                                 label={
-                                    isPrivateChat(chatId) ? `Delete for ${getChatShortTitle(chatId)}` : 'Delete for all'
+                                    isPrivateChat(chatId)
+                                        ? `Delete for ${getChatShortTitle(chatId)}`
+                                        : 'Delete for all'
                                 }
                             />
                         )}
@@ -219,17 +239,25 @@ class HeaderCommand extends React.Component {
                     </DialogActions>
                 </Dialog>
             </>
-        );
+        )
+    }
+}
+
+const mapStateToProps = state => {
+    return {
+        chatId: state.currentChatId,
     }
 }
 
 HeaderCommand.propTypes = {
-    count: PropTypes.number
-};
+    count: PropTypes.number.isRequired,
+    chatId: PropTypes.number.isRequired,
+}
 
 const enhance = compose(
+    connect(mapStateToProps),
     withStyles(styles, { withTheme: true }),
     withTranslation()
-);
+)
 
-export default enhance(HeaderCommand);
+export default enhance(HeaderCommand)
