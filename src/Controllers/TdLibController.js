@@ -22,7 +22,7 @@ class TdLibController extends EventEmitter {
             jsVerbosity: 3,
             fastUpdating: true,
             useDatabase: true,
-            mode: 'wasm',
+            mode: WebAssembly && WebAssembly.instantiateStreaming ? 'wasm' : 'asmjs',
         }
 
         // this.disableLog = false;
