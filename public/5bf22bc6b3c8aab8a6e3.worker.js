@@ -4458,7 +4458,7 @@ function _loadTdlibAsmjs() {
             console.log('got td_asm.js');
             fromFile = 'td_asmjs.js.mem';
             toFile = td_asmjs_js_default.a;
-            module = Module({
+            module = Module.default({
               onRuntimeInitialized: function onRuntimeInitialized() {
                 console.log('runtime intialized');
               },
