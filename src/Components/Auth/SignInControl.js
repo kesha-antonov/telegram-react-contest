@@ -5,29 +5,29 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import withStyles from '@material-ui/core/styles/withStyles';
-import { withTranslation } from 'react-i18next';
-import { compose } from 'recompose';
-import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
-import { isValidPhoneNumber } from '../../Utils/Common';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import FormControl from '@material-ui/core/FormControl';
-import Link from '@material-ui/core/Link';
-import Typography from '@material-ui/core/Typography';
-import OptionStore from '../../Stores/OptionStore';
-import LocalizationStore from '../../Stores/LocalizationStore';
-import TdLibController from '../../Controllers/TdLibController';
-import './SignInControl.css';
+import React from 'react'
+import withStyles from '@material-ui/core/styles/withStyles'
+import { withTranslation } from 'react-i18next'
+import { compose } from 'recompose'
+import Button from '@material-ui/core/Button'
+import TextField from '@material-ui/core/TextField'
+import { isValidPhoneNumber } from '../../Utils/Common'
+import FormHelperText from '@material-ui/core/FormHelperText'
+import FormControl from '@material-ui/core/FormControl'
+import Link from '@material-ui/core/Link'
+import Typography from '@material-ui/core/Typography'
+import OptionStore from '../../Stores/OptionStore'
+import LocalizationStore from '../../Stores/LocalizationStore'
+import TdLibController from '../../Controllers/TdLibController'
+import './SignInControl.css'
 
 const styles = {
     button: {
-        margin: '16px 0 0 0'
+        margin: '16px 0 0 0',
     },
     phone: {
         fontWeight: 'bold',
-        textAlign: 'center'
+        textAlign: 'center',
     },
     continueAtLanguage: {
         transform: 'translateY(100px)',
@@ -35,117 +35,120 @@ const styles = {
         position: 'absolute',
         left: 0,
         right: 0,
-        bottom: 0
-    }
-};
+        bottom: 0,
+    },
+}
 
 class SignInControl extends React.Component {
     state = {
         error: null,
-        loading: false
-    };
+        loading: false,
+    }
 
     componentDidMount() {
-        this.handleSuggestedLanguagePackId();
+        this.handleSuggestedLanguagePackId()
 
-        OptionStore.on('updateOption', this.handleUpdateOption);
+        OptionStore.on('updateOption', this.handleUpdateOption)
     }
 
     componentWillUnmount() {
-        OptionStore.removeListener('updateOption', this.handleUpdateOption);
+        OptionStore.removeListener('updateOption', this.handleUpdateOption)
     }
 
     handleUpdateOption = update => {
-        const { name } = update;
+        const { name } = update
 
         if (name === 'suggested_language_pack_id') {
-            this.handleSuggestedLanguagePackId();
+            this.handleSuggestedLanguagePackId()
         }
-    };
+    }
 
     handleSuggestedLanguagePackId = () => {
-        const { i18n } = this.props;
-        if (!i18n) return;
+        const { i18n } = this.props
+        if (!i18n) return
 
-        const languagePackId = OptionStore.get('suggested_language_pack_id');
-        if (!languagePackId) return;
+        const languagePackId = OptionStore.get('suggested_language_pack_id')
+        if (!languagePackId) return
 
-        const { value } = languagePackId;
+        const { value } = languagePackId
         if (value === i18n.language) {
-            this.setState({ suggestedLanguage: null });
-            return;
+            this.setState({ suggestedLanguage: null })
+            return
         }
 
         LocalizationStore.loadLanguage(value).then(() => {
-            this.setState({ suggestedLanguage: value });
-        });
-    };
+            this.setState({ suggestedLanguage: value })
+        })
+    }
 
     handleChange = event => {
-        this.phoneNumber = event.target.value;
-    };
+        this.phoneNumber = event.target.value
+    }
 
     handleKeyPress = event => {
         if (event.key === 'Enter') {
-            event.preventDefault();
-            this.handleDone();
+            event.preventDefault()
+            this.handleDone()
         }
-    };
+    }
 
-    handleDone = () => {
-        const { phone, onPhoneEnter } = this.props;
+    handleDone = async () => {
+        const { phone, onPhoneEnter } = this.props
 
-        const phoneNumber = this.phoneNumber || phone;
+        const phoneNumber = this.phoneNumber || phone
         if (!isValidPhoneNumber(phoneNumber)) {
-            this.setState({ error: { code: 'InvalidPhoneNumber' } });
-            return;
+            this.setState({ error: { code: 'InvalidPhoneNumber' } })
+            return
         }
 
-        onPhoneEnter(phoneNumber);
-        this.setState({ error: null, loading: true });
-        TdLibController.send({
-            '@type': 'setAuthenticationPhoneNumber',
-            phone_number: phoneNumber
-        })
-            .then(result => {})
-            .catch(error => {
-                let errorString = null;
-                if (error && error['@type'] === 'error' && error.message) {
-                    errorString = error.message;
-                } else {
-                    errorString = JSON.stringify(error);
-                }
+        onPhoneEnter(phoneNumber)
+        this.setState({ error: null, loading: true })
 
-                this.setState({ error: { string: errorString } });
+        try {
+            await TdLibController.send({
+                '@type': 'setAuthenticationPhoneNumber',
+                phone_number: phoneNumber,
             })
-            .finally(() => {
-                this.setState({ loading: false });
-            });
-    };
+        } catch (error) {
+            let errorString = null
+            if (error && error['@type'] === 'error' && error.message) {
+                errorString = error.message
+            } else {
+                errorString = JSON.stringify(error)
+            }
+
+            this.setState({ error: { string: errorString } })
+        }
+
+        this.setState({ loading: false })
+    }
 
     handleChangeLanguage = () => {
-        const { i18n } = this.props;
-        const { suggestedLanguage } = this.state;
+        const { i18n } = this.props
+        const { suggestedLanguage } = this.state
 
-        if (!i18n) return;
-        if (!suggestedLanguage) return;
+        if (!i18n) return
+        if (!suggestedLanguage) return
 
-        this.setState({ suggestedLanguage: i18n.language });
+        this.setState({ suggestedLanguage: i18n.language })
 
-        TdLibController.clientUpdate({ '@type': 'clientUpdateLanguageChange', language: suggestedLanguage });
-    };
+        TdLibController.clientUpdate({
+            '@type': 'clientUpdateLanguageChange',
+            language: suggestedLanguage,
+        })
+    }
 
     render() {
-        const { phone, classes, t } = this.props;
-        const { loading, error, suggestedLanguage } = this.state;
+        const { phone, classes, t } = this.props
+        const { loading, error, suggestedLanguage } = this.state
 
-        let errorString = '';
+        let errorString = ''
         if (error) {
-            const { code, string } = error;
+            const { code, string } = error
             if (code) {
-                errorString = t(code);
+                errorString = t(code)
             } else {
-                errorString = string;
+                errorString = string
             }
         }
 
@@ -180,18 +183,20 @@ class SignInControl extends React.Component {
                     </Button>
                     <Typography className={classes.continueAtLanguage}>
                         <Link onClick={this.handleChangeLanguage}>
-                            {Boolean(suggestedLanguage) ? t('ContinueOnThisLanguage', { lng: suggestedLanguage }) : ' '}
+                            {Boolean(suggestedLanguage)
+                                ? t('ContinueOnThisLanguage', { lng: suggestedLanguage })
+                                : ' '}
                         </Link>
                     </Typography>
                 </div>
             </FormControl>
-        );
+        )
     }
 }
 
 const enhance = compose(
     withTranslation(),
     withStyles(styles)
-);
+)
 
-export default enhance(SignInControl);
+export default enhance(SignInControl)
