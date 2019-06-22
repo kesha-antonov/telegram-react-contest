@@ -859,7 +859,7 @@ class MessagesList extends React.Component {
     }
 
     handleScrollBehavior = snapshot => {
-        const { chatId, messageId } = this.props
+        const { chatId, chat, messageId } = this.props
         const { scrollBehavior, history } = this.state
         const { scrollTop, scrollHeight, offsetHeight } = snapshot
 
@@ -887,6 +887,8 @@ class MessagesList extends React.Component {
             // );
 
             let scrolled = false
+            const isChatHasPinnedMessage =
+                chat && chat.pinned_message_id && MessageStore.get(chat.id, chat.pinned_message_id)
             for (let i = 0; i < history.length; i++) {
                 let itemComponent = this.itemsMap.get(i)
                 let item = ReactDOM.findDOMNode(itemComponent)
@@ -897,7 +899,7 @@ class MessagesList extends React.Component {
                     //     item.offsetHeight=${item.offsetHeight} \\
                     //     item.scrollHeight=${item.scrollHeight}`);
                     if (itemComponent.props.showUnreadSeparator) {
-                        list.scrollTop = item.offsetTop - 60 // + unread messages margin-top from pinned message
+                        list.scrollTop = item.offsetTop - (isChatHasPinnedMessage ? 60 : 0)
                         scrolled = true
                         break
                     }
