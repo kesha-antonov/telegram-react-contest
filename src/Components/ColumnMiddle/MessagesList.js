@@ -406,6 +406,7 @@ class MessagesList extends React.Component {
         this.loadMigratedHistory = false
 
         this.suppressHandleScrollOnSelectChat = true
+
         if (chat) {
             TdLibController.send({
                 '@type': 'openChat',
@@ -505,7 +506,7 @@ class MessagesList extends React.Component {
             )
         }
 
-        if (previousChat) {
+        if (previousChat && previousChat.id !== chatId) {
             TdLibController.send({
                 '@type': 'closeChat',
                 chat_id: previousChat.id,
