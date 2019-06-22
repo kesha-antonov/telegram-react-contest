@@ -168,7 +168,7 @@ class EmojiPickerButton extends Component {
 
             const node = this.stickersPickerRef.current
 
-            const store = FileStore.getStore()
+            const store = await FileStore.getStore()
             const previewSets = this.sets.slice(0, 5).reverse()
             previewSets.forEach(x => {
                 loadStickerSetContent(store, x)

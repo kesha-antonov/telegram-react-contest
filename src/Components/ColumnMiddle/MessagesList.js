@@ -269,7 +269,7 @@ class MessagesList extends React.Component {
         }
     }
 
-    onUpdateMessageContent = update => {
+    onUpdateMessageContent = async update => {
         const { chatId } = this.props
         const { history } = this.state
         const { chat_id, message_id } = update
@@ -280,7 +280,7 @@ class MessagesList extends React.Component {
             const message = MessageStore.get(chat_id, message_id)
             if (!message) return
 
-            const store = FileStore.getStore()
+            const store = await FileStore.getStore()
             loadMessageContents(store, [message])
         }
     }
@@ -290,7 +290,7 @@ class MessagesList extends React.Component {
         if (chatId !== update.chat_id) return
     }
 
-    onUpdateMessageSendSucceeded = update => {
+    onUpdateMessageSendSucceeded = async update => {
         const { message, old_message_id } = update
         const { chatId } = this.props
         if (chatId !== message.chat_id) return
@@ -319,12 +319,12 @@ class MessagesList extends React.Component {
 
         // console.log('SCROLL MessagesList.onUpdateMessageSendSucceeded scrollBehavior=' + scrollBehavior);
         this.replaceMessage(old_message_id, message, scrollBehavior)
-        const store = FileStore.getStore()
+        const store = await FileStore.getStore()
         loadMessageContents(store, [message])
         MessagesList.viewMessages([message])
     }
 
-    onUpdateNewMessage = update => {
+    onUpdateNewMessage = async update => {
         if (!this.completed) return
 
         const { message } = update
@@ -346,7 +346,7 @@ class MessagesList extends React.Component {
 
         // console.log('SCROLL MessagesList.onUpdateNewMessage scrollBehavior=' + scrollBehavior);
         this.insertAfter(this.filterMessages(history), scrollBehavior)
-        const store = FileStore.getStore()
+        const store = await FileStore.getStore()
         loadMessageContents(store, history)
         MessagesList.viewMessages(history)
     }
@@ -360,7 +360,7 @@ class MessagesList extends React.Component {
         this.deleteHistory(update.message_ids)
     }
 
-    updateItemsInView = () => {
+    updateItemsInView = async () => {
         if (!this.messages) return
 
         const messages = new Map()
@@ -400,13 +400,11 @@ class MessagesList extends React.Component {
                 }
                 this.previousMessages = messages;*/
 
-        const store = FileStore.getStore()
+        const store = await FileStore.getStore()
         loadMessageContents(store, messages)
     }
 
     async handleSelectChat(chatId, previousChatId, messageId, previousMessageId) {
-        await FileStore.initDB()
-
         const chat = ChatStore.get(chatId)
         const previousChat = ChatStore.get(previousChatId)
 
@@ -496,7 +494,7 @@ class MessagesList extends React.Component {
             })
 
             // load files
-            const store = FileStore.getStore()
+            const store = await FileStore.getStore()
             loadMessageContents(store, result.messages)
             loadChatsContent(store, [chatId])
             loadDraftContent(store, chatId)
@@ -628,7 +626,7 @@ class MessagesList extends React.Component {
                 this.onLoadMigratedHistory()
             }
         })
-        const store = FileStore.getStore()
+        const store = await FileStore.getStore()
         loadMessageContents(store, result.messages)
         MessagesList.viewMessages(result.messages)
 
@@ -695,7 +693,7 @@ class MessagesList extends React.Component {
         MessageStore.setItems(result.messages)
         result.messages.reverse()
         this.insertBefore(this.filterMessages(result.messages))
-        const store = FileStore.getStore()
+        const store = await FileStore.getStore()
         loadMessageContents(store, result.messages)
         MessagesList.viewMessages(result.messages)
     }
@@ -749,7 +747,7 @@ class MessagesList extends React.Component {
         result.messages.reverse()
         // console.log('SCROLL MessagesList.onLoadPrevious scrollBehavior=NONE');
         this.insertAfter(this.filterMessages(result.messages), ScrollBehaviorEnum.NONE)
-        const store = FileStore.getStore()
+        const store = await FileStore.getStore()
         loadMessageContents(store, result.messages)
         MessagesList.viewMessages(result.messages)
 
@@ -1064,7 +1062,7 @@ class MessagesList extends React.Component {
         this.replace(separatorMessageId, result.messages, ScrollBehaviorEnum.SCROLL_TO_BOTTOM)
 
         // load files
-        const store = FileStore.getStore()
+        const store = await FileStore.getStore()
         loadMessageContents(store, result.messages)
         loadChatsContent(store, [chatId])
 

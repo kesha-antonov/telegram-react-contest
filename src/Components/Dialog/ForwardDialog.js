@@ -99,7 +99,7 @@ class ForwardDialog extends React.Component {
             savedMessages: savedMessages,
         })
 
-        const store = FileStore.getStore()
+        const store = await FileStore.getStore()
         loadChatsContent(store, chats.chat_ids)
     }
 

@@ -25,6 +25,7 @@ import registerServiceWorker from './registerServiceWorker'
 import { OPTIMIZATIONS_FIRST_START } from './Constants'
 import ChatStore from './Stores/ChatStore'
 import UserStore from './Stores/UserStore'
+import FileStore from './Stores/FileStore'
 import ApplicationStore from './Stores/ApplicationStore'
 import TdLibController from './Controllers/TdLibController'
 import './TelegramApp.css'
@@ -59,6 +60,7 @@ class TelegramApp extends Component {
 
         ApplicationStore.setReduxStore(context.store)
         ChatStore.setReduxStore(context.store)
+        FileStore.initDB()
     }
 
     componentWillMount() {

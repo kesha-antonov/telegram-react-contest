@@ -38,8 +38,8 @@ class GroupsInCommon extends React.Component {
             user_id: userId,
             offset_chat_id: 0,
             limit: 100,
-        }).then(result => {
-            const store = FileStore.getStore()
+        }).then(async result => {
+            const store = await FileStore.getStore()
             loadChatsContent(store, result.chat_ids)
 
             this.setState({ chatIds: result.chat_ids })

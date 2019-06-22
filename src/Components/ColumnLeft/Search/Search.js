@@ -198,7 +198,7 @@ class Search extends React.Component {
                 messages: null,
             })
 
-            store = FileStore.getStore()
+            store = await FileStore.getStore()
             loadChatsContent(store, local)
 
             if (text.length >= USERNAME_LENGTH_MIN) {
@@ -229,7 +229,7 @@ class Search extends React.Component {
                     global: global,
                 })
 
-                store = FileStore.getStore()
+                store = await FileStore.getStore()
                 loadChatsContent(store, global)
             }
         }
@@ -276,7 +276,7 @@ class Search extends React.Component {
             }
         }
 
-        store = FileStore.getStore()
+        store = await FileStore.getStore()
         loadChatsContent(store, [...chats.keys()])
         loadUsersContent(store, [...users.keys()])
     }
@@ -332,7 +332,7 @@ class Search extends React.Component {
             messages: null,
         })
 
-        const store = FileStore.getStore()
+        const store = await FileStore.getStore()
         loadChatsContent(store, top.chat_ids)
         loadChatsContent(store, recentlyFound.chat_ids)
     }
@@ -465,7 +465,7 @@ class Search extends React.Component {
             }
         }
 
-        const store = FileStore.getStore()
+        const store = await FileStore.getStore()
         loadChatsContent(store, [...chats.keys()])
         loadUsersContent(store, [...users.keys()])
     }

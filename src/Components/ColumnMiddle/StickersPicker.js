@@ -115,7 +115,7 @@ class StickersPicker extends React.Component {
         this.loadInViewContent(400)
     }
 
-    loadInViewContent = (padding = 0) => {
+    loadInViewContent = async (padding = 0) => {
         const scroll = this.scrollRef
 
         const { sets } = this.state
@@ -141,13 +141,13 @@ class StickersPicker extends React.Component {
             }
         })
 
-        inViewItems.forEach(x => {
-            const store = FileStore.getStore()
+        for (let x of inViewItems) {
+            const store = await FileStore.getStore()
             if (!this.loadedSets.has(x.id)) {
                 this.loadedSets.set(x.id, x.id)
                 loadStickerSetContent(store, x)
             }
-        })
+        }
     }
 
     tryScrollToChosedStickerPack = () => {
@@ -250,13 +250,13 @@ class StickersPicker extends React.Component {
         this.setState({ sets: concatSets })
     }
 
-    loadPreviewContent = stickerId => {
+    loadPreviewContent = async stickerId => {
         const { sets } = this.state
 
         const sticker = getStickers(sets).find(x => x.sticker.id === stickerId)
         if (!sticker) return
 
-        const store = FileStore.getStore()
+        const store = await FileStore.getStore()
         loadStickerContent(store, sticker, null)
 
         const stickersPerRow = 5

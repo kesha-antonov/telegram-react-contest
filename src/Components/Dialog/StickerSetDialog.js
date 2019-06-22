@@ -95,13 +95,13 @@ class StickerSetDialog extends React.Component {
         this.setState({ stickerSet })
     }
 
-    handleClientUpdateStickerSet = update => {
+    handleClientUpdateStickerSet = async update => {
         const { stickerSet } = update
 
         this.setState({ stickerSet })
 
         if (stickerSet) {
-            const store = FileStore.getStore()
+            const store = await FileStore.getStore()
             loadStickerSetContent(store, stickerSet)
         }
     }
@@ -128,13 +128,13 @@ class StickerSetDialog extends React.Component {
         this.handleClose()
     }
 
-    loadPreviewContent = stickerId => {
+    loadPreviewContent = async stickerId => {
         const { stickerSet } = this.state
         const { stickers } = stickerSet
         const sticker = stickers.find(x => x.sticker.id === stickerId)
         if (!sticker) return
 
-        const store = FileStore.getStore()
+        const store = await FileStore.getStore()
         loadStickerContent(store, sticker, null)
 
         const preloadStickers = this.getNeighborStickers(stickerId)

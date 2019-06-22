@@ -229,10 +229,10 @@ class ChatDetails extends React.Component {
         this.loadChatContents()
     }
 
-    loadChatContents = () => {
+    loadChatContents = async () => {
         const { chatId } = this.props
 
-        const store = FileStore.getStore()
+        const store = await FileStore.getStore()
 
         loadChatsContent(store, [chatId])
         const members = getGroupChatMembers(chatId).map(x => x.user_id)

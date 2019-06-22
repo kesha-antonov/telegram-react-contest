@@ -100,7 +100,7 @@ class FileStore extends EventEmitter {
         this.handleUploads(file)
     }
 
-    handleDownloads = file => {
+    handleDownloads = async file => {
         const { arr, id, idb_key, local } = file
         delete file.arr
 
@@ -113,7 +113,7 @@ class FileStore extends EventEmitter {
 
         this.downloads.delete(id)
 
-        const store = this.getStore()
+        const store = await this.getStore()
 
         items.forEach(item => {
             switch (item['@type']) {
@@ -547,7 +547,7 @@ class FileStore extends EventEmitter {
         }
     }
 
-    async initDB() {
+    initDB = async () => {
         /*if (this.store) return;
             if (this.initiatingDB) return;
 
@@ -571,10 +571,12 @@ class FileStore extends EventEmitter {
 
         this.initDbPromise = new Promise(async resolve => {
             console.log('[FileStore] start initDB')
-            this.db = await this.openDB().catch(error =>
+            try {
+                this.db = await this.openDB()
+            } catch (error) {
                 console.log('[FileStore] initDB error', error)
-            )
-            console.log('[FileStore] stop initDB')
+            }
+            console.log('[FileStore] stop initDB', this.db)
 
             this.initDbPromise = null
             resolve()
@@ -589,8 +591,9 @@ class FileStore extends EventEmitter {
         })
     }
 
-    getStore() {
-        //console.log('FileStore.getStore ' + this.transactionCount++);
+    async getStore() {
+        // console.log('FileStore.getStore ' + this.transactionCount++);
+        await this.initDB()
         return this.db.transaction(['keyvaluepairs'], 'readonly').objectStore('keyvaluepairs')
     }
 

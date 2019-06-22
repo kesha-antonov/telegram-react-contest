@@ -66,7 +66,7 @@ class ChatTileControl extends Component {
         }
     }
 
-    onUpdateChatPhoto = update => {
+    onUpdateChatPhoto = async update => {
         const { chatId } = this.props
         const { chat_id } = update
 
@@ -76,12 +76,12 @@ class ChatTileControl extends Component {
         if (!update.photo) {
             this.forceUpdate()
         } else {
-            const store = FileStore.getStore()
+            const store = await FileStore.getStore()
             loadChatContent(store, chat)
         }
     }
 
-    onUpdateChatTitle = update => {
+    onUpdateChatTitle = async update => {
         const { chatId } = this.props
 
         if (!update.chat_id) return
@@ -91,7 +91,7 @@ class ChatTileControl extends Component {
         if (!update.photo) {
             this.forceUpdate()
         } else {
-            const store = FileStore.getStore()
+            const store = await FileStore.getStore()
             loadChatContent(store, chat)
         }
     }

@@ -68,7 +68,7 @@ class UserTileControl extends Component {
         }
     }
 
-    onUpdateChatPhoto = update => {
+    onUpdateChatPhoto = async update => {
         const { userId } = this.props
 
         const chat = ChatStore.get(update.chat_id)
@@ -87,7 +87,7 @@ class UserTileControl extends Component {
                         //console.log('UserTileControl.onUpdateChatPhoto user_id=' + userId);
                         this.forceUpdate()
                     } else {
-                        const store = FileStore.getStore()
+                        const store = await FileStore.getStore()
                         loadChatContent(store, chat)
                     }
                 }

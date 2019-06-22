@@ -58,7 +58,7 @@ class StickersHint extends React.Component {
         )
     }
 
-    onClientUpdateRemoteStickersHint = update => {
+    onClientUpdateRemoteStickersHint = async update => {
         const { hint } = update
         const { hint: currentHint } = this.state
 
@@ -69,12 +69,12 @@ class StickersHint extends React.Component {
             items: this.getItems(StickerStore.hint),
         })
 
-        const store = FileStore.getStore()
+        const store = await FileStore.getStore()
         const { stickers } = hint
         loadStickersContent(store, stickers.stickers)
     }
 
-    onClientUpdateLocalStickersHint = update => {
+    onClientUpdateLocalStickersHint = async update => {
         const { hint } = update
 
         this.setState({
@@ -87,7 +87,7 @@ class StickersHint extends React.Component {
 
         if (!hint) return
 
-        const store = FileStore.getStore()
+        const store = await FileStore.getStore()
         const { stickers } = hint
         loadStickersContent(store, stickers.stickers)
     }
@@ -103,13 +103,13 @@ class StickersHint extends React.Component {
         })
     }
 
-    loadPreviewContent = stickerId => {
+    loadPreviewContent = async stickerId => {
         const { items } = this.state
 
         const sticker = items.find(x => x.sticker.id === stickerId)
         if (!sticker) return
 
-        const store = FileStore.getStore()
+        const store = await FileStore.getStore()
         loadStickerContent(store, sticker, null)
 
         let stickersPerRow = 8
