@@ -55,7 +55,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && sw-precache-cra --config sw-config.js --no-minify && mv build telegram-react && mkdir build && mv telegram-react build/",
+    "build": "react-scripts build && sw-precache-cra --config sw-config.js --no-minify && rm build/**/**/*.map && mv build telegram-react && mkdir build && mv telegram-react build/",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
@@ -70,7 +70,6 @@
   "browserslist": [
     ">0.2%",
     "not dead",
-    "not ie <= 11",
     "not op_mini all"
   ],
   "husky": {
