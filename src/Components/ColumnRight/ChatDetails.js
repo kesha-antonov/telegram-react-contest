@@ -381,7 +381,7 @@ class ChatDetails extends React.Component {
             return (
                 <div className='chat-details'>
                     <ChatDetailsHeader onClose={onClose} />
-                    <Scrollbar containerRef={this.onListRef} className='chat-details-list' />
+                    <div containerRef={this.onListRef} className='chat-details-list' />
                 </div>
             )
         }
