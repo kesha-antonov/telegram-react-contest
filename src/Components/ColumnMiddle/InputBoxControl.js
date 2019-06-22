@@ -102,8 +102,6 @@ class InputBoxControl extends Component {
     }
 
     componentDidMount() {
-        //console.log('Perf componentDidMount');
-
         ApplicationStore.on('clientUpdateChatId', this.onClientUpdateChatId)
         MessageStore.on('clientUpdateReply', this.onClientUpdateReply)
         StickerStore.on('clientUpdateStickerSend', this.onClientUpdateStickerSend)
@@ -111,6 +109,18 @@ class InputBoxControl extends Component {
         this.setInputFocus()
         this.setDraft()
         this.handleInput()
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        this.setChatDraftMessage(snapshot)
+
+        if (this.newMessageFocused) this.setInputFocus(true)
+    }
+
+    getSnapshotBeforeUpdate(prevProps, prevState) {
+        if (prevState.chatId === this.state.chatId) return null
+
+        return this.getNewChatDraftMessage(prevState.chatId, prevState.replyToMessageId)
     }
 
     componentWillUnmount() {
@@ -214,17 +224,6 @@ class InputBoxControl extends Component {
             element.innerText = null
             this.innerHTML = null
         }
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        //console.log('Perf componentDidUpdate');
-        this.setChatDraftMessage(snapshot)
-    }
-
-    getSnapshotBeforeUpdate(prevProps, prevState) {
-        if (prevState.chatId === this.state.chatId) return null
-
-        return this.getNewChatDraftMessage(prevState.chatId, prevState.replyToMessageId)
     }
 
     setInputFocus = (force = false) => {
