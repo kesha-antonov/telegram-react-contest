@@ -120,7 +120,8 @@ class DialogsList extends React.Component {
     loadFirstSlice = async () => {
         const { authorizationState } = this.state
         if (authorizationState && authorizationState['@type'] === 'authorizationStateReady') {
-            await FileStore.initDB(() => this.onLoadNext())
+            await FileStore.initDB()
+            this.onLoadNext()
         }
     }
 

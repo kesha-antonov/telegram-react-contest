@@ -87,8 +87,8 @@ class MessagesList extends React.Component {
     }
 
     componentDidMount() {
-        const { chatId } = this.props
-        this.handleSelectChat(chatId, 0)
+        const { chat } = this.props
+        if (chat) this.handleSelectChat(chat.id, 0)
 
         MessageStore.on('updateNewMessage', this.onUpdateNewMessage)
         MessageStore.on('updateDeleteMessages', this.onUpdateDeleteMessages)
@@ -405,6 +405,8 @@ class MessagesList extends React.Component {
     }
 
     async handleSelectChat(chatId, previousChatId, messageId, previousMessageId) {
+        await FileStore.initDB()
+
         const chat = ChatStore.get(chatId)
         const previousChat = ChatStore.get(previousChatId)
 
