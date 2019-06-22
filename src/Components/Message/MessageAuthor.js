@@ -5,73 +5,73 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import { withTranslation } from 'react-i18next';
-import classNames from 'classnames';
-import { getUserFullName } from '../../Utils/User';
-import { getChatTitle, isPrivateChat } from '../../Utils/Chat';
-import { openUser as openUserCommand, openChat as openChatCommand } from '../../Actions/Client';
-import UserStore from '../../Stores/UserStore';
-import ChatStore from '../../Stores/ChatStore';
-import './MessageAuthor.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import { withTranslation } from 'react-i18next'
+import classNames from 'classnames'
+import { getUserFullName } from '../../Utils/User'
+import { getChatTitle, isPrivateChat } from '../../Utils/Chat'
+import { openUser as openUserCommand, openChat as openChatCommand } from '../../Actions/Client'
+import UserStore from '../../Stores/UserStore'
+import ChatStore from '../../Stores/ChatStore'
+import './MessageAuthor.css'
 
 class MessageAuthor extends React.Component {
     handleSelect = event => {
-        const { chatId, userId, openUser, openChat } = this.props;
+        const { chatId, userId, openUser, openChat } = this.props
 
         if (openUser && userId) {
-            event.stopPropagation();
+            event.stopPropagation()
 
-            openUserCommand(userId, true);
-            return;
+            openUserCommand(userId, true)
+            return
         }
 
         if (openChat && chatId) {
-            event.stopPropagation();
+            event.stopPropagation()
 
-            openChatCommand(chatId, null, true);
-            return;
+            openChatCommand(chatId, null, true)
+            return
         }
-    };
+    }
 
     render() {
-        const { t, chatId, userId, openUser, openChat } = this.props;
+        const { t, chatId, userId, openUser, openChat } = this.props
 
-        const user = UserStore.get(userId);
+        const user = UserStore.get(userId)
         if (user) {
             const tileColor = isPrivateChat(chatId)
                 ? 'message-author-color'
-                : `user_color_${(Math.abs(userId) % 8) + 1}`;
-            const className = classNames([tileColor], 'message-author');
+                : `user_color_${(Math.abs(userId) % 8) + 1}`
+            const className = classNames([tileColor], 'message-author')
 
-            const fullName = getUserFullName(user);
+            const fullName = getUserFullName(user)
 
             return openUser ? (
-                <a className={className} onClick={this.handleSelect}>
-                    {fullName}
-                </a>
+                <div className={className}>
+                    <a onClick={this.handleSelect}>{fullName}</a>
+                </div>
             ) : (
                 <>{fullName}</>
-            );
+            )
         }
 
-        const chat = ChatStore.get(chatId);
+        const chat = ChatStore.get(chatId)
         if (chat) {
-            const className = classNames('message-author-color', 'message-author');
+            const className = classNames('message-author-color', 'message-author')
 
-            const fullName = getChatTitle(chatId, false, t);
+            const fullName = getChatTitle(chatId, false, t)
 
             return openChat ? (
-                <a className={className} onClick={this.handleSelect}>
-                    {fullName}
-                </a>
+                <div className={className}>
+                    <a onClick={this.handleSelect}>{fullName}</a>
+                </div>
             ) : (
                 <>{fullName}</>
-            );
+            )
         }
 
-        return null;
+        return null
     }
 }
 
@@ -79,12 +79,12 @@ MessageAuthor.propTypes = {
     chatId: PropTypes.number,
     userId: PropTypes.number,
     openUser: PropTypes.bool,
-    openChat: PropTypes.bool
-};
+    openChat: PropTypes.bool,
+}
 
 MessageAuthor.defaultProps = {
     openUser: false,
-    openChat: false
-};
+    openChat: false,
+}
 
-export default withTranslation()(MessageAuthor);
+export default withTranslation()(MessageAuthor)
