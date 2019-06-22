@@ -58,7 +58,7 @@ class MessagesList extends React.Component {
 
         this.sessionId = Date.now()
         this.state = {
-            prevChatId: 0,
+            prevChatId: props.chatId,
             prevMessageId: null,
             playerOpened: false,
             history: [],
@@ -153,7 +153,10 @@ class MessagesList extends React.Component {
         if (
             prevProps.chatId !== chatId ||
             prevProps.messageId !== messageId ||
-            prevProps.chat !== chat
+            (prevProps.chat !== chat &&
+                ((!prevProps.chat && chat) ||
+                    (prevProps.chat && !chat) ||
+                    prevProps.chat.id !== chat.id))
         ) {
             this.handleSelectChat(chatId, prevProps.chatId, messageId, prevProps.messageId)
         } else {
@@ -192,8 +195,6 @@ class MessagesList extends React.Component {
     }
 
     getSnapshotBeforeUpdate(prevProps, prevState) {
-        const { chatId } = this.props
-
         const list = this.listRef
         const snapshot = {
             scrollTop: list.scrollTop,
@@ -203,11 +204,11 @@ class MessagesList extends React.Component {
 
         // console.log(
         //     `SCROLL GETSNAPSHOTBEFOREUPDATE \\
-        //     list.scrollTop=${list.scrollTop} \\
-        //     list.scrollHeight=${list.scrollHeight} \\
-        //     list.offsetHeight=${list.offsetHeight} \\
-        //     chatId=${chatId}`
-        // );
+        //     list.scrollTop=${snapshot.scrollTop} \\
+        //     list.scrollHeight=${snapshot.scrollHeight} \\
+        //     list.offsetHeight=${snapshot.offsetHeight} \\
+        //     chatId=${this.props.chatId}`
+        // )
 
         return snapshot
     }
@@ -564,7 +565,9 @@ class MessagesList extends React.Component {
         let incomplete =
             result && result.messages.length > 0 && result.messages.length < MESSAGE_SLICE_LIMIT
 
-        for (let i = 0; i < MAX_ITERATIONS && incomplete; i++) {
+        for (let i = 0; i < MAX_ITERATIONS; i++) {
+            if (!incomplete) break
+
             result = await this.onLoadNext()
             incomplete =
                 result && result.messages.length > 0 && result.messages.length < MESSAGE_SLICE_LIMIT
@@ -747,9 +750,9 @@ class MessagesList extends React.Component {
     replace(separatorMessageId, history, scrollBehavior, callback) {
         this.setState(
             {
-                separatorMessageId: separatorMessageId,
-                history: history,
-                scrollBehavior: scrollBehavior,
+                separatorMessageId,
+                history,
+                scrollBehavior,
             },
             callback
         )
@@ -776,7 +779,7 @@ class MessagesList extends React.Component {
         this.setState(
             {
                 history: this.state.history.filter(x => x.id !== oldMessageId).concat([message]),
-                scrollBehavior: scrollBehavior,
+                scrollBehavior,
             },
             callback
         )
@@ -786,7 +789,10 @@ class MessagesList extends React.Component {
         if (history.length === 0) return
 
         this.setState(
-            { history: this.state.history.concat(history), scrollBehavior: scrollBehavior },
+            {
+                history: this.state.history.concat(history),
+                scrollBehavior,
+            },
             callback
         )
     }
@@ -813,12 +819,13 @@ class MessagesList extends React.Component {
     }
 
     handleScroll = () => {
+        // console.log('SCROLL HANDLESCROLL');
         if (!this.isChatChosed()) return
 
         this.updateItemsInView()
 
         const list = this.listRef
-        //console.log(`SCROLL HANDLESCROLL list.scrollTop=${list.scrollTop} list.offsetHeight=${list.offsetHeight} list.scrollHeight=${list.scrollHeight} chatId=${this.props.chatId}`);
+        // console.log(`SCROLL HANDLESCROLL list.scrollTop=${list.scrollTop} list.offsetHeight=${list.offsetHeight} list.scrollHeight=${list.scrollHeight} chatId=${this.props.chatId}`);
 
         if (this.suppressHandleScroll) {
             // console.log('SCROLL HANDLESCROLL suppressHandleScroll');
@@ -838,7 +845,7 @@ class MessagesList extends React.Component {
             // console.log('SCROLL HANDLESCROLL onLoadPrevious');
             this.onLoadPrevious()
         } else {
-            //console.log('SCROLL HANDLESCROLL updateItemsInView');
+            // console.log('SCROLL HANDLESCROLL updateItemsInView');
         }
     }
 
@@ -875,9 +882,13 @@ class MessagesList extends React.Component {
                 let itemComponent = this.itemsMap.get(i)
                 let item = ReactDOM.findDOMNode(itemComponent)
                 if (item) {
-                    // console.log(`SCROLL SCROLL_TO_UNREAD item item.scrollTop=${item.scrollTop} showUnreadSeparator=${itemComponent.props.showUnreadSeparator} item.offsetHeight=${item.offsetHeight} item.scrollHeight=${item.scrollHeight}`);
+                    // console.log(`SCROLL SCROLL_TO_UNREAD \\
+                    //     item item.scrollTop=${item.scrollTop} \\
+                    //     showUnreadSeparator=${itemComponent.props.showUnreadSeparator} \\
+                    //     item.offsetHeight=${item.offsetHeight} \\
+                    //     item.scrollHeight=${item.scrollHeight}`);
                     if (itemComponent.props.showUnreadSeparator) {
-                        list.scrollTop = item.offsetTop // + unread messages margin-top
+                        list.scrollTop = item.offsetTop - 60 // + unread messages margin-top from pinned message
                         scrolled = true
                         break
                     }
@@ -933,7 +944,11 @@ class MessagesList extends React.Component {
             let itemComponent = this.itemsMap.get(i)
             let item = ReactDOM.findDOMNode(itemComponent)
             if (item) {
-                // console.log(`SCROLL SCROLL_TO_MESSAGE message_id=${messageId} item item.scrollTop=${item.scrollTop} showUnreadSeparator=${itemComponent.props.showUnreadSeparator} item.offsetHeight=${item.offsetHeight} item.scrollHeight=${item.scrollHeight}`);
+                // console.log(`SCROLL SCROLL_TO_MESSAGE message_id=${messageId} \\
+                //     item item.scrollTop=${item.scrollTop} \\
+                //     showUnreadSeparator=${itemComponent.props.showUnreadSeparator} \\
+                //     item.offsetHeight=${item.offsetHeight} \\
+                //     item.scrollHeight=${item.scrollHeight}`);
                 if (itemComponent.props.messageId === messageId) {
                     list.scrollTop = item.offsetTop - list.offsetHeight / 2.0
                     scrolled = true
