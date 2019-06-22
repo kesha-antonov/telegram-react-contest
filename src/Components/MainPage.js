@@ -71,7 +71,12 @@ class MainPage extends React.Component {
         )
         ApplicationStore.on('clientUpdateForward', this.onClientUpdateForward)
         ApplicationStore.on('clientUpdateForward', this.onClientUpdateForward)
-        ApplicationStore.on('updateAuthorizationState', this.onUpdateAuthorizationState)
+
+        if (isAuthorizationReady(ApplicationStore.authorizationState)) {
+            this.tryOpenChatAfterRehydrate()
+        } else {
+            ApplicationStore.on('updateAuthorizationState', this.onUpdateAuthorizationState)
+        }
     }
 
     componentWillUnmount() {
