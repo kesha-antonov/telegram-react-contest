@@ -1,0 +1,37 @@
+.scrollbar-light .ps__thumb-y {
+    background-color: rgba(0, 0, 0, 0.65);
+}
+
+.scrollbar-light .ps__rail-y:hover > .ps__thumb-y,
+.scrollbar-light .ps__rail-y:focus > .ps__thumb-y,
+.scrollbar-light .ps__rail-y.ps--clicking .ps__thumb-y {
+    background-color: rgba(0, 0, 0, 0.65);
+}
+
+.scrollbar-light .ps__rail-x:hover,
+.scrollbar-light .ps__rail-y:hover,
+.scrollbar-light .ps__rail-x:focus,
+.scrollbar-light .ps__rail-y:focus,
+.scrollbar-light .ps__rail-x.ps--clicking,
+.scrollbar-light .ps__rail-y.ps--clicking {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.scrollbar-dark .ps__thumb-y {
+    background-color: rgba(255, 255, 255, 0.65);
+}
+
+.scrollbar-dark .ps__rail-y:hover > .ps__thumb-y,
+.scrollbar-dark .ps__rail-y:focus > .ps__thumb-y,
+.scrollbar-dark .ps__rail-y.ps--clicking .ps__thumb-y {
+    background-color: rgba(255, 255, 255, 0.65);
+}
+
+.scrollbar-dark .ps__rail-x:hover,
+.scrollbar-dark .ps__rail-y:hover,
+.scrollbar-dark .ps__rail-x:focus,
+.scrollbar-dark .ps__rail-y:focus,
+.scrollbar-dark .ps__rail-x.ps--clicking,
+.scrollbar-dark .ps__rail-y.ps--clicking {
+    background-color: rgba(255, 255, 255, 0.05);
+}

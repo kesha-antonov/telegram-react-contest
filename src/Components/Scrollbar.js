@@ -2,6 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import 'react-perfect-scrollbar/dist/css/styles.css'
+import './Scrollbar.css'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import { connect } from 'react-redux'
 
