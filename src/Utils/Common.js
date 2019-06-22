@@ -142,13 +142,16 @@ function itemsInView(scrollContainerRef, itemsContainerRef) {
     let itemsContainer = itemsContainerRef ? itemsContainerRef.current : scrollContainer
 
     const items = []
-    for (let i = 0; i < itemsContainer.children.length; i++) {
-        let child = itemsContainer.children[i]
-        if (
-            child.offsetTop + child.offsetHeight >= scrollContainer.scrollTop &&
-            child.offsetTop <= scrollContainer.scrollTop + scrollContainer.offsetHeight
-        ) {
-            items.push(i)
+
+    if (itemsContainer && itemsContainer.children) {
+        for (let i = 0; i < itemsContainer.children.length; i++) {
+            let child = itemsContainer.children[i]
+            if (
+                child.offsetTop + child.offsetHeight >= scrollContainer.scrollTop &&
+                child.offsetTop <= scrollContainer.scrollTop + scrollContainer.offsetHeight
+            ) {
+                items.push(i)
+            }
         }
     }
 
