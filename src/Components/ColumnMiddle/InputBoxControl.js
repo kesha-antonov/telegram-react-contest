@@ -262,7 +262,7 @@ class InputBoxControl extends Component {
 
     getNewChatDraftMessage = (chatId, replyToMessageId) => {
         let chat = ChatStore.get(chatId)
-        if (!chat) return
+        if (!chat) return null
         const newDraft = this.getInputText()
 
         let previousDraft = ''
