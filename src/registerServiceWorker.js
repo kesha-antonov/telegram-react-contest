@@ -5,11 +5,11 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { arrayBufferToBase64 } from './Utils/Common';
-import Cookies from 'universal-cookie';
-import { OPTIMIZATIONS_FIRST_START } from './Constants';
-import ApplicationStore from './Stores/ApplicationStore';
-import TdLibController from './Controllers/TdLibController';
+import { arrayBufferToBase64 } from './Utils/Common'
+import Cookies from 'universal-cookie'
+import { OPTIMIZATIONS_FIRST_START } from './Constants'
+import ApplicationStore from './Stores/ApplicationStore'
+import TdLibController from './Controllers/TdLibController'
 
 // In production, we register a service worker to serve assets from local cache.
 
@@ -27,47 +27,47 @@ const isLocalhost = Boolean(
         window.location.hostname === '[::1]' ||
         // 127.0.0.1/8 is considered localhost for IPv4.
         window.location.hostname.match(/^127(?:\.(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)){3}$/)
-);
+)
 
 export default async function register() {
-    console.log('[SW] Register');
+    console.log('[SW] Register')
 
     if (OPTIMIZATIONS_FIRST_START) {
-        const cookies = new Cookies();
-        cookies.set('register', true);
+        const cookies = new Cookies()
+        cookies.set('register', true)
     }
 
     if ('serviceWorker' in navigator) {
         // The URL constructor is available in all browsers that support SW.
-        const publicUrl = new URL(process.env.PUBLIC_URL, window.location);
+        const publicUrl = new URL(process.env.PUBLIC_URL, window.location)
         if (publicUrl.origin !== window.location.origin) {
             // Our service worker won't work if PUBLIC_URL is on a different origin
             // from what our page is served on. This might happen if a CDN is used to
             // serve assets; see https://github.com/facebookincubator/create-react-app/issues/2374
-            return;
+            return
         }
 
         const serviceWorkerName =
-            process.env.NODE_ENV === 'production' ? 'service-worker.js' : 'custom-service-worker.js';
-        const swUrl = `${process.env.PUBLIC_URL}/${serviceWorkerName}`;
-        console.log(`[SW] Service worker url: ${swUrl}`);
+            process.env.NODE_ENV === 'production' ? 'service-worker.js' : 'custom-service-worker.js'
+        const swUrl = `${process.env.PUBLIC_URL}/${serviceWorkerName}`
+        console.log(`[SW] Service worker url: ${swUrl}`)
 
         if (!isLocalhost) {
             // Is not local host. Just register service worker
-            await registerValidSW(swUrl);
+            await registerValidSW(swUrl)
         } else {
             // This is running on localhost. Lets check if a service worker still exists or not.
-            await checkValidServiceWorker(swUrl);
+            await checkValidServiceWorker(swUrl)
         }
     }
 }
 
 async function registerValidSW(swUrl) {
-    console.log('[SW] RegisterValidSW');
+    console.log('[SW] RegisterValidSW')
     try {
-        const registration = await navigator.serviceWorker.register(swUrl);
+        const registration = await navigator.serviceWorker.register(swUrl)
         registration.onupdatefound = () => {
-            const installingWorker = registration.installing;
+            const installingWorker = registration.installing
             installingWorker.onstatechange = () => {
                 if (installingWorker.state === 'installed') {
                     if (navigator.serviceWorker.controller) {
@@ -75,39 +75,44 @@ async function registerValidSW(swUrl) {
                         // the fresh content will have been added to the cache.
                         // It's the perfect time to display a "New content is
                         // available; please refresh." message in your web app.
-                        console.log('[SW] New content is available; please refresh.');
+                        console.log('[SW] New content is available; please refresh.')
 
-                        ApplicationStore.emit('clientUpdateNewContentAvailable');
+                        ApplicationStore.emit('clientUpdateNewContentAvailable')
                     } else {
                         // At this point, everything has been precached.
                         // It's the perfect time to display a
                         // "Content is cached for offline use." message.
-                        console.log('[SW] Content is cached for offline use.');
+                        console.log('[SW] Content is cached for offline use.')
                     }
                 }
-            };
-        };
+            }
+        }
 
-        await subscribeNotifications(registration);
+        await subscribeNotifications(registration)
     } catch (error) {
-        console.error('[SW] Error during service worker registration: ', error);
+        console.error('[SW] Error during service worker registration: ', error)
     }
 }
 
 async function subscribeNotifications(registration) {
     try {
-        let pushSubscription = await registration.pushManager.getSubscription();
-        if (pushSubscription) await pushSubscription.unsubscribe();
+        if (!registration.pushManager) {
+            console.warn('[SW] pushManager is not supported')
+            return
+        }
 
-        pushSubscription = await registration.pushManager.subscribe({ userVisibleOnly: true });
-        console.log('[SW] Received PushSubscription: ', JSON.stringify(pushSubscription));
+        let pushSubscription = await registration.pushManager.getSubscription()
+        if (pushSubscription) await pushSubscription.unsubscribe()
 
-        const { endpoint } = pushSubscription;
-        const p256dh_base64url = arrayBufferToBase64(pushSubscription.getKey('p256dh'));
-        const auth_base64url = arrayBufferToBase64(pushSubscription.getKey('auth'));
+        pushSubscription = await registration.pushManager.subscribe({ userVisibleOnly: true })
+        console.log('[SW] Received PushSubscription: ', JSON.stringify(pushSubscription))
+
+        const { endpoint } = pushSubscription
+        const p256dh_base64url = arrayBufferToBase64(pushSubscription.getKey('p256dh'))
+        const auth_base64url = arrayBufferToBase64(pushSubscription.getKey('auth'))
 
         if (endpoint && p256dh_base64url && auth_base64url) {
-            const { authorizationState } = ApplicationStore;
+            const { authorizationState } = ApplicationStore
             if (authorizationState && authorizationState['@type'] === 'authorizationStateReady') {
                 await TdLibController.send({
                     '@type': 'registerDevice',
@@ -115,51 +120,54 @@ async function subscribeNotifications(registration) {
                         '@type': 'deviceTokenWebPush',
                         endpoint: endpoint,
                         p256dh_base64url: p256dh_base64url,
-                        auth_base64url: auth_base64url
+                        auth_base64url: auth_base64url,
                     },
-                    other_user_ids: []
-                });
+                    other_user_ids: [],
+                })
             }
         }
     } catch (error) {
-        console.error('[SW] Error during service worker push subscription: ', error);
+        console.error('[SW] Error during service worker push subscription: ', error)
     }
 }
 
 async function checkValidServiceWorker(swUrl) {
-    console.log('[SW] CheckValidServiceWorker');
+    console.log('[SW] CheckValidServiceWorker')
     // Check if the service worker can be found. If it can't reload the page.
     try {
-        const response = await fetch(swUrl);
+        const response = await fetch(swUrl)
 
         // Ensure service worker exists, and that we really are getting a JS file.
-        if (response.status === 404 || response.headers.get('content-type').indexOf('javascript') === -1) {
+        if (
+            response.status === 404 ||
+            response.headers.get('content-type').indexOf('javascript') === -1
+        ) {
             // No service worker found. Probably a different app. Reload the page.
-            const registration = await navigator.serviceWorker.ready;
-            await registration.unregister();
+            const registration = await navigator.serviceWorker.ready
+            await registration.unregister()
 
-            window.location.reload();
+            window.location.reload()
         } else {
             // Service worker found. Proceed as normal.
-            await registerValidSW(swUrl);
+            await registerValidSW(swUrl)
         }
     } catch (error) {
-        console.log('[SW] No internet connection found. App is running in offline mode.');
+        console.log('[SW] No internet connection found. App is running in offline mode.')
     }
 }
 
 export async function unregister() {
     if ('serviceWorker' in navigator) {
-        let registration = await navigator.serviceWorker.ready;
+        let registration = await navigator.serviceWorker.ready
 
-        await registration.unregister();
+        await registration.unregister()
     }
 }
 
 export async function update() {
     if ('serviceWorker' in navigator) {
-        let registration = await navigator.serviceWorker.ready;
+        let registration = await navigator.serviceWorker.ready
 
-        await registration.update();
+        await registration.update()
     }
 }
