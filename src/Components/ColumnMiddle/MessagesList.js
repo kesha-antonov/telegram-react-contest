@@ -19,7 +19,13 @@ import { debounce, throttle, getPhotoSize, itemsInView } from '../../Utils/Commo
 import { loadChatsContent, loadDraftContent, loadMessageContents } from '../../Utils/File'
 import { filterMessages } from '../../Utils/Message'
 import { isServiceMessage } from '../../Utils/ServiceMessage'
-import { canSendFiles, getChatFullInfo, getSupergroupId, isSupergroup } from '../../Utils/Chat'
+import {
+    canSendFiles,
+    getChatFullInfo,
+    getSupergroupId,
+    isSupergroup,
+    getMessageDateWithMonth,
+} from '../../Utils/Chat'
 import { highlightMessage } from '../../Actions/Client'
 import { MESSAGE_SLICE_LIMIT } from '../../Constants'
 import ChatStore from '../../Stores/ChatStore'
@@ -47,6 +53,9 @@ const ScrollBehaviorEnum = Object.freeze({
 const styles = theme => ({
     background: {
         background: theme.palette.type === 'dark' ? theme.palette.grey[900] : 'transparent',
+    },
+    messagesDate: {
+        color: theme.palette.grey[500],
     },
 })
 
@@ -1085,27 +1094,44 @@ class MessagesList extends React.Component {
         this.itemsMap.clear()
         this.messages = clearHistory
             ? null
-            : history.map((x, i) =>
-                  isServiceMessage(x) ? (
-                      <ServiceMessage
-                          key={`chat_id=${x.chat_id} message_id=${x.id}`}
-                          ref={el => this.itemsMap.set(i, el)}
-                          chatId={x.chat_id}
-                          messageId={x.id}
-                          showUnreadSeparator={separatorMessageId === x.id}
-                      />
-                  ) : (
-                      <Message
-                          key={`chat_id=${x.chat_id} message_id=${x.id}`}
-                          ref={el => this.itemsMap.set(i, el)}
-                          chatId={x.chat_id}
-                          messageId={x.id}
-                          showTitle
-                          sendingState={x.sending_state}
-                          showUnreadSeparator={separatorMessageId === x.id}
-                      />
+            : history.map((x, i) => {
+                  let withDate = i === 0 && this.completed
+                  if (!withDate && i > 0) {
+                      const prevMessageDate = new Date(history[i - 1].date * 1000)
+                      const messageDate = new Date(x.date * 1000)
+
+                      withDate = prevMessageDate.getDate() !== messageDate.getDate()
+                  }
+
+                  return (
+                      <>
+                          {withDate && (
+                              <div className={classNames('messages-date', classes.messagesDate)}>
+                                  {getMessageDateWithMonth(x)}
+                              </div>
+                          )}
+                          {isServiceMessage(x) ? (
+                              <ServiceMessage
+                                  key={`chat_id=${x.chat_id} message_id=${x.id}`}
+                                  ref={el => this.itemsMap.set(i, el)}
+                                  chatId={x.chat_id}
+                                  messageId={x.id}
+                                  showUnreadSeparator={separatorMessageId === x.id}
+                              />
+                          ) : (
+                              <Message
+                                  key={`chat_id=${x.chat_id} message_id=${x.id}`}
+                                  ref={el => this.itemsMap.set(i, el)}
+                                  chatId={x.chat_id}
+                                  messageId={x.id}
+                                  showTitle
+                                  sendingState={x.sending_state}
+                                  showUnreadSeparator={separatorMessageId === x.id}
+                              />
+                          )}
+                      </>
                   )
-              )
+              })
 
         return (
             <div

@@ -92,6 +92,13 @@ pre code {
     }
 }
 
+.messages-date {
+    width: 100%;
+    text-align: center;
+    padding: 24px 10px;
+    box-sizing: border-box;
+}
+
 .message-wrapper {
     max-width: 460px;
     padding: 8px 15px;

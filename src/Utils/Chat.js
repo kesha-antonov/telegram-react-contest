@@ -180,7 +180,11 @@ function getMessageSenderName(message) {
     if (isServiceMessage(message)) return null
 
     const chat = ChatStore.get(message.chat_id)
-    if (chat && chat.type['@type'] !== 'chatTypeBasicGroup' && chat.type['@type'] !== 'chatTypeSupergroup') {
+    if (
+        chat &&
+        chat.type['@type'] !== 'chatTypeBasicGroup' &&
+        chat.type['@type'] !== 'chatTypeSupergroup'
+    ) {
         return null
     }
 
@@ -280,6 +284,12 @@ function getMessageDate(message) {
     }
 
     return dateFormat(date, 'd.mm.yyyy')
+}
+
+function getMessageDateWithMonth(message) {
+    const date = new Date(message.date * 1000)
+
+    return dateFormat(date, 'd mmmm')
 }
 
 function getLastMessageDate(chat) {
@@ -669,28 +679,28 @@ function getChatFullInfo(chatId) {
         case 'chatTypePrivate': {
             TdLibController.send({
                 '@type': 'getUserFullInfo',
-                user_id: chat.type.user_id
+                user_id: chat.type.user_id,
             })
             break
         }
         case 'chatTypeSecret': {
             TdLibController.send({
                 '@type': 'getUserFullInfo',
-                user_id: chat.type.user_id
+                user_id: chat.type.user_id,
             })
             break
         }
         case 'chatTypeBasicGroup': {
             TdLibController.send({
                 '@type': 'getBasicGroupFullInfo',
-                basic_group_id: chat.type.basic_group_id
+                basic_group_id: chat.type.basic_group_id,
             })
             break
         }
         case 'chatTypeSupergroup': {
             TdLibController.send({
                 '@type': 'getSupergroupFullInfo',
-                supergroup_id: chat.type.supergroup_id
+                supergroup_id: chat.type.supergroup_id,
             })
             break
         }
@@ -744,7 +754,9 @@ function hasUserId(chatId, userId) {
     const { type } = chat
 
     return (
-        type && (type['@type'] === 'chatTypePrivate' || type['@type'] === 'chatTypeSecret') && type.user_id === userId
+        type &&
+        (type['@type'] === 'chatTypePrivate' || type['@type'] === 'chatTypeSecret') &&
+        type.user_id === userId
     )
 }
 
@@ -754,7 +766,9 @@ function getChatUserId(chatId) {
 
     const { type } = chat
 
-    return type && (type['@type'] === 'chatTypePrivate' || type['@type'] === 'chatTypeSecret') ? type.user_id : 0
+    return type && (type['@type'] === 'chatTypePrivate' || type['@type'] === 'chatTypeSecret')
+        ? type.user_id
+        : 0
 }
 
 function getPhotoFromChat(chatId) {
@@ -1200,6 +1214,7 @@ export {
     getLastMessageContent,
     getLastMessageDate,
     getMessageDate,
+    getMessageDateWithMonth,
     getChatLetters,
     isAccentChatSubtitle,
     isAccentChatSubtitleWithoutTyping,
@@ -1231,5 +1246,5 @@ export {
     canSendMessages,
     canSendPhotos,
     canSendDocuments,
-    canSendPolls
+    canSendPolls,
 }
