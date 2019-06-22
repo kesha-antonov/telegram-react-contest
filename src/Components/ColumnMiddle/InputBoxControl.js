@@ -113,7 +113,8 @@ class InputBoxControl extends Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         this.setChatDraftMessage(snapshot)
 
-        if (this.newMessageFocused) this.setInputFocus(true)
+        if (this.newMessageFocused || prevProps.chatId !== this.props.chatId)
+            this.setInputFocus(true)
     }
 
     getSnapshotBeforeUpdate(prevProps, prevState) {
@@ -533,7 +534,6 @@ class InputBoxControl extends Component {
     onSendInternal = async (content, clearDraft, callback = null) => {
         const { chatId } = this.props
         const { replyToMessageId } = this.state
-        console.log('onSendInternal', content, clearDraft, callback, chatId, replyToMessageId)
 
         if (!chatId) return
         if (!content) return
@@ -612,7 +612,7 @@ class InputBoxControl extends Component {
         const t0 = performance.now()
         let match = EMOJI_WHOLE_STRING_REGEX.exec(innerText)
         const t1 = performance.now()
-        console.log('Matched ' + (t1 - t0) + 'ms', match)
+        // console.log('Matched ' + (t1 - t0) + 'ms', match)
         if (!match || innerText !== match[0]) {
             this.tryCloseStickerHint()
             return
