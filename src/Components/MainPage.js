@@ -25,6 +25,8 @@ import UserStore from '../Stores/UserStore'
 import ApplicationStore from '../Stores/ApplicationStore'
 import TdLibController from '../Controllers/TdLibController'
 import { connect } from 'react-redux'
+import { clearCurrentChatId } from '../Stores/ReduxStore/actions'
+import { isAuthorizationReady } from '../Utils/Common'
 import '../TelegramApp.css'
 
 const styles = theme => ({
@@ -68,8 +70,8 @@ class MainPage extends React.Component {
             this.onClientUpdateProfileMediaViewerContent
         )
         ApplicationStore.on('clientUpdateForward', this.onClientUpdateForward)
-
-        this.tryOpenChatAfterRehydrate()
+        ApplicationStore.on('clientUpdateForward', this.onClientUpdateForward)
+        ApplicationStore.on('updateAuthorizationState', this.onUpdateAuthorizationState)
     }
 
     componentWillUnmount() {
@@ -89,12 +91,31 @@ class MainPage extends React.Component {
             this.onClientUpdateProfileMediaViewerContent
         )
         ApplicationStore.removeListener('clientUpdateForward', this.onClientUpdateForward)
+        ApplicationStore.removeListener('updateAuthorizationState', this.onUpdateAuthorizationState)
     }
 
-    tryOpenChatAfterRehydrate = () => {
+    onUpdateAuthorizationState = update => {
+        const { authorization_state } = update
+
+        if (isAuthorizationReady(authorization_state)) this.tryOpenChatAfterRehydrate()
+    }
+
+    tryOpenChatAfterRehydrate = async () => {
         const { currentChatId } = this.props
-        if (currentChatId !== ApplicationStore.getChatId()) {
-            openChat(currentChatId)
+        if (currentChatId === ApplicationStore.getChatId()) return
+
+        try {
+            const chat = await TdLibController.send({
+                '@type': 'getChat',
+                chat_id: currentChatId,
+            })
+            if (chat) {
+                openChat(currentChatId)
+            } else {
+                this.props.dispatch(clearCurrentChatId())
+            }
+        } catch (e) {
+            this.props.dispatch(clearCurrentChatId())
         }
     }
 
