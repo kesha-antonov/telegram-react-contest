@@ -160,12 +160,10 @@ class MessagesList extends React.Component {
         // );
 
         if (
-            prevProps.chatId !== chatId ||
-            prevProps.messageId !== messageId ||
-            (prevProps.chat !== chat &&
-                ((!prevProps.chat && chat) ||
-                    (prevProps.chat && !chat) ||
-                    prevProps.chat.id !== chat.id))
+            chat &&
+            (prevProps.chatId !== chat.id ||
+                prevProps.messageId !== messageId ||
+                (prevProps.chat !== chat && (!prevProps.chat || prevProps.chat.id !== chat.id)))
         ) {
             this.handleSelectChat(chatId, prevProps.chatId, messageId, prevProps.messageId)
         } else {
