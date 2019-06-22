@@ -187,11 +187,18 @@ class InputBoxControl extends Component {
         if (chatId === update.nextChatId) return
 
         this.innerHTML = null
-        this.setState({
-            chatId: update.nextChatId,
-            replyToMessageId: getChatDraftReplyToMessageId(update.nextChatId),
-            openPasteDialog: false,
-        })
+        this.setState(
+            {
+                chatId: update.nextChatId,
+                replyToMessageId: getChatDraftReplyToMessageId(update.nextChatId),
+                openPasteDialog: false,
+            },
+            () => {
+                this.setInputFocus(true)
+                this.setDraft()
+                this.handleInput()
+            }
+        )
     }
 
     setDraft = () => {
@@ -212,12 +219,6 @@ class InputBoxControl extends Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         //console.log('Perf componentDidUpdate');
         this.setChatDraftMessage(snapshot)
-
-        if (prevState.chatId !== this.state.chatId) {
-            this.setInputFocus()
-            this.setDraft()
-            this.handleInput()
-        }
     }
 
     getSnapshotBeforeUpdate(prevProps, prevState) {
@@ -226,8 +227,8 @@ class InputBoxControl extends Component {
         return this.getNewChatDraftMessage(prevState.chatId, prevState.replyToMessageId)
     }
 
-    setInputFocus = () => {
-        if (this.newMessageFocused) return
+    setInputFocus = (force = false) => {
+        if (this.newMessageFocused && !force) return
 
         setTimeout(() => {
             if (this.newMessageRef.current) {
