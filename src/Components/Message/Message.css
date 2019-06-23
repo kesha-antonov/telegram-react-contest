@@ -97,6 +97,7 @@ pre code {
 }
 
 .messages-date {
+    pointer-events: none;
     width: 100%;
     text-align: center;
     padding: 24px 10px;
