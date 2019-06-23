@@ -358,7 +358,7 @@ class Message extends Component {
                     </>
                 )}
                 <MessageSendingStatus chatId={chatId} messageId={messageId} />
-                {edit_date > 0 && <span>{t('EditedMessage')}&nbsp;</span>}
+                {edit_date > 0 && <span>&nbsp;&nbsp;&nbsp;{t('EditedMessage')}&nbsp;</span>}
                 <a className='message-date' onClick={this.handleDateClick}>
                     <span title={dateHint}>{date}</span>
                 </a>
