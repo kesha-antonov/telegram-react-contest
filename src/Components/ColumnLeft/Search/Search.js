@@ -517,7 +517,7 @@ class Search extends React.Component {
                   <RecentlyFoundChat
                       key={x}
                       chatId={x}
-                      onClick={() => this.handleSelectMessage(x, null, true, false)}
+                      onClick={() => this.handleSelectMessage(x, null, true, true)}
                   />
               ))
             : []
