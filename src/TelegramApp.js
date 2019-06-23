@@ -60,7 +60,6 @@ class TelegramApp extends Component {
 
         ApplicationStore.setReduxStore(context.store)
         ChatStore.setReduxStore(context.store)
-        FileStore.initDB()
     }
 
     componentWillMount() {

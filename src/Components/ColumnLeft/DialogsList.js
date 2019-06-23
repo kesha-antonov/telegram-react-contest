@@ -118,10 +118,7 @@ class DialogsList extends React.Component {
     }
 
     loadFirstSlice = async () => {
-        const { authorizationState } = this.state
-        if (authorizationState && authorizationState['@type'] === 'authorizationStateReady') {
-            this.onLoadNext()
-        }
+        this.onLoadNext()
     }
 
     onUpdateChatOrder = update => {
@@ -267,6 +264,9 @@ class DialogsList extends React.Component {
 
     onLoadNext = async (replace = false) => {
         const { chatsIds } = this.state
+
+        const { authorizationState } = this.state
+        if (!authorizationState || authorizationState['@type'] !== 'authorizationStateReady') return
 
         if (this.loading) return
 

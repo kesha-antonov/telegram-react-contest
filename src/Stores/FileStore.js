@@ -16,8 +16,6 @@ class FileStore extends EventEmitter {
     constructor() {
         super()
 
-        this.callbacks = []
-
         //this.transactionCount = 0;
         this.db = null
         this.urls = new WeakMap()
@@ -548,6 +546,7 @@ class FileStore extends EventEmitter {
     }
 
     initDB = async () => {
+        console.log('FileStore initDB')
         /*if (this.store) return;
             if (this.initiatingDB) return;
 
@@ -576,7 +575,7 @@ class FileStore extends EventEmitter {
             } catch (error) {
                 console.log('[FileStore] initDB error', error)
             }
-            console.log('[FileStore] stop initDB', this.db)
+            console.log('[FileStore] finish initDB', this.db)
 
             this.initDbPromise = null
             resolve()
@@ -592,6 +591,7 @@ class FileStore extends EventEmitter {
     }
 
     async getStore() {
+        console.log('getStore')
         // console.log('FileStore.getStore ' + this.transactionCount++);
         await this.initDB()
         return this.db.transaction(['keyvaluepairs'], 'readonly').objectStore('keyvaluepairs')
