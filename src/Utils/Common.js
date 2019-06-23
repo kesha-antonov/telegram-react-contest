@@ -370,6 +370,25 @@ function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min)) + min //The maximum is exclusive and the minimum is inclusive
 }
 
+function formatNumberToHumanReadable(number, short = false) {
+    var abs = Math.abs(number)
+    if (abs > 1000000000 && short) return (number / 1000000000).toFixed(2) + 'B'
+    if (abs > 1000000 && short) return (number / 1000000).toFixed(2) + 'M'
+    if (abs > 1000 && short) return (number / 1000).toFixed(1) + 'K'
+
+    if (abs > 1) {
+        var s = abs.toFixed(0)
+        var formatted = number < 0 ? '-' : ''
+        for (var i = 0; i < s.length; i++) {
+            formatted += s.charAt(i)
+            if ((s.length - 1 - i) % 3 === 0) formatted += ' '
+        }
+        return formatted
+    }
+
+    return number.toString()
+}
+
 export {
     getBrowser,
     getOSName,
@@ -391,4 +410,5 @@ export {
     between,
     getDurationString,
     getRandomInt,
+    formatNumberToHumanReadable,
 }

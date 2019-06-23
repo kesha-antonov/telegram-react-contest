@@ -31,6 +31,7 @@ import {
     openMedia,
 } from '../../Utils/Message'
 import { canSendMessages } from '../../Utils/Chat'
+import { formatNumberToHumanReadable } from '../../Utils/Common'
 import { openUser, openChat, selectMessage } from '../../Actions/Client'
 import MessageStore from '../../Stores/MessageStore'
 import TdLibController from '../../Controllers/TdLibController'
@@ -351,7 +352,7 @@ class Message extends Component {
                     <>
                         <span className='message-views'>
                             &nbsp; &nbsp;
-                            {views}
+                            {formatNumberToHumanReadable(views, true)}
                             &nbsp;
                         </span>
                         <i className='message-views-icon' />
