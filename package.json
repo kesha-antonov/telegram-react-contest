@@ -1,5 +1,5 @@
 {
-  "homepage": "http://evgeny-nadymov.github.io/telegram-react",
+  "homepage": "http://kesha-antonov.github.io/telegram-react",
   "name": "telegram_react",
   "version": "0.0.340",
   "private": true,
@@ -55,10 +55,10 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build && sw-precache-cra --config sw-config.js --no-minify && rm build/**/**/*.map && mv build telegram-react && mkdir build && mv telegram-react build/",
+    "build": "react-scripts build && sw-precache-cra --config sw-config.js --no-minify && rm build/**/**/*.map",
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject",
-    "predeploy": "npm run build",
+    "predeploy": "yarn build",
     "deploy": "gh-pages -d build",
     "size": "react-scripts build --stats && npx webpack-bundle-analyzer ./build/bundle-stats.json",
     "sw-precache-cra-list-config": "sw-precache-cra --list-config"
@@ -70,6 +70,7 @@
   "browserslist": [
     ">0.2%",
     "not dead",
+    "not ie <= 11",
     "not op_mini all"
   ],
   "husky": {
