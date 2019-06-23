@@ -14,6 +14,7 @@ const en = {
         Emoji: 'EMOJI',
         SelectChatPlaceholder: 'Select a chat to start messaging',
         ChatNoMessages: 'No messages here yet',
+        Today: 'Today',
     },
     emoji: {
         Search: 'Search',

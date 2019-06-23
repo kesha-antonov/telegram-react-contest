@@ -106,8 +106,12 @@ class MessagesList extends React.Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        const { chatId, chat, messageId, theme } = this.props
+        const { chatId, chat, messageId, theme, t } = this.props
         const { playerOpened, history, dragging, clearHistory, selectionActive } = this.state
+
+        if (nextProps.t !== t) {
+            return true
+        }
 
         if (nextProps.theme !== theme) {
             return true

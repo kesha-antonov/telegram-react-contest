@@ -15,6 +15,7 @@ const ru = {
         Emoji: 'ЕМОДЗИ',
         SelectChatPlaceholder: 'Выберите, кому хотели бы написать',
         ChatNoMessages: 'Здесь пока ничего нет...',
+        Today: 'Сегодня',
     },
     emoji: {
         Search: 'Поиск',
