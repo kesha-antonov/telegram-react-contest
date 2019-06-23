@@ -170,7 +170,6 @@ class DialogsHeader extends React.Component {
                                 id='header-search-inputbox'
                                 ref={this.searchInput}
                                 placeholder={t('Search')}
-                                key={Date()}
                                 contentEditable
                                 suppressContentEditableWarning
                                 onKeyDown={this.handleKeyDown}
