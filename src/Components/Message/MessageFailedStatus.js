@@ -39,8 +39,7 @@ class MessageFailedStatus extends React.Component {
     handleUpdateChatReadOutbox(payload) {
         if (
             this.props.chatId === payload.chat_id &&
-            ((this.props.newMessageId &&
-                this.props.newMessageId <= payload.last_read_outbox_message_id) ||
+            ((this.newMessageId && this.newMessageId <= payload.last_read_outbox_message_id) ||
                 this.props.messageId <= payload.last_read_outbox_message_id)
         ) {
             this.setState({ sendingState: null })

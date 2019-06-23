@@ -5,130 +5,140 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import classNames from 'classnames';
-import withStyles from '@material-ui/core/styles/withStyles';
+import React from 'react'
+import PropTypes from 'prop-types'
+import classNames from 'classnames'
+import withStyles from '@material-ui/core/styles/withStyles'
 import {
     getChatUnreadCount,
     getChatUnreadMentionCount,
     getChatUnreadMessageIcon,
     isChatMuted,
-    showChatDraft
-} from '../../Utils/Chat';
-import ApplicationStore from '../../Stores/ApplicationStore';
-import ChatStore from '../../Stores/ChatStore';
-import './DialogBadgeControl.css';
+} from '../../Utils/Chat'
+import ApplicationStore from '../../Stores/ApplicationStore'
+import ChatStore from '../../Stores/ChatStore'
+import { connect } from 'react-redux'
+import { compose } from 'recompose'
+import './DialogBadgeControl.css'
 
 const styles = theme => ({
     dialogBadge: {
-        background: theme.palette.primary.main
+        background: theme.palette.primary.main,
     },
     dialogBadgeMuted: {
-        background: theme.palette.type === 'dark' ? theme.palette.text.disabled : '#d8d8d8'
-    }
-});
+        background: theme.palette.type === 'dark' ? theme.palette.text.disabled : '#d8d8d8',
+    },
+})
 
 class DialogBadgeControl extends React.Component {
     shouldComponentUpdate(nextProps, nextState) {
-        const { chatId, theme } = this.props;
+        const { chat, theme } = this.props
 
-        if (nextProps.chatId !== chatId) {
-            return true;
+        if (nextProps.chat !== chat) {
+            return true
         }
 
         if (nextProps.theme !== theme) {
-            return true;
+            return true
         }
 
-        return false;
+        return false
     }
 
     componentDidMount() {
-        ChatStore.on('clientUpdateFastUpdatingComplete', this.onFastUpdatingComplete);
-        ChatStore.on('clientUpdateClearHistory', this.onClientUpdateClearHistory);
-        ChatStore.on('updateChatDraftMessage', this.onUpdate);
-        ChatStore.on('updateChatIsMarkedAsUnread', this.onUpdate);
-        ChatStore.on('updateChatIsPinned', this.onUpdate);
-        ChatStore.on('updateChatNotificationSettings', this.onUpdate);
-        ChatStore.on('updateChatReadInbox', this.onUpdate);
-        ChatStore.on('updateChatReadOutbox', this.onUpdate);
-        ChatStore.on('updateChatUnreadMentionCount', this.onUpdate);
-        ApplicationStore.on('updateScopeNotificationSettings', this.onUpdateScopeNotificationSettings);
+        ChatStore.on('clientUpdateFastUpdatingComplete', this.onFastUpdatingComplete)
+        ChatStore.on('clientUpdateClearHistory', this.onClientUpdateClearHistory)
+        ChatStore.on('updateChatDraftMessage', this.onUpdate)
+        ChatStore.on('updateChatIsMarkedAsUnread', this.onUpdate)
+        ChatStore.on('updateChatIsPinned', this.onUpdate)
+        ChatStore.on('updateChatNotificationSettings', this.onUpdate)
+        ChatStore.on('updateChatReadInbox', this.onUpdate)
+        ChatStore.on('updateChatReadOutbox', this.onUpdate)
+        ChatStore.on('updateChatUnreadMentionCount', this.onUpdate)
+        ApplicationStore.on(
+            'updateScopeNotificationSettings',
+            this.onUpdateScopeNotificationSettings
+        )
     }
 
     componentWillUnmount() {
-        ChatStore.removeListener('clientUpdateFastUpdatingComplete', this.onFastUpdatingComplete);
-        ChatStore.removeListener('clientUpdateClearHistory', this.onClientUpdateClearHistory);
-        ChatStore.removeListener('updateChatDraftMessage', this.onUpdate);
-        ChatStore.removeListener('updateChatIsMarkedAsUnread', this.onUpdate);
-        ChatStore.removeListener('updateChatIsPinned', this.onUpdate);
-        ChatStore.removeListener('updateChatNotificationSettings', this.onUpdate);
-        ChatStore.removeListener('updateChatReadInbox', this.onUpdate);
-        ChatStore.removeListener('updateChatReadOutbox', this.onUpdate);
-        ChatStore.removeListener('updateChatUnreadMentionCount', this.onUpdate);
-        ApplicationStore.removeListener('updateScopeNotificationSettings', this.onUpdateScopeNotificationSettings);
+        ChatStore.removeListener('clientUpdateFastUpdatingComplete', this.onFastUpdatingComplete)
+        ChatStore.removeListener('clientUpdateClearHistory', this.onClientUpdateClearHistory)
+        ChatStore.removeListener('updateChatDraftMessage', this.onUpdate)
+        ChatStore.removeListener('updateChatIsMarkedAsUnread', this.onUpdate)
+        ChatStore.removeListener('updateChatIsPinned', this.onUpdate)
+        ChatStore.removeListener('updateChatNotificationSettings', this.onUpdate)
+        ChatStore.removeListener('updateChatReadInbox', this.onUpdate)
+        ChatStore.removeListener('updateChatReadOutbox', this.onUpdate)
+        ChatStore.removeListener('updateChatUnreadMentionCount', this.onUpdate)
+        ApplicationStore.removeListener(
+            'updateScopeNotificationSettings',
+            this.onUpdateScopeNotificationSettings
+        )
     }
 
     onClientUpdateClearHistory = update => {
-        const { chatId } = this.props;
+        const { chat } = this.props
 
-        if (chatId === update.chatId) {
-            this.clearHistory = update.inProgress;
-            this.forceUpdate();
+        if (chat && chat.id === update.chatId) {
+            this.clearHistory = update.inProgress
+            this.forceUpdate()
         }
-    };
+    }
 
     onFastUpdatingComplete = update => {
-        this.forceUpdate();
-    };
+        this.forceUpdate()
+    }
 
     onUpdate = update => {
-        const { chatId } = this.props;
+        const { chat } = this.props
 
-        if (update.chat_id !== chatId) return;
-
-        this.forceUpdate();
-    };
+        if (chat && chat.id === update.chatId) {
+            this.forceUpdate()
+        }
+    }
 
     onUpdateScopeNotificationSettings = update => {
-        const { chatId } = this.props;
+        const { chat } = this.props
 
-        const chat = ChatStore.get(chatId);
-        if (!chat) return;
+        if (!chat) return
 
         switch (update.scope['@type']) {
             case 'notificationSettingsScopeGroupChats': {
-                if (chat.type['@type'] === 'chatTypeBasicGroup' || chat.type['@type'] === 'chatTypeSupergroup') {
-                    this.forceUpdate();
+                if (
+                    chat.type['@type'] === 'chatTypeBasicGroup' ||
+                    chat.type['@type'] === 'chatTypeSupergroup'
+                ) {
+                    this.forceUpdate()
                 }
-                break;
+                break
             }
             case 'notificationSettingsScopePrivateChats': {
-                if (chat.type['@type'] === 'chatTypePrivate' || chat.type['@type'] === 'chatTypeSecret') {
-                    this.forceUpdate();
+                if (
+                    chat.type['@type'] === 'chatTypePrivate' ||
+                    chat.type['@type'] === 'chatTypeSecret'
+                ) {
+                    this.forceUpdate()
                 }
-                break;
+                break
             }
         }
-    };
+    }
 
     render() {
-        if (this.clearHistory) return null;
+        if (this.clearHistory) return null
 
-        const { classes, chatId } = this.props;
+        const { classes, chat } = this.props
 
-        const chat = ChatStore.get(chatId);
-        if (!chat) return null;
+        if (!chat) return null
 
-        const unreadMessageIcon = getChatUnreadMessageIcon(chat);
-        const unreadCount = getChatUnreadCount(chat);
-        const unreadMentionCount = getChatUnreadMentionCount(chat);
-        const showUnreadCount = unreadCount > 1 || (unreadCount === 1 && unreadMentionCount < 1);
-        const showDraftChat = showChatDraft(chat.id);
+        const unreadMessageIcon = getChatUnreadMessageIcon(chat)
+        const unreadCount = getChatUnreadCount(chat)
+        const unreadMentionCount = getChatUnreadMentionCount(chat)
+        const showUnreadCount = unreadCount > 1 || (unreadCount === 1 && unreadMentionCount < 1)
 
         return (
             <>
-                {unreadMessageIcon && !showDraftChat && <i className='dialog-badge-unread' />}
                 {unreadMentionCount && (
                     <div className={classNames('dialog-badge', classes.dialogBadge)}>
                         <div className='dialog-badge-mention'>@</div>
@@ -147,8 +157,25 @@ class DialogBadgeControl extends React.Component {
                     <i className='dialog-badge-pinned' />
                 ) : null}
             </>
-        );
+        )
     }
 }
 
-export default withStyles(styles, { withTheme: true })(DialogBadgeControl);
+DialogBadgeControl.propTypes = {
+    chat: PropTypes.object.isRequired,
+    chatId: PropTypes.number.isRequired,
+    theme: PropTypes.object.isRequired,
+}
+
+const mapStateToProps = (state, ownProps) => {
+    return {
+        chat: state.chats.get(ownProps.chatId.toString()),
+    }
+}
+
+const enhance = compose(
+    connect(mapStateToProps),
+    withStyles(styles, { withTheme: true })
+)
+
+export default enhance(DialogBadgeControl)

@@ -14,12 +14,13 @@ import DialogContentControl from './DialogContentControl'
 import DialogBadgeControl from './DialogBadgeControl'
 import DialogTitleControl from './DialogTitleControl'
 import DialogMetaControl from './DialogMetaControl'
+import MessageSendingStatus from '../Message/MessageSendingStatus'
 import { openChat } from '../../Actions/Client'
 import SupergroupStore from '../../Stores/SupergroupStore'
 import './DialogControl.css'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
-import { isChatMuted } from '../../Utils/Chat'
+import { isChatMuted, showChatDraft, isMeChat } from '../../Utils/Chat'
 
 const styles = theme => ({
     statusRoot: {
@@ -76,6 +77,10 @@ class DialogControl extends Component {
             return true
         }
 
+        if (nextProps.isSelected !== this.props.isSelected) {
+            return true
+        }
+
         if (nextProps.theme !== this.props.theme) {
             return true
         }
@@ -84,23 +89,20 @@ class DialogControl extends Component {
             return true
         }
 
-        if (nextProps.currentChatId !== this.props.currentChatId) {
-            return true
-        }
-
         return false
     }
 
     handleSelect = () => {
-        openChat(this.props.chatId)
+        openChat(this.props.chat.id)
     }
 
     render() {
-        const { classes, chatId, chat, currentChatId, showSavedMessages, hidden } = this.props
+        const { classes, chat, showSavedMessages, hidden, isSelected } = this.props
 
         if (hidden) return null
 
-        const isSelected = currentChatId === chatId
+        const showDraftChat = showChatDraft(chat.id)
+        const _isMeChat = isMeChat(chat)
 
         return (
             <div
@@ -112,7 +114,7 @@ class DialogControl extends Component {
                 onMouseDown={this.handleSelect}>
                 <div className='dialog-wrapper'>
                     <ChatTileControl
-                        chatId={chatId}
+                        chatId={chat.id}
                         showSavedMessages={showSavedMessages}
                         showOnline
                         classes={{
@@ -124,16 +126,25 @@ class DialogControl extends Component {
                         <div className='tile-first-row'>
                             <div className={classes.titleAndIcons}>
                                 <DialogTitleControl
-                                    chatId={chatId}
+                                    chatId={chat.id}
                                     highlightVerifiedBadge={isSelected}
                                 />
                                 {isChatMuted(chat) && <i className='dialog-badge-muted' />}
                             </div>
-                            <DialogMetaControl chatId={chatId} />
+                            <div className='tile-first-row__right-row'>
+                                {!showDraftChat && !_isMeChat && chat.last_message && (
+                                    <MessageSendingStatus
+                                        chatId={chat.id}
+                                        messageId={chat.last_message.id}
+                                        iconColor={isSelected ? '#fff' : null}
+                                    />
+                                )}
+                                <DialogMetaControl chatId={chat.id} />
+                            </div>
                         </div>
                         <div className='tile-second-row'>
-                            <DialogContentControl chatId={chatId} />
-                            <DialogBadgeControl chatId={chatId} />
+                            <DialogContentControl chatId={chat.id} />
+                            <DialogBadgeControl chatId={chat.id} />
                         </div>
                     </div>
                 </div>
@@ -149,6 +160,7 @@ DialogControl.propTypes = {
     hidden: PropTypes.bool,
     showSavedMessages: PropTypes.bool,
     theme: PropTypes.object.isRequired,
+    isSelected: PropTypes.bool.isRequired,
 }
 
 DialogControl.defaultProps = {
@@ -159,7 +171,7 @@ DialogControl.defaultProps = {
 const mapStateToProps = (state, ownProps) => {
     return {
         chat: state.chats.get(ownProps.chatId.toString()),
-        currentChatId: state.currentChatId,
+        isSelected: ownProps.chatId === state.currentChatId,
     }
 }
 

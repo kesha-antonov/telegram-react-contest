@@ -6,6 +6,7 @@
  */
 
 import React from 'react'
+import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import MessageStore from '../../Stores/MessageStore'
 import ChatStore from '../../Stores/ChatStore'
@@ -16,18 +17,8 @@ import DoneIcon from '@material-ui/icons/Done'
 import DoneAllIcon from '@material-ui/icons/DoneAll'
 import withStyles from '@material-ui/core/styles/withStyles'
 import blue from '@material-ui/core/colors/blue'
-
-// .message-sending-status-read {
-//     background: #4eabf1;
-// }
-//
-// .message-sending-status-delivered {
-//     background: #4eabf1;
-// }
-//
-// .message-sending-status-pending {
-//     background: #4eabf1;
-// }
+import { connect } from 'react-redux'
+import { compose } from 'recompose'
 
 const styles = theme => ({
     pending: {
@@ -41,64 +32,91 @@ const styles = theme => ({
     },
 })
 
+function getMessageFromChat(chat, messageId) {
+    if (!chat) return null
+    if (!chat.last_message) return null
+    if (chat.last_message.id !== messageId) return null
+
+    return chat.last_message
+}
+
+function getMessageFromProps(props) {
+    let message = MessageStore.get(props.chatId, props.messageId)
+    if (!message) {
+        message = getMessageFromChat(props.chat, props.messageId)
+    }
+
+    return message
+}
+
 class MessageSendingStatus extends React.Component {
     constructor(props) {
         super(props)
-        this.handleUpdateMessageSend = this.handleUpdateMessageSend.bind(this)
-        this.handleUpdateChatReadOutbox = this.handleUpdateChatReadOutbox.bind(this)
 
-        const message = MessageStore.get(props.chatId, props.messageId)
+        const message = getMessageFromProps(props)
 
-        this.outgoing = message.is_outgoing
-        console.log('message', message, this.outgoing)
+        this.state = MessageSendingStatus.getNewStateByMessage(message)
+    }
 
-        this.state = {
-            sendingState: message.sending_state,
-            unread: getUnread(message),
-        }
+    static getDerivedStateFromProps(props, state) {
+        const message = getMessageFromProps(props)
+        return MessageSendingStatus.getNewStateByMessage(message)
     }
 
     componentDidMount() {
-        if (!this.outgoing) return
-
         MessageStore.on('updateMessageSendFailed', this.handleUpdateMessageSend)
         MessageStore.on('updateMessageSendSucceeded', this.handleUpdateMessageSend)
 
         ChatStore.on('updateChatReadOutbox', this.handleUpdateChatReadOutbox)
     }
 
-    handleUpdateMessageSend(payload) {
-        if (this.props.messageId === payload.old_message_id && payload.message) {
-            this.newMessageId = payload.message.id
-            this.setState({ sendingState: payload.message.sending_state })
-        }
-    }
-
-    handleUpdateChatReadOutbox(payload) {
-        if (
-            this.props.chatId === payload.chat_id &&
-            ((this.props.newMessageId &&
-                this.props.newMessageId <= payload.last_read_outbox_message_id) ||
-                this.props.messageId <= payload.last_read_outbox_message_id)
-        ) {
-            this.setState({ sendingState: null, unread: false })
-        }
-    }
-
     componentWillUnmount() {
-        if (!this.outgoing) return
-
         MessageStore.removeListener('updateMessageSendFailed', this.handleUpdateMessageSend)
         MessageStore.removeListener('updateMessageSendSucceeded', this.handleUpdateMessageSend)
 
         ChatStore.removeListener('updateChatReadOutbox', this.handleUpdateChatReadOutbox)
     }
 
-    render() {
-        if (!this.outgoing) return null
+    static getNewStateByMessage(message) {
+        return {
+            sendingState: message ? message.sending_state : null,
+            unread: message ? getUnread(message) : false,
+            outgoing: message ? message.is_outgoing : false,
+            emptyMessage: message == null,
+        }
+    }
 
-        const { classes } = this.props
-        const { sendingState, unread } = this.state
+    handleUpdateMessageSend = payload => {
+        if (this.props.messageId === payload.old_message_id && payload.message) {
+            const { message } = payload
+
+            this.newMessageId = message.id
+
+            this.setState(MessageSendingStatus.getNewStateByMessage(message))
+        }
+    }
+
+    handleUpdateChatReadOutbox = payload => {
+        if (
+            this.props.chatId === payload.chat_id &&
+            ((this.newMessageId && this.newMessageId <= payload.last_read_outbox_message_id) ||
+                this.props.messageId <= payload.last_read_outbox_message_id)
+        ) {
+            this.setState({ sendingState: null, unread: false })
+        }
+    }
+
+    render() {
+        const { classes, chat, message, iconColor } = this.props
+        const { sendingState, unread, outgoing, emptyMessage } = this.state
+
+        if (!chat) return null
+        if (!outgoing) return null
+        if (emptyMessage) return null
+
+        const style = {
+            color: iconColor,
+        }
 
         if (sendingState) {
             if (sendingState['@type'] === 'messageSendingStateFailed') return null
@@ -107,6 +125,7 @@ class MessageSendingStatus extends React.Component {
                 return (
                     <ScheduleIcon
                         className={classNames('message-sending-status-icon', classes.pending)}
+                        style={style}
                     />
                 )
         }
@@ -115,12 +134,44 @@ class MessageSendingStatus extends React.Component {
             return (
                 <DoneIcon
                     className={classNames('message-sending-status-icon', classes.delivered)}
+                    style={style}
                 />
             )
         }
 
-        return <DoneAllIcon className={classNames('message-sending-status-icon', classes.read)} />
+        return (
+            <DoneAllIcon
+                className={classNames('message-sending-status-icon', classes.read)}
+                style={style}
+            />
+        )
     }
 }
 
-export default withStyles(styles, { withTheme: true })(MessageSendingStatus)
+const mapStateToProps = (state, ownProps) => {
+    const chat = ownProps.chatId ? state.chats.get(ownProps.chatId.toString()) : null
+    let message = chat ? MessageStore.get(chat.id, ownProps.messageId) : null
+    if (!message) {
+        message = getMessageFromChat(chat, ownProps.messageId)
+    }
+
+    return {
+        chat,
+        message,
+    }
+}
+
+MessageSendingStatus.propTypes = {
+    chatId: PropTypes.number.isRequired,
+    chat: PropTypes.object,
+    messageId: PropTypes.number.isRequired,
+    message: PropTypes.object,
+    iconColor: PropTypes.string,
+}
+
+const enhance = compose(
+    connect(mapStateToProps),
+    withStyles(styles, { withTheme: true })
+)
+
+export default enhance(MessageSendingStatus)

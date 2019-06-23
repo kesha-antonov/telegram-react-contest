@@ -40,6 +40,12 @@
     justify-content: space-between;
 }
 
+.tile-first-row__right-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
 .tile-second-row {
     margin: 3px 0 0 0;
     display: flex;
