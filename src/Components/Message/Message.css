@@ -145,6 +145,9 @@ pre code {
     user-select: none;
     color: #adadad;
     font-size: 0.85em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .message-body {

@@ -13,7 +13,7 @@ import { withTranslation } from 'react-i18next'
 import withStyles from '@material-ui/core/styles/withStyles'
 import Reply from './Reply'
 import Forward from './Forward'
-import MessageStatus from './MessageStatus'
+import MessageSendingStatus from './MessageSendingStatus'
 import MessageFailedStatus from './MessageFailedStatus'
 import MessageAuthor from './MessageAuthor'
 import UserTileControl from '../Tile/UserTileControl'
@@ -311,12 +311,6 @@ class Message extends Component {
         const { contextMenu, left, top, selected, highlighted } = this.state
 
         const message = MessageStore.get(chatId, messageId)
-        console.log(
-            'message sending_state',
-            message.sending_state,
-            message,
-            this.props.sendingState
-        )
         if (!message) return <div>[empty message]</div>
 
         const { sending_state, views, edit_date, reply_to_message_id, forward_info } = message
@@ -363,7 +357,7 @@ class Message extends Component {
                         <i className='message-views-icon' />
                     </>
                 )}
-                <MessageStatus chatId={chatId} messageId={messageId} />
+                <MessageSendingStatus chatId={chatId} messageId={messageId} />
                 {edit_date > 0 && <span>{t('EditedMessage')}&nbsp;</span>}
                 <a className='message-date' onClick={this.handleDateClick}>
                     <span title={dateHint}>{date}</span>

@@ -19,7 +19,6 @@ class MessageFailedStatus extends React.Component {
 
         this.state = {
             sendingState: props.sendingState,
-            unread: true,
         }
     }
 
@@ -44,7 +43,7 @@ class MessageFailedStatus extends React.Component {
                 this.props.newMessageId <= payload.last_read_outbox_message_id) ||
                 this.props.messageId <= payload.last_read_outbox_message_id)
         ) {
-            this.setState({ sendingState: null, unread: false })
+            this.setState({ sendingState: null })
         }
     }
 
