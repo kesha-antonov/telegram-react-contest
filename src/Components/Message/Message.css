@@ -184,6 +184,10 @@ pre code {
     opacity: 0;
 }
 
+.message-without-avatar .message-select-tick {
+    margin-top: -3px;
+}
+
 .messages-list-selection-active .message-wrapper {
     pointer-events: none;
 }
