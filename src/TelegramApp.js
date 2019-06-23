@@ -30,6 +30,7 @@ import ApplicationStore from './Stores/ApplicationStore'
 import TdLibController from './Controllers/TdLibController'
 import './TelegramApp.css'
 import { ReactReduxContext } from 'react-redux'
+import UnreadChatsTitle from './UnreadChatsTitle'
 
 const MainPage = React.lazy(() => import('./Components/MainPage'))
 
@@ -74,6 +75,8 @@ class TelegramApp extends Component {
         ApplicationStore.on('updateAuthorizationState', this.onUpdateAuthorizationState)
         ApplicationStore.on('clientUpdateAppInactive', this.onClientUpdateAppInactive)
         ApplicationStore.on('updateFatalError', this.onUpdateFatalError)
+
+        this.unreadChatsTitle = new UnreadChatsTitle(this.context.store)
     }
 
     componentWillUnmount() {
@@ -82,6 +85,8 @@ class TelegramApp extends Component {
         ApplicationStore.removeListener('updateAuthorizationState', this.onUpdateAuthorizationState)
         ApplicationStore.removeListener('clientUpdateAppInactive', this.onClientUpdateAppInactive)
         ApplicationStore.removeListener('updateFatalError', this.onUpdateFatalError)
+
+        this.unreadChatsTitle.cleanup()
     }
 
     onUpdate = update => {
