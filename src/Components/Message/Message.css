@@ -122,7 +122,7 @@ pre code {
 .message-content-row {
     display: flex;
     flex-direction: row;
-    align-items: baseline;
+    align-items: center;
 }
 
 .message-content-row__left-column {
