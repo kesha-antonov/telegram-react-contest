@@ -80,7 +80,14 @@ class Message extends Component {
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        const { theme, chatId, messageId, sendingState, showUnreadSeparator } = this.props
+        const {
+            theme,
+            chatId,
+            messageId,
+            sendingState,
+            showUnreadSeparator,
+            withAvatarAndName,
+        } = this.props
         const { contextMenu, selected, highlighted } = this.state
 
         if (nextProps.theme !== theme) {
@@ -100,6 +107,10 @@ class Message extends Component {
         }
 
         if (nextProps.showUnreadSeparator !== showUnreadSeparator) {
+            return true
+        }
+
+        if (nextProps.withAvatarAndName !== withAvatarAndName) {
             return true
         }
 
