@@ -350,9 +350,9 @@ class Message extends Component {
                 {views > 0 && (
                     <>
                         <span className='message-views'>
-                            &nbsp;
-                            {views}
                             &nbsp; &nbsp;
+                            {views}
+                            &nbsp;
                         </span>
                         <i className='message-views-icon' />
                     </>
