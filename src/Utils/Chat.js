@@ -286,8 +286,16 @@ function getMessageDate(message) {
     return dateFormat(date, 'd.mm.yyyy')
 }
 
-function getMessageDateWithMonth(message) {
+function getMessageDateWithMonth(message, t) {
+    const now = new Date()
     const date = new Date(message.date * 1000)
+
+    const isToday =
+        now.getFullYear() === date.getFullYear() &&
+        now.getMonth() === date.getMonth() &&
+        now.getDay() === date.getDay()
+
+    if (isToday) return t('Today')
 
     return dateFormat(date, 'd mmmm')
 }

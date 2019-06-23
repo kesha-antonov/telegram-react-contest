@@ -1120,7 +1120,7 @@ class MessagesList extends React.Component {
                       <div key={`chat_id=${x.chat_id} message_id=${x.id}`}>
                           {withDate && (
                               <div className={classNames('messages-date', classes.messagesDate)}>
-                                  {getMessageDateWithMonth(x)}
+                                  {getMessageDateWithMonth(x, t)}
                               </div>
                           )}
                           {_isServiceMessage ? (
