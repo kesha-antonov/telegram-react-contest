@@ -156,7 +156,7 @@ class DialogControl extends Component {
 DialogControl.propTypes = {
     chat: PropTypes.object.isRequired,
     chatId: PropTypes.number.isRequired,
-    currentChatId: PropTypes.number.isRequired,
+    currentChatId: PropTypes.number,
     hidden: PropTypes.bool,
     showSavedMessages: PropTypes.bool,
     theme: PropTypes.object.isRequired,
