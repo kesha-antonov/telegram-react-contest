@@ -37,6 +37,7 @@ import MessageStore from '../../Stores/MessageStore'
 import TdLibController from '../../Controllers/TdLibController'
 import { EMOJI_WHOLE_STRING_REGEX } from '../../Constants'
 import './Message.css'
+import emojiRegex from 'emoji-regex/es2015/index.js'
 
 const styles = theme => ({
     message: {
@@ -55,8 +56,18 @@ const styles = theme => ({
     messageHighlighted: {
         animation: '$highlighted 4s ease-out',
     },
-    textOnlyWithEmojis: {
+    textOnlyWithEmojis_1emoji: {
         fontSize: '4em',
+        lineHeight: '1em',
+        paddingTop: '10px',
+    },
+    textOnlyWithEmojis_2emoji: {
+        fontSize: '3em',
+        lineHeight: '1em',
+        paddingTop: '10px',
+    },
+    textOnlyWithEmojis_3emoji: {
+        fontSize: '2em',
         lineHeight: '1em',
         paddingTop: '10px',
     },
@@ -317,10 +328,21 @@ class Message extends Component {
         const { sending_state, views, edit_date, reply_to_message_id, forward_info } = message
 
         const text = getText(message)
-        const textOnlyWithEmojis =
-            message.content &&
-            message.content['@type'] === 'messageText' &&
-            EMOJI_WHOLE_STRING_REGEX.test(message.content.text.text)
+        let textOnlyWithEmojis = false
+        let emojiMatches = 0
+        if (message.content && message.content['@type'] === 'messageText') {
+            textOnlyWithEmojis = EMOJI_WHOLE_STRING_REGEX.exec(message.content.text.text)
+            if (textOnlyWithEmojis) {
+                let m
+                let re = emojiRegex()
+                do {
+                    m = re.exec(message.content.text.text)
+                    if (m) {
+                        emojiMatches += 1
+                    }
+                } while (m)
+            }
+        }
 
         const webPage = getWebPage(message)
         const date = getDate(message)
@@ -406,7 +428,12 @@ class Message extends Component {
                                 {media}
                                 <div
                                     className={classNames('message-text', {
-                                        [classes.textOnlyWithEmojis]: textOnlyWithEmojis,
+                                        [classes.textOnlyWithEmojis_1emoji]:
+                                            textOnlyWithEmojis && emojiMatches === 1,
+                                        [classes.textOnlyWithEmojis_2emoji]:
+                                            textOnlyWithEmojis && emojiMatches === 2,
+                                        [classes.textOnlyWithEmojis_3emoji]:
+                                            textOnlyWithEmojis && emojiMatches === 3,
                                     })}>
                                     {text}
                                 </div>
