@@ -85,6 +85,9 @@ class MessagesList extends React.Component {
         this.itemsMap = new Map()
 
         this.updateItemsInView = throttle(this.updateItemsInView, 500)
+
+        this.focused = window.hasFocus
+        this.pendingViewMessagesBatches = []
         //debounce(this.updateItemsInView, 250);
     }
 
@@ -104,6 +107,8 @@ class MessagesList extends React.Component {
         PlayerStore.on('clientUpdateMediaActive', this.onClientUpdateMediaActive)
         PlayerStore.on('clientUpdateMediaEnding', this.onClientUpdateMediaEnding)
         PlayerStore.on('clientUpdateMediaEnd', this.onClientUpdateMediaEnd)
+
+        ApplicationStore.on('clientUpdateFocusWindow', this.onClientUpdateFocusWindow)
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -190,6 +195,8 @@ class MessagesList extends React.Component {
         PlayerStore.removeListener('clientUpdateMediaActive', this.onClientUpdateMediaActive)
         PlayerStore.removeListener('clientUpdateMediaEnding', this.onClientUpdateMediaEnding)
         PlayerStore.removeListener('clientUpdateMediaEnd', this.onClientUpdateMediaEnd)
+
+        ApplicationStore.removeListener('clientUpdateFocusWindow', this.onClientUpdateFocusWindow)
     }
 
     static getDerivedStateFromProps(props, state) {
@@ -327,7 +334,7 @@ class MessagesList extends React.Component {
         this.replaceMessage(old_message_id, message, scrollBehavior)
         const store = await FileStore.getStore()
         loadMessageContents(store, [message])
-        MessagesList.viewMessages([message])
+        this.viewMessages([message])
     }
 
     onUpdateNewMessage = async update => {
@@ -354,7 +361,7 @@ class MessagesList extends React.Component {
         this.insertAfter(this.filterMessages(history), scrollBehavior)
         const store = await FileStore.getStore()
         loadMessageContents(store, history)
-        MessagesList.viewMessages(history)
+        this.viewMessages(history)
     }
 
     onUpdateDeleteMessages = update => {
@@ -364,6 +371,15 @@ class MessagesList extends React.Component {
         if (!update.is_permanent) return
 
         this.deleteHistory(update.message_ids)
+    }
+
+    onClientUpdateFocusWindow = update => {
+        const { focused } = update
+
+        if (focused === this.focused) return
+        this.focused = update.focused
+
+        this.viewMessages()
     }
 
     updateItemsInView = async () => {
@@ -505,7 +521,7 @@ class MessagesList extends React.Component {
             loadChatsContent(store, [chatId])
             loadDraftContent(store, chatId)
 
-            MessagesList.viewMessages(result.messages)
+            this.viewMessages(result.messages)
 
             this.loadIncompleteHistory(result)
 
@@ -528,15 +544,35 @@ class MessagesList extends React.Component {
         }
     }
 
-    static viewMessages(messages) {
-        if (!messages) return
-        if (messages.length === 0) return
-        if (!messages[0].chat_id) return
+    viewMessages = async messages => {
+        const hasMessages = messages && messages.length > 0 && messages[0].chat_id
+        let payload
+
+        if (hasMessages) {
+            payload = {
+                chat_id: messages[0].chat_id,
+                message_ids: messages.map(x => x.id),
+            }
+        }
+
+        if (!this.focused) {
+            if (hasMessages) this.pendingViewMessagesBatches.push(payload)
+            return
+        }
+
+        while (this.pendingViewMessagesBatches.length > 0 && this.focused) {
+            const payload = this.pendingViewMessagesBatches.shift()
+            await TdLibController.send({
+                ...payload,
+                '@type': 'viewMessages',
+            })
+        }
+
+        if (!payload) return
 
         TdLibController.send({
+            ...payload,
             '@type': 'viewMessages',
-            chat_id: messages[0].chat_id,
-            message_ids: messages.map(x => x.id),
         })
     }
 
@@ -634,7 +670,7 @@ class MessagesList extends React.Component {
         })
         const store = await FileStore.getStore()
         loadMessageContents(store, result.messages)
-        MessagesList.viewMessages(result.messages)
+        this.viewMessages(result.messages)
 
         return result
     }
@@ -701,7 +737,7 @@ class MessagesList extends React.Component {
         this.insertBefore(this.filterMessages(result.messages))
         const store = await FileStore.getStore()
         loadMessageContents(store, result.messages)
-        MessagesList.viewMessages(result.messages)
+        this.viewMessages(result.messages)
     }
 
     onLoadPrevious = async () => {
@@ -755,7 +791,7 @@ class MessagesList extends React.Component {
         this.insertAfter(this.filterMessages(result.messages), ScrollBehaviorEnum.NONE)
         const store = await FileStore.getStore()
         loadMessageContents(store, result.messages)
-        MessagesList.viewMessages(result.messages)
+        this.viewMessages(result.messages)
 
         return result
     }
@@ -1072,7 +1108,7 @@ class MessagesList extends React.Component {
         loadMessageContents(store, result.messages)
         loadChatsContent(store, [chatId])
 
-        MessagesList.viewMessages(result.messages)
+        this.viewMessages(result.messages)
 
         this.loadIncompleteHistory(result)
     }
