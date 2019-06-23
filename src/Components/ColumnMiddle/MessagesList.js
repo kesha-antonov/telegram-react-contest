@@ -1115,7 +1115,7 @@ class MessagesList extends React.Component {
                       _isServiceMessage ||
                       _isMeChat ||
                       x.reply_to_message_id !== 0 ||
-                      x.forward_info ||
+                      !!x.forward_info ||
                       isServiceMessage(history[i - 1]) ||
                       x.sender_user_id !== history[i - 1].sender_user_id ||
                       x.date - history[i - 1].date > 600
