@@ -1115,7 +1115,6 @@ class MessagesList extends React.Component {
                       isServiceMessage(history[i - 1]) ||
                       x.sender_user_id !== history[i - 1].sender_user_id ||
                       x.date - history[i - 1].date > 600
-                  console.log('x', withAvatarAndName, x)
 
                   return (
                       <div key={`chat_id=${x.chat_id} message_id=${x.id}`}>
