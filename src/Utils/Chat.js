@@ -293,7 +293,7 @@ function getMessageDateWithMonth(message, t) {
     const isToday =
         now.getFullYear() === date.getFullYear() &&
         now.getMonth() === date.getMonth() &&
-        now.getDay() === date.getDay()
+        now.getDate() === date.getDate()
 
     if (isToday) return t('Today')
 
