@@ -9,18 +9,16 @@ import React from 'react'
 import classNames from 'classnames'
 import MessageStore from '../../Stores/MessageStore'
 import ChatStore from '../../Stores/ChatStore'
-import './MessageStatus.css'
+import './MessageFailedStatus.css'
 
-class MessageStatus extends React.Component {
+class MessageFailedStatus extends React.Component {
     constructor(props) {
         super(props)
         this.handleUpdateMessageSend = this.handleUpdateMessageSend.bind(this)
         this.handleUpdateChatReadOutbox = this.handleUpdateChatReadOutbox.bind(this)
 
-        const sendingState = MessageStore.get(props.chatId, props.messageId).sending_state
-
         this.state = {
-            sendingState,
+            sendingState: props.sendingState,
             unread: true,
         }
     }
@@ -58,19 +56,15 @@ class MessageStatus extends React.Component {
     }
 
     render() {
-        console.log('MessageStatus', this.state)
-        let stateClassName = 'messagestatus-succeded'
-        if (this.state.sendingState) {
-            stateClassName =
-                this.state.sendingState['@type'] === 'messageSendingStateFailed'
-                    ? 'messagestatus-failed'
-                    : 'messagestatus-pending'
+        if (
+            this.state.sendingState &&
+            this.state.sendingState['@type'] === 'messageSendingStateFailed'
+        ) {
+            return <i className={classNames('messagestatus-icon', 'messagestatus-failed')} />
         }
 
-        return (
-            this.state.unread && <i className={classNames('messagestatus-icon', stateClassName)} />
-        )
+        return null
     }
 }
 
-export default MessageStatus
+export default MessageFailedStatus

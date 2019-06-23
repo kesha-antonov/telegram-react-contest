@@ -14,6 +14,7 @@ import withStyles from '@material-ui/core/styles/withStyles'
 import Reply from './Reply'
 import Forward from './Forward'
 import MessageStatus from './MessageStatus'
+import MessageFailedStatus from './MessageFailedStatus'
 import MessageAuthor from './MessageAuthor'
 import UserTileControl from '../Tile/UserTileControl'
 import ChatTileControl from '../Tile/ChatTileControl'
@@ -310,6 +311,12 @@ class Message extends Component {
         const { contextMenu, left, top, selected, highlighted } = this.state
 
         const message = MessageStore.get(chatId, messageId)
+        console.log(
+            'message sending_state',
+            message.sending_state,
+            message,
+            this.props.sendingState
+        )
         if (!message) return <div>[empty message]</div>
 
         const { sending_state, views, edit_date, reply_to_message_id, forward_info } = message
@@ -348,14 +355,15 @@ class Message extends Component {
                 <span>&nbsp;</span>
                 {views > 0 && (
                     <>
-                        <i className='message-views-icon' />
                         <span className='message-views'>
                             &nbsp;
                             {views}
                             &nbsp; &nbsp;
                         </span>
+                        <i className='message-views-icon' />
                     </>
                 )}
+                <MessageStatus chatId={chatId} messageId={messageId} />
                 {edit_date > 0 && <span>{t('EditedMessage')}&nbsp;</span>}
                 <a className='message-date' onClick={this.handleDateClick}>
                     <span title={dateHint}>{date}</span>
@@ -375,7 +383,7 @@ class Message extends Component {
                 <div className='message-wrapper'>
                     <i className='message-select-tick' />
                     {this.unread && (
-                        <MessageStatus
+                        <MessageFailedStatus
                             chatId={chatId}
                             messageId={messageId}
                             sendingState={sending_state}
