@@ -534,8 +534,9 @@ function isGroupChat(chatId) {
     return false
 }
 
-function isChannelChat(chatId) {
-    const chat = ChatStore.get(chatId)
+function isChannelChat(chat) {
+    if (typeof chat === 'number') chat = ChatStore.get(chat)
+
     if (!chat) return false
     if (!chat.type) return false
 

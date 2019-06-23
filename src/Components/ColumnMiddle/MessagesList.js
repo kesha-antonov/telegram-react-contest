@@ -26,6 +26,7 @@ import {
     isSupergroup,
     getMessageDateWithMonth,
     isMeChat,
+    isChannelChat,
 } from '../../Utils/Chat'
 import { highlightMessage } from '../../Actions/Client'
 import { MESSAGE_SLICE_LIMIT } from '../../Constants'
@@ -1098,6 +1099,8 @@ class MessagesList extends React.Component {
 
         this.itemsMap.clear()
         const _isMeChat = isMeChat(chat)
+        const _isChannelChat = isChannelChat(chat)
+
         this.messages = clearHistory
             ? null
             : history.map((x, i) => {
@@ -1110,10 +1113,11 @@ class MessagesList extends React.Component {
                   }
 
                   const _isServiceMessage = isServiceMessage(x)
-                  let withAvatarAndName =
+                  const withAvatarAndName =
                       i === 0 ||
                       _isServiceMessage ||
                       _isMeChat ||
+                      _isChannelChat ||
                       x.reply_to_message_id !== 0 ||
                       !!x.forward_info ||
                       isServiceMessage(history[i - 1]) ||
