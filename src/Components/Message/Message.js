@@ -6,6 +6,7 @@
  */
 
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { compose } from 'recompose'
 import { withTranslation } from 'react-i18next'
@@ -294,7 +295,7 @@ class Message extends Component {
     }
 
     render() {
-        const { t, classes, chatId, messageId, showUnreadSeparator } = this.props
+        const { t, classes, chatId, messageId, showUnreadSeparator, withAvatarAndName } = this.props
         const { contextMenu, left, top, selected, highlighted } = this.state
 
         const message = MessageStore.get(chatId, messageId)
@@ -316,18 +317,39 @@ class Message extends Component {
         const senderUserId = getSenderUserId(message)
 
         const tile = senderUserId ? (
-            <UserTileControl userId={senderUserId} onSelect={this.handleSelectUser} />
+            withAvatarAndName ? (
+                <UserTileControl userId={senderUserId} onSelect={this.handleSelectUser} />
+            ) : null
         ) : (
             <ChatTileControl chatId={chatId} onSelect={this.handleSelectChat} />
         )
 
-        const messageClassName = classNames(
-            'message',
-            classes.message,
-            { 'message-selected': selected },
-            { [classes.messageSelected]: selected },
-            // { 'message-highlighted': highlighted && !selected },
-            { [classes.messageHighlighted]: highlighted && !selected }
+        const messageClassName = classNames('message', classes.message, {
+            'message-selected': selected,
+            'message-without-avatar': !withAvatarAndName,
+            [classes.messageSelected]: selected,
+            // 'message-highlighted': highlighted && !selected,
+            [classes.messageHighlighted]: highlighted && !selected,
+        })
+
+        const meta = (
+            <div className='message-meta'>
+                <span>&nbsp;</span>
+                {views > 0 && (
+                    <>
+                        <i className='message-views-icon' />
+                        <span className='message-views'>
+                            &nbsp;
+                            {views}
+                            &nbsp; &nbsp;
+                        </span>
+                    </>
+                )}
+                {edit_date > 0 && <span>{t('EditedMessage')}&nbsp;</span>}
+                <a className='message-date' onClick={this.handleDateClick}>
+                    <span title={dateHint}>{date}</span>
+                </a>
+            </div>
         )
 
         return (
@@ -351,7 +373,7 @@ class Message extends Component {
                     {tile}
                     <div className='message-content'>
                         <div className='message-title'>
-                            {!forward_info && (
+                            {!forward_info && withAvatarAndName && (
                                 <MessageAuthor
                                     chatId={chatId}
                                     openChat
@@ -360,46 +382,39 @@ class Message extends Component {
                                 />
                             )}
                             {forward_info && <Forward forwardInfo={forward_info} />}
-                            <div className='message-meta'>
-                                <span>&nbsp;</span>
-                                {views > 0 && (
-                                    <>
-                                        <i className='message-views-icon' />
-                                        <span className='message-views'>
-                                            &nbsp;
-                                            {views}
-                                            &nbsp; &nbsp;
-                                        </span>
-                                    </>
+                            {withAvatarAndName && meta}
+                        </div>
+                        <div className='message-content-row'>
+                            <div className='message-content-row__left-column'>
+                                {Boolean(reply_to_message_id) && (
+                                    <Reply chatId={chatId} messageId={reply_to_message_id} />
                                 )}
-                                {edit_date > 0 && <span>{t('EditedMessage')}&nbsp;</span>}
-                                <a className='message-date' onClick={this.handleDateClick}>
-                                    <span title={dateHint}>{date}</span>
-                                </a>
+                                {media}
+                                <div
+                                    className={classNames('message-text', {
+                                        [classes.textOnlyWithEmojis]: textOnlyWithEmojis,
+                                    })}>
+                                    {text}
+                                </div>
+                                {webPage && (
+                                    <WebPage
+                                        chatId={chatId}
+                                        messageId={messageId}
+                                        openMedia={this.openMedia}
+                                    />
+                                )}
                             </div>
+                            {!withAvatarAndName && meta}
                         </div>
-                        {Boolean(reply_to_message_id) && (
-                            <Reply chatId={chatId} messageId={reply_to_message_id} />
-                        )}
-                        {media}
-                        <div
-                            className={classNames('message-text', {
-                                [classes.textOnlyWithEmojis]: textOnlyWithEmojis,
-                            })}>
-                            {text}
-                        </div>
-                        {webPage && (
-                            <WebPage
-                                chatId={chatId}
-                                messageId={messageId}
-                                openMedia={this.openMedia}
-                            />
-                        )}
                     </div>
                 </div>
             </div>
         )
     }
+}
+
+Message.propTypes = {
+    withAvatarAndName: PropTypes.bool.isRequired,
 }
 
 const enhance = compose(

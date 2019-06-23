@@ -25,6 +25,7 @@ import {
     getSupergroupId,
     isSupergroup,
     getMessageDateWithMonth,
+    isMeChat,
 } from '../../Utils/Chat'
 import { highlightMessage } from '../../Actions/Client'
 import { MESSAGE_SLICE_LIMIT } from '../../Constants'
@@ -1086,33 +1087,44 @@ class MessagesList extends React.Component {
     }
 
     render() {
-        const { classes, chatId, t } = this.props
+        const { classes, chatId, chat, t } = this.props
         const { history, separatorMessageId, clearHistory, selectionActive } = this.state
 
         // console.log(`MessagesList.render clearHistory=${clearHistory}`, history);
 
         this.itemsMap.clear()
+        const _isMeChat = isMeChat(chat)
         this.messages = clearHistory
             ? null
             : history.map((x, i) => {
                   let withDate = i === 0 && this.completed
                   if (!withDate && i > 0) {
-                      const prevMessageDate = new Date(history[i - 1].date * 1000)
-                      const messageDate = new Date(x.date * 1000)
+                      let prevMessageDate = new Date(history[i - 1].date * 1000)
+                      let messageDate = new Date(x.date * 1000)
 
                       withDate = prevMessageDate.getDate() !== messageDate.getDate()
                   }
 
+                  const _isServiceMessage = isServiceMessage(x)
+                  let withAvatarAndName =
+                      i === 0 ||
+                      _isServiceMessage ||
+                      _isMeChat ||
+                      x.reply_to_message_id !== 0 ||
+                      x.forward_info ||
+                      isServiceMessage(history[i - 1]) ||
+                      x.sender_user_id !== history[i - 1].sender_user_id ||
+                      x.date - history[i - 1].date > 600
+
                   return (
-                      <>
+                      <div key={`chat_id=${x.chat_id} message_id=${x.id}`}>
                           {withDate && (
                               <div className={classNames('messages-date', classes.messagesDate)}>
                                   {getMessageDateWithMonth(x)}
                               </div>
                           )}
-                          {isServiceMessage(x) ? (
+                          {_isServiceMessage ? (
                               <ServiceMessage
-                                  key={`chat_id=${x.chat_id} message_id=${x.id}`}
                                   ref={el => this.itemsMap.set(i, el)}
                                   chatId={x.chat_id}
                                   messageId={x.id}
@@ -1120,16 +1132,16 @@ class MessagesList extends React.Component {
                               />
                           ) : (
                               <Message
-                                  key={`chat_id=${x.chat_id} message_id=${x.id}`}
                                   ref={el => this.itemsMap.set(i, el)}
                                   chatId={x.chat_id}
                                   messageId={x.id}
                                   showTitle
                                   sendingState={x.sending_state}
                                   showUnreadSeparator={separatorMessageId === x.id}
+                                  withAvatarAndName={withAvatarAndName}
                               />
                           )}
-                      </>
+                      </div>
                   )
               })
 

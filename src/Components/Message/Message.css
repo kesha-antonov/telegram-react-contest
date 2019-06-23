@@ -76,6 +76,10 @@ pre code {
     opacity: 1;
 }
 
+.message-without-avatar .message-content {
+    margin-left: 60px;
+}
+
 .message-highlighted {
     animation: message-highlighted-animation;
     animation-duration: 4s;
@@ -112,6 +116,16 @@ pre code {
     flex-grow: 1;
     flex-shrink: 1;
     overflow: hidden;
+}
+
+.message-content-row {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+}
+
+.message-content-row__left-column {
+    flex-grow: 1;
 }
 
 .message-title {
