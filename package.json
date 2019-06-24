@@ -1,7 +1,7 @@
 {
   "homepage": "http://kesha-antonov.github.io/telegram-react",
   "name": "telegram_react",
-  "version": "0.0.342",
+  "version": "0.0.343",
   "private": true,
   "engines": {
     "node": ">= 8.12.0",
