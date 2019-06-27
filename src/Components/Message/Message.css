@@ -127,6 +127,7 @@ pre code {
 
 .message-content-row__left-column {
     flex-grow: 1;
+    width: 100%;
 }
 
 .message-title {
