@@ -285,7 +285,7 @@ class ChatDetails extends React.Component {
     handleScheduledAction = (key, message, action) => {
         if (!key) return
 
-        const { enqueueSnackbar, classes } = this.props
+        const { enqueueSnackbar, closeSnackbar, classes } = this.props
         if (!enqueueSnackbar) return
 
         const TRANSITION_DELAY = 150
@@ -305,7 +305,7 @@ class ChatDetails extends React.Component {
                         color='inherit'
                         className={classes.close}
                         onClick={() => {
-                            this.props.closeSnackbar(_snackbarKey)
+                            closeSnackbar(_snackbarKey)
                             ApplicationStore.removeScheduledAction(key)
                         }}>
                         <CloseIcon />
@@ -563,6 +563,8 @@ ChatDetails.propTypes = {
     onClose: PropTypes.func,
     onOpenSharedMedia: PropTypes.func,
     onOpenGroupsInCommon: PropTypes.func,
+    enqueueSnackbar: PropTypes.func.isRequired,
+    closeSnackbar: PropTypes.func.isRequired,
 }
 
 const enhance = compose(

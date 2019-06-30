@@ -149,7 +149,7 @@ class ForwardDialog extends React.Component {
     handleScheduledAction = (key, message, action) => {
         if (!key) return
 
-        const { enqueueSnackbar, classes } = this.props
+        const { enqueueSnackbar, closeSnackbar, classes } = this.props
         if (!enqueueSnackbar) return
 
         const TRANSITION_DELAY = 150
@@ -162,16 +162,19 @@ class ForwardDialog extends React.Component {
         ) {
             enqueueSnackbar(message, {
                 autoHideDuration: NOTIFICATION_AUTO_HIDE_DURATION_MS,
-                action: [
+                action: _snackbarKey => (
                     <IconButton
                         key='close'
                         aria-label='Close'
                         color='inherit'
                         className={classes.close}
-                        onClick={() => ApplicationStore.removeScheduledAction(key)}>
+                        onClick={() => {
+                            closeSnackbar(_snackbarKey)
+                            ApplicationStore.removeScheduledAction(key)
+                        }}>
                         <CloseIcon />
-                    </IconButton>,
-                ],
+                    </IconButton>
+                ),
             })
         }
     }
@@ -542,6 +545,8 @@ ForwardDialog.propTypes = {
     chatId: PropTypes.number,
     messageIds: PropTypes.array,
     photoSize: PropTypes.object,
+    enqueueSnackbar: PropTypes.func.isRequired,
+    closeSnackbar: PropTypes.func.isRequired,
 }
 
 const enhance = compose(

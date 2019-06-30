@@ -230,7 +230,7 @@ class MainMenuButton extends React.Component {
             })
         }
 
-        const { enqueueSnackbar, classes } = this.props
+        const { enqueueSnackbar, closeSnackbar, classes } = this.props
         if (!enqueueSnackbar) return
 
         const TRANSITION_DELAY = 150
@@ -249,18 +249,23 @@ class MainMenuButton extends React.Component {
             })
             enqueueSnackbar(message, {
                 autoHideDuration: NOTIFICATION_AUTO_HIDE_DURATION_MS - 2 * TRANSITION_DELAY,
-                action: [
-                    <IconButton key='progress' color='inherit' className='progress-button'>
-                        <NotificationTimer timeout={NOTIFICATION_AUTO_HIDE_DURATION_MS} />
-                    </IconButton>,
-                    <Button
-                        key='undo'
-                        color='primary'
-                        size='small'
-                        onClick={() => ApplicationStore.removeScheduledAction(key)}>
-                        UNDO
-                    </Button>,
-                ],
+                action: _snackbarKey => (
+                    <>
+                        <IconButton key='progress' color='inherit' className='progress-button'>
+                            <NotificationTimer timeout={NOTIFICATION_AUTO_HIDE_DURATION_MS} />
+                        </IconButton>
+                        <Button
+                            key='undo'
+                            color='primary'
+                            size='small'
+                            onClick={() => {
+                                closeSnackbar(_snackbarKey)
+                                ApplicationStore.removeScheduledAction(key)
+                            }}>
+                            UNDO
+                        </Button>
+                    </>
+                ),
             })
         }
     }
@@ -377,6 +382,8 @@ const enhance = compose(
 
 MainMenuButton.propTypes = {
     dispatch: PropTypes.func.isRequired,
+    enqueueSnackbar: PropTypes.func.isRequired,
+    closeSnackbar: PropTypes.func.isRequired,
 }
 
 export default enhance(MainMenuButton)

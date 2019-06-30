@@ -85,7 +85,7 @@ class ShareStickerSetButton extends React.Component {
     handleScheduledAction = (key, message, action) => {
         if (!key) return
 
-        const { enqueueSnackbar, classes, t } = this.props
+        const { enqueueSnackbar, closeSnackbar, classes, t } = this.props
         if (!enqueueSnackbar) return
 
         const TRANSITION_DELAY = 150
@@ -98,16 +98,19 @@ class ShareStickerSetButton extends React.Component {
         ) {
             enqueueSnackbar(message, {
                 autoHideDuration: NOTIFICATION_AUTO_HIDE_DURATION_MS,
-                action: [
+                action: _snackbarKey => (
                     <IconButton
                         key='close'
                         aria-label='Close'
                         color='inherit'
                         className={classes.close}
-                        onClick={() => ApplicationStore.removeScheduledAction(key)}>
+                        onClick={() => {
+                            closeSnackbar(_snackbarKey)
+                            ApplicationStore.removeScheduledAction(key)
+                        }}>
                         <CloseIcon />
-                    </IconButton>,
-                ],
+                    </IconButton>
+                ),
             })
         }
     }
@@ -176,7 +179,10 @@ class ShareStickerSetButton extends React.Component {
     }
 }
 
-ShareStickerSetButton.propTypes = {}
+ShareStickerSetButton.propTypes = {
+    enqueueSnackbar: PropTypes.func.isRequired,
+    closeSnackbar: PropTypes.func.isRequired,
+}
 
 const enhance = compose(
     withStyles(styles, { withTheme: true }),
