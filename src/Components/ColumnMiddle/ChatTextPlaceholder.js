@@ -1,7 +1,7 @@
 import React from 'react'
 import './ChatTextPlaceholder.css'
 import classNames from 'classnames'
-import { makeStyles } from '@material-ui/core/styles'
+import makeStyles from '@material-ui/core/styles/makeStyles'
 
 const useStyles = makeStyles(theme => ({
     text: {

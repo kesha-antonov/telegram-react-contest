@@ -2,7 +2,7 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import CheckDecagramIcon from 'mdi-material-ui/CheckDecagram'
 import blue from '@material-ui/core/colors/blue'
-import { makeStyles } from '@material-ui/core/styles'
+import makeStyles from '@material-ui/core/styles/makeStyles'
 
 const useStyles = makeStyles(theme => ({
     primary: {
