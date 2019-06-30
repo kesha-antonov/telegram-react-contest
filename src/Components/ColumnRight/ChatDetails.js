@@ -298,16 +298,19 @@ class ChatDetails extends React.Component {
         ) {
             enqueueSnackbar(message, {
                 autoHideDuration: NOTIFICATION_AUTO_HIDE_DURATION_MS,
-                action: [
+                action: _snackbarKey => (
                     <IconButton
                         key='close'
                         aria-label='Close'
                         color='inherit'
                         className={classes.close}
-                        onClick={() => ApplicationStore.removeScheduledAction(key)}>
+                        onClick={() => {
+                            this.props.closeSnackbar(_snackbarKey)
+                            ApplicationStore.removeScheduledAction(key)
+                        }}>
                         <CloseIcon />
-                    </IconButton>,
-                ],
+                    </IconButton>
+                ),
             })
         }
     }
