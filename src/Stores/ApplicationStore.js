@@ -192,6 +192,7 @@ class ApplicationStore extends EventEmitter {
     openChat = async () => {
         let state = this.reduxStore.getState()
         const chatId = state.currentChat.id
+        const { messageId } = state.currentChat
         if (chatId === 0) return
 
         const chat = state.chats.get(chatId.toString())
@@ -200,8 +201,6 @@ class ApplicationStore extends EventEmitter {
             '@type': 'openChat',
             chat_id: chatId,
         })
-
-        const { messageId } = this
 
         const unread = !messageId && chat.unread_count > 0
 
@@ -239,19 +238,18 @@ class ApplicationStore extends EventEmitter {
         if (chat && chat.unread_count > 1) {
             for (let i = result.messages.length - 1; i >= 0; i--) {
                 const { id } = result.messages[i]
+
                 if (
                     !result.messages[i].is_outgoing &&
                     id > chat.last_read_inbox_message_id &&
                     id < separatorMessageId
                 ) {
                     separatorMessageId = id
-                } else {
                     break
                 }
             }
         }
         separatorMessageId = separatorMessageId === Number.MAX_VALUE ? 0 : separatorMessageId
-        // console.log('[MessagesList] separator_message_id=' + separatorMessageId);
 
         let scrollBehavior = SCROLL_BEHAVIOR_ENUM.SCROLL_TO_BOTTOM
         if (messageId) {

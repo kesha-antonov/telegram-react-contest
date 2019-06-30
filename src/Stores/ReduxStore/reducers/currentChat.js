@@ -19,6 +19,7 @@ const initialState = {
     history: [],
     selectionActive: false,
     scrollBehavior: SCROLL_BEHAVIOR_ENUM.NONE,
+    messageId: 0,
     separatorMessageId: 0,
     completed: false,
     suppressHandleScroll: false,

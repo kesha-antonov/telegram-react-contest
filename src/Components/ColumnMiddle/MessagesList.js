@@ -636,8 +636,6 @@ class MessagesList extends React.Component {
             completed,
         } = this.props
 
-        console.log(`MessagesList.render clearHistory=${clearHistory}`, history.length)
-
         this.itemsMap.clear()
         const _isMeChat = isMeChat(chat)
         const _isChannelChat = isChannelChat(chat)
