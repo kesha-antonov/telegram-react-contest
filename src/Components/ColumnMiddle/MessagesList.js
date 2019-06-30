@@ -15,23 +15,18 @@ import Message from '../Message/Message'
 import PinnedMessage from './PinnedMessage'
 import ServiceMessage from '../Message/ServiceMessage'
 import StickersHint from './StickersHint'
-import { debounce, throttle, getPhotoSize, itemsInView } from '../../Utils/Common'
-import { loadChatsContent, loadDraftContent, loadMessageContents } from '../../Utils/File'
-import { filterMessages } from '../../Utils/Message'
+import { throttle, getPhotoSize, itemsInView } from '../../Utils/Common'
+import { loadMessageContents } from '../../Utils/File'
 import { isServiceMessage } from '../../Utils/ServiceMessage'
 import {
     canSendFiles,
     getChatFullInfo,
-    getSupergroupId,
-    isSupergroup,
     getMessageDateWithMonth,
     isMeChat,
     isChannelChat,
 } from '../../Utils/Chat'
 import { highlightMessage } from '../../Actions/Client'
-import { MESSAGE_SLICE_LIMIT } from '../../Constants'
 import ChatStore from '../../Stores/ChatStore'
-import SupergroupStore from '../../Stores/SupergroupStore'
 import MessageStore from '../../Stores/MessageStore'
 import FileStore from '../../Stores/FileStore'
 import ApplicationStore from '../../Stores/ApplicationStore'
@@ -43,14 +38,11 @@ import Scrollbar from '../Scrollbar'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
 import { withTranslation } from 'react-i18next'
-
-const ScrollBehaviorEnum = Object.freeze({
-    NONE: 'NONE',
-    SCROLL_TO_BOTTOM: 'SCROLL_TO_BOTTOM',
-    SCROLL_TO_UNREAD: 'SCROLL_TO_UNREAD',
-    SCROLL_TO_MESSAGE: 'SCROLL_TO_MESSAGE',
-    KEEP_SCROLL_POSITION: 'KEEP_SCROLL_POSITION',
-})
+import {
+    currentChatClearScrollBehavior,
+    updateCurrentChat,
+    SCROLL_BEHAVIOR_ENUM,
+} from '../../Stores/ReduxStore/actions'
 
 const styles = theme => ({
     background: {
@@ -65,18 +57,8 @@ class MessagesList extends React.Component {
     constructor(props) {
         super(props)
 
-        // console.log(`MessagesList.ctor chat_id=${props.chatId} message_id=${props.messageId}`);
-
-        this.sessionId = Date.now()
         this.state = {
-            prevChatId: props.chatId,
-            prevMessageId: null,
             playerOpened: false,
-            history: [],
-            clearHistory: false,
-            selectionActive: false,
-            scrollBehavior: ScrollBehaviorEnum.NONE,
-            separatorMessageId: 0,
         }
 
         this.listRef = null
@@ -85,16 +67,9 @@ class MessagesList extends React.Component {
         this.itemsMap = new Map()
 
         this.updateItemsInView = throttle(this.updateItemsInView, 500)
-
-        this.focused = window.hasFocus
-        this.pendingViewMessagesBatches = []
-        //debounce(this.updateItemsInView, 250);
     }
 
     componentDidMount() {
-        const { chat } = this.props
-        if (chat) this.handleSelectChat(chat.id, 0)
-
         MessageStore.on('updateNewMessage', this.onUpdateNewMessage)
         MessageStore.on('updateDeleteMessages', this.onUpdateDeleteMessages)
         MessageStore.on('updateMessageContent', this.onUpdateMessageContent)
@@ -107,13 +82,19 @@ class MessagesList extends React.Component {
         PlayerStore.on('clientUpdateMediaActive', this.onClientUpdateMediaActive)
         PlayerStore.on('clientUpdateMediaEnding', this.onClientUpdateMediaEnding)
         PlayerStore.on('clientUpdateMediaEnd', this.onClientUpdateMediaEnd)
-
-        ApplicationStore.on('clientUpdateFocusWindow', this.onClientUpdateFocusWindow)
     }
 
     shouldComponentUpdate(nextProps, nextState) {
-        const { chatId, chat, messageId, theme, t } = this.props
-        const { playerOpened, history, dragging, clearHistory, selectionActive } = this.state
+        const {
+            t,
+            theme,
+            messageId,
+            history,
+            clearHistory,
+            selectionActive,
+            completed,
+        } = this.props
+        const { playerOpened } = this.state
 
         if (nextProps.t !== t) {
             return true
@@ -123,15 +104,23 @@ class MessagesList extends React.Component {
             return true
         }
 
-        if (nextProps.chatId !== chatId) {
-            return true
-        }
-
-        if (nextProps.chat !== chat) {
-            return true
-        }
-
         if (nextProps.messageId !== messageId) {
+            return true
+        }
+
+        if (nextProps.history !== history) {
+            return true
+        }
+
+        if (nextProps.clearHistory !== clearHistory) {
+            return true
+        }
+
+        if (nextProps.selectionActive !== selectionActive) {
+            return true
+        }
+
+        if (nextProps.completed !== completed) {
             return true
         }
 
@@ -139,19 +128,10 @@ class MessagesList extends React.Component {
             return true
         }
 
-        if (nextState.history !== history) {
-            return true
-        }
-
-        if (nextState.dragging !== dragging) {
-            return true
-        }
-
-        if (nextState.clearHistory !== clearHistory) {
-            return true
-        }
-
-        if (nextState.selectionActive !== selectionActive) {
+        if (
+            nextProps.scrollBehavior !== this.props.scrollBehavior &&
+            nextProps.crollBehavior !== SCROLL_BEHAVIOR_ENUM.NONE
+        ) {
             return true
         }
 
@@ -159,26 +139,15 @@ class MessagesList extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const { chatId, messageId, chat } = this.props
+        const { chat, messageId } = this.props
 
-        const list = this.listRef
-        // console.log(
-        //     `MessagesList.componentDidUpdate chat_id=${chatId} message_id=${messageId} \\
-        //     prev_chat_id=${prevProps.chatId} prev_message_id=${prevProps.messageId} \\
-        //     list.scrollTop=${list.scrollTop} \\
-        //     list.scrollHeight=${list.scrollHeight} \\
-        //     list.offsetHeight=${list.offsetHeight}`
-        // );
-
-        if (
-            chat &&
-            (prevProps.chatId !== chat.id ||
-                prevProps.messageId !== messageId ||
-                (prevProps.chat !== chat && (!prevProps.chat || prevProps.chat.id !== chat.id)))
-        ) {
-            this.handleSelectChat(chatId, prevProps.chatId, messageId, prevProps.messageId)
-        } else {
+        if (this.props.scrollBehavior !== prevProps.scrollBehavior) {
             this.handleScrollBehavior(snapshot)
+        }
+
+        if (chat && messageId !== 0 && messageId !== prevProps.messageId) {
+            console.log('highlightMessage', messageId, prevProps.messageId, this.props.history)
+            highlightMessage(chat.id, messageId)
         }
     }
 
@@ -195,40 +164,16 @@ class MessagesList extends React.Component {
         PlayerStore.removeListener('clientUpdateMediaActive', this.onClientUpdateMediaActive)
         PlayerStore.removeListener('clientUpdateMediaEnding', this.onClientUpdateMediaEnding)
         PlayerStore.removeListener('clientUpdateMediaEnd', this.onClientUpdateMediaEnd)
-
-        ApplicationStore.removeListener('clientUpdateFocusWindow', this.onClientUpdateFocusWindow)
     }
 
-    static getDerivedStateFromProps(props, state) {
-        if (props.chatId !== state.prevChatId || props.messageId !== state.prevMessageId) {
-            return {
-                prevChatId: props.chatId,
-                prevMessageId: props.messageId,
-                clearHistory: false,
-                selectionActive: false,
-                scrollBehavior: ScrollBehaviorEnum.SCROLL_TO_BOTTOM,
-                separatorMessageId: 0,
-            }
-        }
+    getSnapshotBeforeUpdate() {
+        const { scrollTop, scrollHeight, offsetHeight } = this.listRef
 
-        return null
-    }
-
-    getSnapshotBeforeUpdate(prevProps, prevState) {
-        const list = this.listRef
         const snapshot = {
-            scrollTop: list.scrollTop,
-            scrollHeight: list.scrollHeight,
-            offsetHeight: list.offsetHeight,
+            scrollTop,
+            scrollHeight,
+            offsetHeight,
         }
-
-        // console.log(
-        //     `SCROLL GETSNAPSHOTBEFOREUPDATE \\
-        //     list.scrollTop=${snapshot.scrollTop} \\
-        //     list.scrollHeight=${snapshot.scrollHeight} \\
-        //     list.offsetHeight=${snapshot.offsetHeight} \\
-        //     chatId=${this.props.chatId}`
-        // )
 
         return snapshot
     }
@@ -268,26 +213,32 @@ class MessagesList extends React.Component {
     }
 
     onClientUpdateSelection = update => {
-        this.setState({
-            selectionActive: MessageStore.selectedItems.size > 0,
-            scrollBehavior: ScrollBehaviorEnum.KEEP_SCROLL_POSITION,
-        })
+        if (!this.props.isChatSelected) return
+
+        this.props.dispatch(
+            updateCurrentChat({
+                selectionActive: MessageStore.selectedItems.size > 0,
+                scrollBehavior: SCROLL_BEHAVIOR_ENUM.KEEP_SCROLL_POSITION,
+            })
+        )
     }
 
     onClientUpdateClearHistory = update => {
-        const { chatId } = this.props
+        if (!this.props.isChatSelected) return
 
-        if (chatId === update.chatId) {
-            this.setState({ clearHistory: update.inProgress })
-        }
+        this.props.dispatch(
+            updateCurrentChat({
+                clearHistory: update.inProgress,
+            })
+        )
     }
 
     onUpdateMessageContent = async update => {
-        const { chatId } = this.props
-        const { history } = this.state
+        const { chat, history } = this.props
         const { chat_id, message_id } = update
 
-        if (chatId !== chat_id) return
+        if (!chat) return
+        if (chat.id !== chat_id) return
 
         if (history.findIndex(x => x.id === message_id) !== -1) {
             const message = MessageStore.get(chat_id, message_id)
@@ -299,14 +250,19 @@ class MessagesList extends React.Component {
     }
 
     onUpdateChatLastMessage = update => {
-        const { chatId } = this.props
-        if (chatId !== update.chat_id) return
+        const { chat } = this.props
+
+        if (!chat) return
+        if (chat.id !== update.chat_id) return
+        // TODO?
     }
 
     onUpdateMessageSendSucceeded = async update => {
         const { message, old_message_id } = update
-        const { chatId } = this.props
-        if (chatId !== message.chat_id) return
+        const { chat } = this.props
+
+        if (!chat) return
+        if (chat.id !== message.chat_id) return
 
         let handleSendSucceeded = false
         const { content } = message
@@ -319,67 +275,64 @@ class MessagesList extends React.Component {
 
         if (!handleSendSucceeded) return
 
-        let scrollBehavior = ScrollBehaviorEnum.NONE
+        let scrollBehavior = SCROLL_BEHAVIOR_ENUM.NONE
         const list = this.listRef
         // at the end of list
         if (list.scrollTop === list.scrollHeight - list.offsetHeight) {
-            scrollBehavior = ScrollBehaviorEnum.SCROLL_TO_BOTTOM
+            scrollBehavior = SCROLL_BEHAVIOR_ENUM.SCROLL_TO_BOTTOM
         }
         // sent message
         else if (message.is_outgoing) {
-            scrollBehavior = ScrollBehaviorEnum.SCROLL_TO_BOTTOM
+            scrollBehavior = SCROLL_BEHAVIOR_ENUM.SCROLL_TO_BOTTOM
         }
 
         // console.log('SCROLL MessagesList.onUpdateMessageSendSucceeded scrollBehavior=' + scrollBehavior);
-        this.replaceMessage(old_message_id, message, scrollBehavior)
+
+        ApplicationStore.replaceMessage(old_message_id, message, scrollBehavior)
+
         const store = await FileStore.getStore()
         loadMessageContents(store, [message])
-        this.viewMessages([message])
+        ApplicationStore.viewMessages([message])
     }
 
     onUpdateNewMessage = async update => {
-        if (!this.completed) return
+        if (!this.props.completed) return
 
         const { message } = update
-        const { chatId } = this.props
-        if (chatId !== message.chat_id) return
+        const { chat } = this.props
 
-        let scrollBehavior = ScrollBehaviorEnum.NONE
+        if (!chat) return
+        if (chat.id !== message.chat_id) return
+
+        let scrollBehavior = SCROLL_BEHAVIOR_ENUM.NONE
         const list = this.listRef
         // at the end of list
         if (list.scrollTop === list.scrollHeight - list.offsetHeight) {
-            scrollBehavior = ScrollBehaviorEnum.SCROLL_TO_BOTTOM
+            scrollBehavior = SCROLL_BEHAVIOR_ENUM.SCROLL_TO_BOTTOM
         }
         // sent message
         else if (message.is_outgoing) {
-            scrollBehavior = ScrollBehaviorEnum.SCROLL_TO_BOTTOM
+            scrollBehavior = SCROLL_BEHAVIOR_ENUM.SCROLL_TO_BOTTOM
         }
 
         const history = [message]
 
-        // console.log('SCROLL MessagesList.onUpdateNewMessage scrollBehavior=' + scrollBehavior);
-        this.insertAfter(this.filterMessages(history), scrollBehavior)
+        // console.log('SCROLL MessagesList.onUpdateNewMessage scrollBehavior=' + scrollBehavior)
+        ApplicationStore.insertAfter(ApplicationStore.filterMessages(history), scrollBehavior)
         const store = await FileStore.getStore()
         loadMessageContents(store, history)
-        this.viewMessages(history)
+        ApplicationStore.viewMessages(history)
     }
 
     onUpdateDeleteMessages = update => {
-        const { chatId } = this.props
-        if (chatId !== update.chat_id) return
+        const { chat } = this.props
+
+        if (!chat) return
+        if (chat.id !== update.chat_id) return
 
         if (!update.is_permanent) return
 
-        this.deleteHistory(update.message_ids)
-    }
-
-    onClientUpdateFocusWindow = update => {
-        const { focused } = update
-
-        if (focused === this.focused) return
-        this.focused = update.focused
-
-        this.viewMessages()
+        ApplicationStore.deleteHistory(update.message_ids)
     }
 
     updateItemsInView = async () => {
@@ -390,15 +343,15 @@ class MessagesList extends React.Component {
         for (let i = 0; i < items.length; i++) {
             const message = this.messages[items[i]]
             if (message) {
-                const { chatId, messageId } = message.props
-                const key = `${chatId}_${messageId}`
+                const { chat, messageId } = message.props
+                const key = `${chat && chat.id}_${messageId}`
                 messages.set(key, key)
             }
         }
 
         TdLibController.clientUpdate({
             '@type': 'clientUpdateMessagesInView',
-            messages: messages,
+            messages,
         })
         return
 
@@ -424,156 +377,6 @@ class MessagesList extends React.Component {
 
         const store = await FileStore.getStore()
         loadMessageContents(store, messages)
-    }
-
-    async handleSelectChat(chatId, previousChatId, messageId, previousMessageId) {
-        const chat = ChatStore.get(chatId)
-        const previousChat = ChatStore.get(previousChatId)
-
-        this.sessionId = Date.now()
-        this.loading = false
-        this.completed = false
-        this.loadMigratedHistory = false
-
-        this.suppressHandleScrollOnSelectChat = true
-
-        if (chat) {
-            TdLibController.send({
-                '@type': 'openChat',
-                chat_id: chat.id,
-            })
-
-            const unread = !messageId && chat.unread_count > 0
-            const fromMessageId =
-                unread && chat.unread_count > 1
-                    ? chat.last_read_inbox_message_id
-                    : messageId
-                    ? messageId
-                    : 0
-            const offset =
-                (unread && chat.unread_count > 1) || messageId ? -1 - MESSAGE_SLICE_LIMIT : 0
-            const limit =
-                (unread && chat.unread_count > 1) || messageId
-                    ? 2 * MESSAGE_SLICE_LIMIT
-                    : MESSAGE_SLICE_LIMIT
-
-            const sessionId = this.sessionId
-            const result = await TdLibController.send({
-                '@type': 'getChatHistory',
-                chat_id: chat.id,
-                from_message_id: fromMessageId,
-                offset: offset,
-                limit: limit,
-            })
-
-            if (sessionId !== this.sessionId) {
-                return
-            }
-
-            //TODO: replace result with one-way data flow
-
-            if (chat.last_message) {
-                this.completed =
-                    result.messages.length > 0 && chat.last_message.id === result.messages[0].id
-            } else {
-                this.completed = true
-            }
-
-            MessageStore.setItems(result.messages)
-            result.messages.reverse()
-
-            // calculate separator
-            let separatorMessageId = Number.MAX_VALUE
-            if (chat && chat.unread_count > 1) {
-                for (let i = result.messages.length - 1; i >= 0; i--) {
-                    const { id } = result.messages[i]
-                    if (
-                        !result.messages[i].is_outgoing &&
-                        id > chat.last_read_inbox_message_id &&
-                        id < separatorMessageId
-                    ) {
-                        separatorMessageId = id
-                    } else {
-                        break
-                    }
-                }
-            }
-            separatorMessageId = separatorMessageId === Number.MAX_VALUE ? 0 : separatorMessageId
-            // console.log('[MessagesList] separator_message_id=' + separatorMessageId);
-
-            let scrollBehavior = ScrollBehaviorEnum.SCROLL_TO_BOTTOM
-            if (messageId) {
-                scrollBehavior = ScrollBehaviorEnum.SCROLL_TO_MESSAGE
-            } else if (unread && separatorMessageId) {
-                scrollBehavior = ScrollBehaviorEnum.SCROLL_TO_UNREAD
-            }
-
-            this.replace(separatorMessageId, result.messages, scrollBehavior, () => {
-                this.suppressHandleScrollOnSelectChat = false
-                if (messageId) {
-                    highlightMessage(chatId, messageId)
-                }
-            })
-
-            // load files
-            const store = await FileStore.getStore()
-            loadMessageContents(store, result.messages)
-            loadChatsContent(store, [chatId])
-            loadDraftContent(store, chatId)
-
-            this.viewMessages(result.messages)
-
-            this.loadIncompleteHistory(result)
-
-            // load full info
-            getChatFullInfo(chat.id)
-        } else {
-            this.replace(
-                0,
-                [],
-                ScrollBehaviorEnum.SCROLL_TO_BOTTOM,
-                () => (this.suppressHandleScrollOnSelectChat = false)
-            )
-        }
-
-        if (previousChat && previousChat.id !== chatId) {
-            TdLibController.send({
-                '@type': 'closeChat',
-                chat_id: previousChat.id,
-            })
-        }
-    }
-
-    viewMessages = async messages => {
-        const hasMessages = messages && messages.length > 0 && messages[0].chat_id
-        let payload
-
-        if (hasMessages) {
-            payload = {
-                chat_id: messages[0].chat_id,
-                message_ids: messages.map(x => x.id),
-            }
-        }
-
-        if (!this.focused) {
-            if (hasMessages) this.pendingViewMessagesBatches.push(payload)
-            return
-        }
-
-        while (this.pendingViewMessagesBatches.length > 0 && this.focused) {
-            const payload = this.pendingViewMessagesBatches.shift()
-            await TdLibController.send({
-                ...payload,
-                '@type': 'viewMessages',
-            })
-        }
-
-        if (!payload) return
-
-        TdLibController.send({
-            ...payload,
-            '@type': 'viewMessages',
-        })
     }
 
     cancelLoadMessageContents(messages) {
@@ -609,267 +412,9 @@ class MessagesList extends React.Component {
         }
     }
 
-    loadIncompleteHistory = async result => {
-        const MAX_ITERATIONS = 5
-        let incomplete =
-            result && result.messages.length > 0 && result.messages.length < MESSAGE_SLICE_LIMIT
-
-        for (let i = 0; i < MAX_ITERATIONS; i++) {
-            if (!incomplete) break
-
-            result = await this.onLoadNext()
-            incomplete =
-                result && result.messages.length > 0 && result.messages.length < MESSAGE_SLICE_LIMIT
-        }
-    }
-
-    onLoadNext = async () => {
-        const { chatId } = this.props
-
-        if (!chatId) return
-        if (this.loading) return
-
-        if (this.loadMigratedHistory) {
-            this.onLoadMigratedHistory()
-            return
-        }
-
-        let fromMessageId = 0
-        if (this.state.history && this.state.history.length > 0) {
-            fromMessageId = this.state.history[0].id
-        }
-
-        this.loading = true
-
-        const sessionId = this.sessionId
-        let result = await TdLibController.send({
-            '@type': 'getChatHistory',
-            chat_id: chatId,
-            from_message_id: fromMessageId,
-            offset: 0,
-            limit: MESSAGE_SLICE_LIMIT,
-        }).finally(() => {
-            this.loading = false
-        })
-
-        if (sessionId !== this.sessionId) {
-            return
-        }
-
-        if (this.props.chatId !== chatId) {
-            return
-        }
-        //TODO: replace result with one-way data flow
-
-        MessageStore.setItems(result.messages)
-        result.messages.reverse()
-        this.insertBefore(this.filterMessages(result.messages), () => {
-            if (!result.messages.length) {
-                this.onLoadMigratedHistory()
-            }
-        })
-        const store = await FileStore.getStore()
-        loadMessageContents(store, result.messages)
-        this.viewMessages(result.messages)
-
-        return result
-    }
-
-    filterMessages = messages => {
-        return messages.filter(x => x.content['@type'] !== 'messageChatUpgradeTo')
-    }
-
-    onLoadMigratedHistory = async () => {
-        const { chatId } = this.props
-
-        if (!chatId) return
-        if (this.loading) return
-
-        const supergroupId = getSupergroupId(chatId)
-        if (!supergroupId) return
-
-        const fullInfo = SupergroupStore.getFullInfo(supergroupId)
-        if (!fullInfo) return
-        if (!fullInfo.upgraded_from_basic_group_id) return
-
-        this.loadMigratedHistory = true
-
-        const basicGroupChat = await TdLibController.send({
-            '@type': 'createBasicGroupChat',
-            basic_group_id: fullInfo.upgraded_from_basic_group_id,
-        })
-
-        if (!basicGroupChat) return
-
-        let fromMessageId = 0
-        if (
-            this.state.history &&
-            this.state.history.length > 0 &&
-            this.state.history[0].chat_id === basicGroupChat.id
-        ) {
-            fromMessageId = this.state.history[0].id
-        }
-
-        this.loading = true
-
-        const sessionId = this.sessionId
-        const result = await TdLibController.send({
-            '@type': 'getChatHistory',
-            chat_id: basicGroupChat.id,
-            from_message_id: fromMessageId,
-            offset: 0,
-            limit: MESSAGE_SLICE_LIMIT,
-        }).finally(() => {
-            this.loading = false
-        })
-
-        if (sessionId !== this.sessionId) {
-            return
-        }
-
-        if (this.props.chatId !== chatId) {
-            return
-        }
-        //TODO: replace result with one-way data flow
-
-        MessageStore.setItems(result.messages)
-        result.messages.reverse()
-        this.insertBefore(this.filterMessages(result.messages))
-        const store = await FileStore.getStore()
-        loadMessageContents(store, result.messages)
-        this.viewMessages(result.messages)
-    }
-
-    onLoadPrevious = async () => {
-        const { chatId } = this.props
-        const chat = ChatStore.get(chatId)
-
-        if (!chat) return
-        if (this.loading) return
-        if (this.completed) return
-
-        let fromMessageId = 0
-        if (this.state.history && this.state.history.length > 0) {
-            fromMessageId = this.state.history[this.state.history.length - 1].id
-        }
-
-        this.loading = true
-
-        const sessionId = this.sessionId
-        let result = await TdLibController.send({
-            '@type': 'getChatHistory',
-            chat_id: chatId,
-            from_message_id: fromMessageId,
-            offset: -MESSAGE_SLICE_LIMIT - 1,
-            limit: MESSAGE_SLICE_LIMIT + 1,
-        }).finally(() => {
-            this.loading = false
-        })
-
-        if (sessionId !== this.sessionId) {
-            return
-        }
-
-        if (this.props.chatId !== chatId) {
-            return
-        }
-
-        if (chat.last_message) {
-            this.completed =
-                result.messages.length > 0 && chat.last_message.id === result.messages[0].id
-        } else {
-            this.completed = true
-        }
-
-        filterMessages(result, this.state.history)
-
-        //TODO: replace result with one-way data flow
-
-        MessageStore.setItems(result.messages)
-        result.messages.reverse()
-        // console.log('SCROLL MessagesList.onLoadPrevious scrollBehavior=NONE');
-        this.insertAfter(this.filterMessages(result.messages), ScrollBehaviorEnum.NONE)
-        const store = await FileStore.getStore()
-        loadMessageContents(store, result.messages)
-        this.viewMessages(result.messages)
-
-        return result
-    }
-
-    replace(separatorMessageId, history, scrollBehavior, callback) {
-        this.setState(
-            {
-                separatorMessageId,
-                history,
-                scrollBehavior,
-            },
-            callback
-        )
-    }
-
-    insertBefore(history, callback) {
-        if (history.length === 0) {
-            if (callback) callback()
-            return
-        }
-
-        this.setState(
-            {
-                history: history.concat(this.state.history),
-                scrollBehavior: ScrollBehaviorEnum.KEEP_SCROLL_POSITION,
-            },
-            callback
-        )
-    }
-
-    replaceMessage(oldMessageId, message, scrollBehavior, callback) {
-        if (!message) return
-
-        this.setState(
-            {
-                history: this.state.history.filter(x => x.id !== oldMessageId).concat([message]),
-                scrollBehavior,
-            },
-            callback
-        )
-    }
-
-    insertAfter(history, scrollBehavior, callback) {
-        if (history.length === 0) return
-
-        this.setState(
-            {
-                history: this.state.history.concat(history),
-                scrollBehavior,
-            },
-            callback
-        )
-    }
-
-    deleteHistory(message_ids, callback) {
-        const { history } = this.state
-        if (history.length === 0) return
-
-        let map = new Map(message_ids.map(x => [x, x]))
-
-        this.setState(
-            {
-                history: history.filter(x => !map.has(x.id)),
-                scrollBehavior: ScrollBehaviorEnum.SCROLL_TO_BOTTOM,
-            },
-            callback
-        )
-    }
-
-    isChatChosed = () => {
-        const { chatId } = this.props
-
-        return chatId != null && chatId !== 0
-    }
-
     handleScroll = () => {
-        // console.log('SCROLL HANDLESCROLL');
-        if (!this.isChatChosed()) return
+        if (!this.props.isChatSelected) return
+        console.log('SCROLL HANDLESCROLL')
 
         this.updateItemsInView()
 
@@ -882,25 +427,24 @@ class MessagesList extends React.Component {
             return
         }
 
-        if (this.suppressHandleScrollOnSelectChat) {
+        if (this.props.suppressHandleScroll) {
             // console.log('SCROLL HANDLESCROLL suppressHandleScrollOnSelectChat');
             return
         }
 
         if (list.scrollTop <= 0) {
             // console.log('SCROLL HANDLESCROLL onLoadNext');
-            this.onLoadNext()
+            ApplicationStore.onLoadNext()
         } else if (list.scrollTop + list.offsetHeight === list.scrollHeight) {
             // console.log('SCROLL HANDLESCROLL onLoadPrevious');
-            this.onLoadPrevious()
+            ApplicationStore.onLoadPrevious()
         } else {
             // console.log('SCROLL HANDLESCROLL updateItemsInView');
         }
     }
 
     handleScrollBehavior = snapshot => {
-        const { chatId, chat, messageId } = this.props
-        const { scrollBehavior, history } = this.state
+        const { chat, messageId, scrollBehavior, history } = this.props
         const { scrollTop, scrollHeight, offsetHeight } = snapshot
 
         // console.log(
@@ -911,12 +455,12 @@ class MessagesList extends React.Component {
         //     previousOffsetHeight=${offsetHeight} \\
         //     chatId=${chatId}`
         // );
-        if (scrollBehavior === ScrollBehaviorEnum.NONE) {
-        } else if (scrollBehavior === ScrollBehaviorEnum.SCROLL_TO_BOTTOM) {
+        if (scrollBehavior === SCROLL_BEHAVIOR_ENUM.NONE) {
+        } else if (scrollBehavior === SCROLL_BEHAVIOR_ENUM.SCROLL_TO_BOTTOM) {
             this.scrollToBottom()
-        } else if (scrollBehavior === ScrollBehaviorEnum.SCROLL_TO_MESSAGE) {
+        } else if (scrollBehavior === SCROLL_BEHAVIOR_ENUM.SCROLL_TO_MESSAGE) {
             this.scrollToMessage()
-        } else if (scrollBehavior === ScrollBehaviorEnum.SCROLL_TO_UNREAD) {
+        } else if (scrollBehavior === SCROLL_BEHAVIOR_ENUM.SCROLL_TO_UNREAD) {
             const list = this.listRef
             // console.log(
             //     `SCROLL SCROLL_TO_UNREAD before \\
@@ -957,7 +501,7 @@ class MessagesList extends React.Component {
             //     list.scrollHeight=${list.scrollHeight} \\
             //     chatId=${chatId}`
             // );
-        } else if (scrollBehavior === ScrollBehaviorEnum.KEEP_SCROLL_POSITION) {
+        } else if (scrollBehavior === SCROLL_BEHAVIOR_ENUM.KEEP_SCROLL_POSITION) {
             const list = this.listRef
             // console.log(
             //     `SCROLL KEEP_SCROLL_POSITION before \\
@@ -975,11 +519,15 @@ class MessagesList extends React.Component {
             //     chatId=${chatId}`
             // );
         }
+
+        if (scrollBehavior !== SCROLL_BEHAVIOR_ENUM.NONE)
+            this.props.dispatch(currentChatClearScrollBehavior())
     }
 
     scrollToMessage = () => {
-        const { chatId, messageId } = this.props
-        const { history } = this.state
+        const { chat, history, messageId } = this.props
+
+        if (!chat) return
 
         const list = this.listRef
         // console.log(
@@ -1056,69 +604,17 @@ class MessagesList extends React.Component {
     }
 
     scrollToStart = async () => {
-        const { chatId } = this.props
-        const chat = ChatStore.get(chatId)
-        if (!chat) return
-
-        this.sessionId = Date.now()
-        this.loading = false
-        this.completed = false
-
-        const fromMessageId = 0
-        const offset = 0
-        const limit = MESSAGE_SLICE_LIMIT
-
-        const sessionId = this.sessionId
-        const result = await TdLibController.send({
-            '@type': 'getChatHistory',
-            chat_id: chat.id,
-            from_message_id: fromMessageId,
-            offset: offset,
-            limit: limit,
-        })
-
-        if (sessionId !== this.sessionId) {
-            return
-        }
-
-        //TODO: replace result with one-way data flow
-
-        if (this.props.chatId !== chatId) {
-            return
-        }
-
-        if (chat.last_message) {
-            this.completed =
-                result.messages.length > 0 && chat.last_message.id === result.messages[0].id
-        } else {
-            this.completed = true
-        }
-
-        MessageStore.setItems(result.messages)
-        result.messages.reverse()
-
-        // calculate separator
-        let separatorMessageId = 0
-        // console.log('[MessagesList] separator_message_id=' + separatorMessageId);
-
-        this.replace(separatorMessageId, result.messages, ScrollBehaviorEnum.SCROLL_TO_BOTTOM)
-
-        // load files
-        const store = await FileStore.getStore()
-        loadMessageContents(store, result.messages)
-        loadChatsContent(store, [chatId])
-
-        this.viewMessages(result.messages)
-
-        this.loadIncompleteHistory(result)
+        ApplicationStore.scrollToStart()
     }
 
     handleListDragEnter = event => {
         event.preventDefault()
         event.stopPropagation()
 
-        const { chatId } = this.props
-        if (!canSendFiles(chatId)) return
+        const { chat } = this.props
+
+        if (!chat) return
+        if (!canSendFiles(chat.id)) return
 
         ApplicationStore.setDragging(true)
     }
@@ -1128,10 +624,19 @@ class MessagesList extends React.Component {
     }
 
     render() {
-        const { classes, chatId, chat, t } = this.props
-        const { history, separatorMessageId, clearHistory, selectionActive } = this.state
+        const {
+            classes,
+            isChatSelected,
+            chat,
+            t,
+            history,
+            clearHistory,
+            selectionActive,
+            separatorMessageId,
+            completed,
+        } = this.props
 
-        // console.log(`MessagesList.render clearHistory=${clearHistory}`, history);
+        console.log(`MessagesList.render clearHistory=${clearHistory}`, history.length)
 
         this.itemsMap.clear()
         const _isMeChat = isMeChat(chat)
@@ -1140,9 +645,10 @@ class MessagesList extends React.Component {
         this.messages = clearHistory
             ? null
             : history.map((x, i) => {
-                  let withDate = i === 0 && this.completed
+                  let withDate = i === 0 && completed
+                  const prevMessage = history[i - 1]
                   if (!withDate && i > 0) {
-                      let prevMessageDate = new Date(history[i - 1].date * 1000)
+                      let prevMessageDate = new Date(prevMessage.date * 1000)
                       let messageDate = new Date(x.date * 1000)
 
                       withDate = prevMessageDate.getDate() !== messageDate.getDate()
@@ -1156,9 +662,9 @@ class MessagesList extends React.Component {
                       _isChannelChat ||
                       x.reply_to_message_id !== 0 ||
                       !!x.forward_info ||
-                      isServiceMessage(history[i - 1]) ||
-                      x.sender_user_id !== history[i - 1].sender_user_id ||
-                      x.date - history[i - 1].date > 600
+                      isServiceMessage(prevMessage) ||
+                      x.sender_user_id !== prevMessage.sender_user_id ||
+                      x.date - prevMessage.date > 600
 
                   return (
                       <div key={`chat_id=${x.chat_id} message_id=${x.id}`}>
@@ -1176,7 +682,7 @@ class MessagesList extends React.Component {
                               />
                           ) : (
                               <Message
-                                  ref={el => this.itemsMap.set(i, el)}
+                                  innerRef={el => this.itemsMap.set(i, el)}
                                   chatId={x.chat_id}
                                   messageId={x.id}
                                   showTitle
@@ -1199,8 +705,8 @@ class MessagesList extends React.Component {
                     containerRef={this.onListRef}
                     className='messages-list-wrapper'
                     onScrollY={this.handleScroll}>
-                    {this.isChatChosed() ? (
-                        this.completed && this.messages.length === 0 ? (
+                    {isChatSelected ? (
+                        completed && (!this.messages || this.messages.length === 0) ? (
                             <ChatTextPlaceholder text={t('ChatNoMessages')} />
                         ) : (
                             <>
@@ -1222,16 +728,32 @@ class MessagesList extends React.Component {
     }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state, ownProps) => {
+    const isChatSelected = state.currentChat.id !== 0
+
     return {
-        chatId: state.currentChatId,
-        chat: state.currentChatId ? state.chats.get(state.currentChatId.toString()) : null,
+        chat: isChatSelected ? state.chats.get(state.currentChat.id.toString()) : null,
+        isChatSelected,
+        scrollBehavior: state.currentChat.scrollBehavior,
+        history: state.currentChat.history,
+        messageId: state.currentChat.messageId,
+        clearHistory: state.currentChat.clearHistory,
+        selectionActive: state.currentChat.selectionActive,
+        separatorMessageId: state.currentChat.separatorMessageId,
+        completed: state.currentChat.completed,
+        suppressHandleScroll: state.currentChat.suppressHandleScroll,
     }
 }
 
 MessagesList.propTypes = {
-    chatId: PropTypes.number.isRequired,
     chat: PropTypes.object,
+    isChatSelected: PropTypes.bool.isRequired,
+    scrollBehavior: PropTypes.string.isRequired,
+    clearHistory: PropTypes.bool.isRequired,
+    selectionActive: PropTypes.bool.isRequired,
+    separatorMessageId: PropTypes.number.isRequired,
+    completed: PropTypes.bool.isRequired,
+    suppressHandleScroll: PropTypes.bool.isRequired,
 }
 
 const enhance = compose(

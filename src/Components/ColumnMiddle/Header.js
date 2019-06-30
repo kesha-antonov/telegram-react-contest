@@ -393,7 +393,7 @@ class Header extends Component {
 
 const mapStateToProps = state => {
     return {
-        chat: state.currentChatId ? state.chats.get(state.currentChatId.toString()) : null,
+        chat: state.currentChat.id !== 0 ? state.chats.get(state.currentChat.id.toString()) : null,
     }
 }
 

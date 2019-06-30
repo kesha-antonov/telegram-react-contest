@@ -1,11 +1,11 @@
 import chats from './chats'
-import currentChatId from './currentChatId'
+import currentChat from './currentChat'
 import palette from './palette'
 import stickersPicker from './stickersPicker'
 
 export default {
     chats,
-    currentChatId,
+    currentChat,
     palette,
     stickersPicker,
 }

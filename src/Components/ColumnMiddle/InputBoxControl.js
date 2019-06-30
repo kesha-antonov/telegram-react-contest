@@ -763,7 +763,7 @@ class InputBoxControl extends Component {
 
 const mapStateToProps = state => {
     return {
-        chatId: state.currentChatId,
+        chatId: state.currentChat.id,
     }
 }
 

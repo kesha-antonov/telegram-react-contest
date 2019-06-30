@@ -25,7 +25,7 @@ import UserStore from '../Stores/UserStore'
 import ApplicationStore from '../Stores/ApplicationStore'
 import TdLibController from '../Controllers/TdLibController'
 import { connect } from 'react-redux'
-import { clearCurrentChatId } from '../Stores/ReduxStore/actions'
+import { clearCurrentChat } from '../Stores/ReduxStore/actions'
 import { isAuthorizationReady } from '../Utils/Common'
 import '../TelegramApp.css'
 
@@ -117,10 +117,10 @@ class MainPage extends React.Component {
             if (chat) {
                 openChat(currentChatId)
             } else {
-                this.props.dispatch(clearCurrentChatId())
+                this.props.dispatch(clearCurrentChat())
             }
         } catch (e) {
-            this.props.dispatch(clearCurrentChatId())
+            this.props.dispatch(clearCurrentChat())
         }
     }
 
@@ -233,7 +233,7 @@ class MainPage extends React.Component {
 
 const mapStateToProps = state => {
     return {
-        currentChatId: state.currentChatId,
+        currentChatId: state.currentChat.id,
     }
 }
 

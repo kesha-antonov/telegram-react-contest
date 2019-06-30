@@ -28,7 +28,7 @@ import ApplicationStore from '../../Stores/ApplicationStore'
 import TdLibController from '../../Controllers/TdLibController'
 import '../ColumnMiddle/Header.css'
 import { connect } from 'react-redux'
-import { clearCurrentChatId } from '../../Stores/ReduxStore/actions'
+import { clearCurrentChat } from '../../Stores/ReduxStore/actions'
 
 const styles = {
     headerIconButton: {
@@ -82,7 +82,7 @@ class DialogsHeader extends React.Component {
     handleDone = () => {
         this.handleClose()
 
-        this.props.clearCurrentChatId()
+        this.props.clearCurrentChat()
         TdLibController.setChatId(0)
         ApplicationStore.changeChatDetailsVisibility(false)
 
@@ -199,12 +199,12 @@ DialogsHeader.propTypes = {
     onClick: PropTypes.func.isRequired,
     onSearch: PropTypes.func.isRequired,
     onSearchTextChange: PropTypes.func.isRequired,
-    clearCurrentChatId: PropTypes.func.isRequired,
+    clearCurrentChat: PropTypes.func.isRequired,
 }
 
 const mapDispatchToProps = dispatch => {
     return {
-        clearCurrentChatId: () => dispatch(clearCurrentChatId()),
+        clearCurrentChat: () => dispatch(clearCurrentChat()),
     }
 }
 

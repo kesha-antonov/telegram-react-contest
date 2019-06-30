@@ -7,8 +7,8 @@ import storage from 'redux-persist/lib/storage'
 const persistConfig = {
     key: 'root',
     storage,
-    whitelist: ['stickersPicker', 'palette', 'currentChatId'],
-    version: 'v1',
+    whitelist: ['stickersPicker', 'palette'],
+    version: 'v2',
 }
 
 const rootReducer = combineReducers(reducers)

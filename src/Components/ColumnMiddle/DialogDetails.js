@@ -18,29 +18,8 @@ import ApplicationStore from '../../Stores/ApplicationStore'
 import './DialogDetails.css'
 
 class DialogDetails extends Component {
-    constructor(props) {
-        super(props)
-
-        this.state = {
-            messageId: ApplicationStore.getMessageId(),
-            selectedCount: 0,
-        }
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        if (nextState.messageId !== this.state.messageId) {
-            return true
-        }
-        if (nextState.selectedCount !== this.state.selectedItems) {
-            return true
-        }
-
-        return false
-    }
-
     componentDidMount() {
         ApplicationStore.on('clientUpdateChatDetailsVisibility', this.onUpdateChatDetailsVisibility)
-        ApplicationStore.on('clientUpdateChatId', this.onClientUpdateChatId)
     }
 
     componentWillUnmount() {
@@ -48,17 +27,10 @@ class DialogDetails extends Component {
             'clientUpdateChatDetailsVisibility',
             this.onUpdateChatDetailsVisibility
         )
-        ApplicationStore.removeListener('clientUpdateChatId', this.onClientUpdateChatId)
     }
 
     onUpdateChatDetailsVisibility = update => {
         this.forceUpdate()
-    }
-
-    onClientUpdateChatId = update => {
-        this.setState({
-            messageId: update.nextMessageId,
-        })
     }
 
     scrollToBottom = () => {
@@ -106,7 +78,6 @@ class DialogDetails extends Component {
         this.groups = groups.map(x => {
             return (<MessageGroup key={x.key} senderUserId={x.senderUserId} messages={x.messages} onSelectChat={this.props.onSelectChat}/>);
         });*/
-        const { messageId, selectedCount } = this.state
         const { isChatDetailsVisible } = ApplicationStore
 
         return (
@@ -116,7 +87,7 @@ class DialogDetails extends Component {
                 })}>
                 <Header />
                 <HeaderPlayer />
-                <MessagesList innerRef={ref => (this.messagesList = ref)} messageId={messageId} />
+                <MessagesList innerRef={ref => (this.messagesList = ref)} />
                 <Footer />
                 <StickerSetDialog />
                 <ChatInfoDialog />

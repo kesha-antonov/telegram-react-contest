@@ -245,7 +245,7 @@ class HeaderCommand extends React.Component {
 
 const mapStateToProps = state => {
     return {
-        chatId: state.currentChatId,
+        chatId: state.currentChat.id,
     }
 }
 

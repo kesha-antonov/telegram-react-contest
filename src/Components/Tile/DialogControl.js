@@ -171,7 +171,7 @@ DialogControl.defaultProps = {
 const mapStateToProps = (state, ownProps) => {
     return {
         chat: state.chats.get(ownProps.chatId.toString()),
-        isSelected: ownProps.chatId === state.currentChatId,
+        isSelected: ownProps.chatId === state.currentChat.id,
     }
 }
 

@@ -38,6 +38,7 @@ import TdLibController from '../../Controllers/TdLibController'
 import { EMOJI_WHOLE_STRING_REGEX } from '../../Constants'
 import './Message.css'
 import emojiRegex from 'emoji-regex/es2015/index.js'
+import { connect } from 'react-redux'
 
 const styles = theme => ({
     message: {
@@ -77,17 +78,19 @@ class Message extends Component {
     constructor(props) {
         super(props)
 
+        const { highlighted } = this.props
+
         if (process.env.NODE_ENV !== 'production') {
             const { chatId, messageId } = this.props
             this.state = {
                 message: MessageStore.get(chatId, messageId),
                 selected: false,
-                highlighted: false,
+                highlighted,
             }
         } else {
             this.state = {
                 selected: false,
-                highlighted: false,
+                highlighted,
             }
         }
     }
@@ -258,6 +261,7 @@ class Message extends Component {
         const { chatId, messageId } = this.props
 
         const selected = !MessageStore.selectedItems.has(`chatId=${chatId}_messageId=${messageId}`)
+        // TODO: UPDATE WITH REDUX
         selectMessage(chatId, messageId, selected)
     }
 
@@ -456,9 +460,22 @@ class Message extends Component {
 
 Message.propTypes = {
     withAvatarAndName: PropTypes.bool.isRequired,
+    highlighted: PropTypes.bool.isRequired,
+}
+
+const mapStateToProps = (state, ownProps) => {
+    const highlighted =
+        state.currentChat.id !== 0 &&
+        state.currentChat.id === ownProps.chatId &&
+        state.currentChat.messageId === ownProps.messageId
+
+    return {
+        highlighted,
+    }
 }
 
 const enhance = compose(
+    connect(mapStateToProps),
     withStyles(styles, { withTheme: true }),
     withTranslation(null, { withRef: true })
 )
