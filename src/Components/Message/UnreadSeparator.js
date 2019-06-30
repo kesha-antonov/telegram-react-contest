@@ -7,18 +7,18 @@
 
 import React from 'react'
 import classNames from 'classnames'
-import withStyles from '@material-ui/core/styles/withStyles'
+import makeStyles from '@material-ui/core/styles/makeStyles'
 import './UnreadSeparator.css'
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
     unreadSeparator: {
         background: theme.palette.type === 'dark' ? theme.palette.grey[800] : '#f0f4f7',
         color: theme.palette.type === 'dark' ? theme.palette.text.primary : '#8096a8',
     },
-})
+}))
 
-function UnreadSeparator(props) {
-    const { classes } = props
+function UnreadSeparator() {
+    const classes = useStyles()
 
     return (
         <div className={classNames('unread-separator', classes.unreadSeparator)}>
@@ -27,4 +27,4 @@ function UnreadSeparator(props) {
     )
 }
 
-export default withStyles(styles)(UnreadSeparator)
+export default UnreadSeparator
