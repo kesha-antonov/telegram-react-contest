@@ -49,9 +49,20 @@
   },
   "lint-staged": {
     "src/**/*.{js,jsx,json,css}": [
-      "prettier --print-width 100 --tab-width 4 --single-quote --jsx-single-quote --jsx-bracket-same-line --bracket-spacing --write --no-semi --trailing-comma es5 --arrow-parens avoid",
+      "prettier --write",
       "git add"
     ]
+  },
+  "prettier": {
+    "printWidth": 100,
+    "tabWidth": 4,
+    "singleQuote": true,
+    "jsxSingleQuote": true,
+    "jsxBracketSameLine": true,
+    "bracketSpacing": true,
+    "semi": false,
+    "trailingComma": "es5",
+    "arrowParens": "avoid"
   },
   "scripts": {
     "start": "react-scripts start",
