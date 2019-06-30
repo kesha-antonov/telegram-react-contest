@@ -5,229 +5,235 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import { compose } from 'recompose';
-import withStyles from '@material-ui/core/styles/withStyles';
-import { withTranslation } from 'react-i18next';
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogTitle from '@material-ui/core/DialogTitle';
-import Divider from '@material-ui/core/Divider';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
-import Typography from '@material-ui/core/Typography';
-import CreatePollOption from './CreatePollOption';
-import { focusNode } from '../../Utils/Component';
-import { withRestoreRef, withSaveRef } from '../../Utils/HOC';
-import { utils } from '../../Utils/Key';
-import { hasPollData, isValidPoll } from '../../Utils/Poll';
+import React from 'react'
+import PropTypes from 'prop-types'
+import { compose } from 'recompose'
+import withStyles from '@material-ui/core/styles/withStyles'
+import { withTranslation } from 'react-i18next'
+import Button from '@material-ui/core/Button'
+import Dialog from '@material-ui/core/Dialog'
+import DialogActions from '@material-ui/core/DialogActions'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import Divider from '@material-ui/core/Divider'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
+import Typography from '@material-ui/core/Typography'
+import CreatePollOption from './CreatePollOption'
+import { focusNode } from '../../Utils/Component'
+import { withRestoreRef, withSaveRef } from '../../Utils/HOC'
+import { utils } from '../../Utils/Key'
+import { hasPollData, isValidPoll } from '../../Utils/Poll'
 import {
     POLL_OPTIONS_MAX_COUNT,
     POLL_QUESTION_HINT_LENGTH,
     POLL_QUESTION_LENGTH,
-    POLL_QUESTION_MAX_LENGTH
-} from '../../Constants';
-import PollStore from '../../Stores/PollStore';
-import TdLibController from '../../Controllers/TdLibController';
-import './CreatePollDialog.css';
+    POLL_QUESTION_MAX_LENGTH,
+} from '../../Constants'
+import PollStore from '../../Stores/PollStore'
+import TdLibController from '../../Controllers/TdLibController'
+import './CreatePollDialog.css'
 
 const styles = theme => ({
     dialogRoot: {
-        color: theme.palette.text.primary
+        color: theme.palette.text.primary,
     },
     contentRoot: {
-        width: 300
+        width: 300,
     },
     dividerRoot: {
-        margin: '8px -24px'
+        margin: '8px -24px',
     },
     listRoot: {
-        margin: '0 -24px'
+        margin: '0 -24px',
     },
     listItem: {
         padding: '11px 24px',
         color: '#8e9396',
-        height: 48
+        height: 48,
     },
-    typographyRoot: {}
-});
+    typographyRoot: {},
+})
 
 class CreatePollDialog extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
-        this.questionRef = React.createRef();
-        this.optionsRefMap = new Map();
+        this.questionRef = React.createRef()
+        this.optionsRefMap = new Map()
 
         this.state = {
             poll: null,
             confirm: false,
-            remainLength: POLL_QUESTION_MAX_LENGTH
-        };
+            remainLength: POLL_QUESTION_MAX_LENGTH,
+        }
     }
 
     componentDidMount() {
-        PollStore.on('clientUpdateDeletePoll', this.handleClientUpdatePoll);
-        PollStore.on('clientUpdateDeletePollOption', this.handleClientUpdatePoll);
-        PollStore.on('clientUpdateNewPoll', this.handleClientUpdateNewPoll);
-        PollStore.on('clientUpdateNewPollOption', this.handleClientUpdateNewPollOption);
-        PollStore.on('clientUpdatePollOption', this.handleClientUpdatePoll);
-        PollStore.on('clientUpdatePollQuestion', this.handleClientUpdatePollQuestion);
+        PollStore.on('clientUpdateDeletePoll', this.handleClientUpdatePoll)
+        PollStore.on('clientUpdateDeletePollOption', this.handleClientUpdatePoll)
+        PollStore.on('clientUpdateNewPoll', this.handleClientUpdateNewPoll)
+        PollStore.on('clientUpdateNewPollOption', this.handleClientUpdateNewPollOption)
+        PollStore.on('clientUpdatePollOption', this.handleClientUpdatePoll)
+        PollStore.on('clientUpdatePollQuestion', this.handleClientUpdatePollQuestion)
     }
 
     componentWillUnmount() {
-        PollStore.removeListener('clientUpdateDeletePoll', this.handleClientUpdatePoll);
-        PollStore.removeListener('clientUpdateDeletePollOption', this.handleClientUpdatePoll);
-        PollStore.removeListener('clientUpdateNewPoll', this.handleClientUpdateNewPoll);
-        PollStore.removeListener('clientUpdateNewPollOption', this.handleClientUpdateNewPollOption);
-        PollStore.removeListener('clientUpdatePollOption', this.handleClientUpdatePoll);
-        PollStore.removeListener('clientUpdatePollQuestion', this.handleClientUpdatePollQuestion);
+        PollStore.removeListener('clientUpdateDeletePoll', this.handleClientUpdatePoll)
+        PollStore.removeListener('clientUpdateDeletePollOption', this.handleClientUpdatePoll)
+        PollStore.removeListener('clientUpdateNewPoll', this.handleClientUpdateNewPoll)
+        PollStore.removeListener('clientUpdateNewPollOption', this.handleClientUpdateNewPollOption)
+        PollStore.removeListener('clientUpdatePollOption', this.handleClientUpdatePoll)
+        PollStore.removeListener('clientUpdatePollQuestion', this.handleClientUpdatePollQuestion)
     }
 
     handleClientUpdateNewPoll = update => {
-        const { poll } = PollStore;
+        const { poll } = PollStore
 
         this.setState({
             confirm: false,
             remainLength: POLL_QUESTION_MAX_LENGTH,
-            poll
-        });
-    };
+            poll,
+        })
+    }
 
     handleClientUpdatePollQuestion = update => {
-        const { poll } = PollStore;
+        const { poll } = PollStore
 
-        const node = this.questionRef.current;
-        const length = node.dataset.length;
-        const innerText = node.innerText;
+        const node = this.questionRef.current
+        const length = node.dataset.length
+        const innerText = node.innerText
 
         this.setState({
             remainLength: length - innerText.length,
-            poll
-        });
-    };
+            poll,
+        })
+    }
 
     handleClientUpdatePoll = update => {
-        const { poll } = PollStore;
+        const { poll } = PollStore
 
-        this.setState({ poll });
-    };
+        this.setState({ poll })
+    }
 
     handleClientUpdateNewPollOption = update => {
-        const { poll } = PollStore;
+        const { poll } = PollStore
 
         this.setState({ poll }, () => {
             setTimeout(() => {
-                const node = this.optionsRefMap.get(poll.options.length - 1);
+                const node = this.optionsRefMap.get(poll.options.length - 1)
 
-                node.focus(true);
-            });
-        });
-    };
+                node.focus(true)
+            })
+        })
+    }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        const { poll } = this.state;
+        const { poll } = this.state
 
         if (poll && !prevState.poll) {
             setTimeout(() => {
-                focusNode(this.questionRef.current, true);
-            }, 0);
+                focusNode(this.questionRef.current, true)
+            }, 0)
         }
     }
 
     handleKeyDown = event => {
-        const node = this.questionRef.current;
-        const maxLength = node.dataset.maxLength;
-        const innerText = node.innerText;
-        const length = innerText.length;
+        const node = this.questionRef.current
+        const maxLength = node.dataset.maxLength
+        const innerText = node.innerText
+        const length = innerText.length
 
-        let hasSelection = false;
-        const selection = window.getSelection();
-        const isSpecial = utils.isSpecial(event);
-        const isNavigational = utils.isNavigational(event);
+        let hasSelection = false
+        const selection = window.getSelection()
+        const isSpecial = utils.isSpecial(event)
+        const isNavigational = utils.isNavigational(event)
 
         if (selection) {
-            hasSelection = !!selection.toString();
+            hasSelection = !!selection.toString()
         }
 
         switch (event.key) {
             case 'Enter': {
                 if (!event.shiftKey) {
-                    this.handleFocusNextOption(0);
+                    this.handleFocusNextOption(0)
 
-                    event.preventDefault();
-                    return false;
+                    event.preventDefault()
+                    return false
                 }
 
-                break;
+                break
             }
             case 'ArrowDown': {
-                const selection = window.getSelection();
-                if (!selection) break;
-                if (!selection.isCollapsed) break;
+                const selection = window.getSelection()
+                if (!selection) break
+                if (!selection.isCollapsed) break
 
                 const lastChild =
-                    node.childNodes && node.childNodes.length > 0 ? node.childNodes[node.childNodes.length - 1] : null;
+                    node.childNodes && node.childNodes.length > 0
+                        ? node.childNodes[node.childNodes.length - 1]
+                        : null
 
-                if (!lastChild || (selection.anchorNode === lastChild && selection.anchorOffset === lastChild.length)) {
-                    this.handleFocusNextOption(0);
+                if (
+                    !lastChild ||
+                    (selection.anchorNode === lastChild &&
+                        selection.anchorOffset === lastChild.length)
+                ) {
+                    this.handleFocusNextOption(0)
 
-                    event.preventDefault();
-                    return false;
+                    event.preventDefault()
+                    return false
                 }
 
-                break;
+                break
             }
         }
 
         if (isSpecial || isNavigational) {
-            return true;
+            return true
         }
 
         if (length >= maxLength && !hasSelection) {
-            event.preventDefault();
-            return false;
+            event.preventDefault()
+            return false
         }
 
-        return true;
-    };
+        return true
+    }
 
     handlePaste = event => {
-        event.preventDefault();
+        event.preventDefault()
 
-        const node = this.questionRef.current;
-        const maxLength = node.dataset.maxLength;
+        const node = this.questionRef.current
+        const maxLength = node.dataset.maxLength
 
-        const selection = window.getSelection();
-        const selectionString = selection ? selection.toString() : '';
+        const selection = window.getSelection()
+        const selectionString = selection ? selection.toString() : ''
 
-        const innerText = node.innerText;
-        if (innerText.length - selection.length >= maxLength) return;
+        const innerText = node.innerText
+        if (innerText.length - selection.length >= maxLength) return
 
-        let pasteText = event.clipboardData.getData('text/plain');
-        if (!pasteText) return;
+        let pasteText = event.clipboardData.getData('text/plain')
+        if (!pasteText) return
 
         if (innerText.length - selectionString.length + pasteText.length > maxLength) {
-            pasteText = pasteText.substr(0, maxLength - innerText.length + selectionString.length);
+            pasteText = pasteText.substr(0, maxLength - innerText.length + selectionString.length)
         }
-        document.execCommand('insertHTML', false, pasteText);
-    };
+        document.execCommand('insertHTML', false, pasteText)
+    }
 
     handleInput = event => {
-        event.preventDefault();
+        event.preventDefault()
 
-        const node = this.questionRef.current;
+        const node = this.questionRef.current
         //const length = node.dataset.length;
 
-        const innerText = node.innerText;
-        const innerHtml = node.innerHTML;
+        const innerText = node.innerText
+        const innerHtml = node.innerHTML
 
         if (innerHtml === '<br>') {
-            node.innerText = '';
+            node.innerText = ''
         }
 
         // this.setState({
@@ -236,177 +242,177 @@ class CreatePollDialog extends React.Component {
 
         TdLibController.clientUpdate({
             '@type': 'clientUpdatePollQuestion',
-            question: innerText
-        });
-    };
+            question: innerText,
+        })
+    }
 
     handleAddOption = () => {
-        const { poll } = this.state;
-        if (!poll) return;
+        const { poll } = this.state
+        if (!poll) return
 
-        const { options } = poll;
-        if (options.length >= POLL_OPTIONS_MAX_COUNT) return;
+        const { options } = poll
+        if (options.length >= POLL_OPTIONS_MAX_COUNT) return
 
         const option = {
             id: Date.now(),
-            text: ''
-        };
+            text: '',
+        }
 
         TdLibController.clientUpdate({
             '@type': 'clientUpdateNewPollOption',
-            option
-        });
-    };
+            option,
+        })
+    }
 
     handleDeleteOption = (id, backspace = false) => {
         if (backspace) {
-            this.handleDeleteByBackspace(id);
+            this.handleDeleteByBackspace(id)
         } else {
-            this.handleDelete(id);
+            this.handleDelete(id)
         }
-    };
+    }
 
     handleDelete = id => {
         TdLibController.clientUpdate({
             '@type': 'clientUpdateDeletePollOption',
-            id
-        });
-    };
+            id,
+        })
+    }
 
     handleDeleteByBackspace = id => {
-        const { poll } = this.state;
-        if (!poll) return;
+        const { poll } = this.state
+        if (!poll) return
 
-        const { options } = poll;
+        const { options } = poll
 
-        const index = options.findIndex(x => x.id === id);
-        const prevIndex = index - 1;
-        let deleteOption = true;
+        const index = options.findIndex(x => x.id === id)
+        const prevIndex = index - 1
+        let deleteOption = true
         for (let i = index; i < options.length; i++) {
-            const { text } = options[i];
+            const { text } = options[i]
             if (text) {
-                deleteOption = false;
-                break;
+                deleteOption = false
+                break
             }
         }
 
         if (deleteOption) {
-            this.handleDeleteOption(id);
+            this.handleDeleteOption(id)
         }
 
-        const prevNode = this.optionsRefMap.get(prevIndex);
+        const prevNode = this.optionsRefMap.get(prevIndex)
         if (!prevNode) {
-            const element = this.questionRef.current;
+            const element = this.questionRef.current
 
-            focusNode(element, true);
-            return;
+            focusNode(element, true)
+            return
         }
 
-        prevNode.focus(true);
-    };
+        prevNode.focus(true)
+    }
 
     handleFocusPrevOption = id => {
-        const { poll } = this.state;
-        if (!poll) return;
+        const { poll } = this.state
+        if (!poll) return
 
-        const { options } = poll;
+        const { options } = poll
 
-        const index = options.findIndex(x => x.id === id);
-        const prevIndex = index - 1;
+        const index = options.findIndex(x => x.id === id)
+        const prevIndex = index - 1
 
-        const prevNode = this.optionsRefMap.get(prevIndex);
+        const prevNode = this.optionsRefMap.get(prevIndex)
         if (!prevNode) {
-            const element = this.questionRef.current;
+            const element = this.questionRef.current
 
-            focusNode(element, false);
-            return;
+            focusNode(element, false)
+            return
         }
 
-        prevNode.focus(false);
-    };
+        prevNode.focus(false)
+    }
 
     handleFocusNextOption = id => {
-        const { poll } = this.state;
-        if (!poll) return;
+        const { poll } = this.state
+        if (!poll) return
 
-        const { options } = poll;
+        const { options } = poll
 
-        const index = options.findIndex(x => x.id === id);
-        const nextIndex = index + 1;
+        const index = options.findIndex(x => x.id === id)
+        const nextIndex = index + 1
 
-        const nextNode = this.optionsRefMap.get(nextIndex);
+        const nextNode = this.optionsRefMap.get(nextIndex)
         if (!nextNode) {
-            const text = index >= 0 && index < options.length ? options[index].text : '';
+            const text = index >= 0 && index < options.length ? options[index].text : ''
             if (options.length && !text) {
-                return;
+                return
             }
 
-            this.handleAddOption();
-            return;
+            this.handleAddOption()
+            return
         }
 
-        nextNode.focus(nextNode, true);
-    };
+        nextNode.focus(nextNode, true)
+    }
 
     getHint = () => {
-        const { poll } = this.state;
-        if (!poll) return;
+        const { poll } = this.state
+        if (!poll) return
 
-        const { options } = poll;
+        const { options } = poll
 
-        const addCount = POLL_OPTIONS_MAX_COUNT - options.length;
+        const addCount = POLL_OPTIONS_MAX_COUNT - options.length
 
         if (addCount <= 0) {
-            return 'You have added the maximum number of options.';
+            return 'You have added the maximum number of options.'
         }
         if (addCount === 1) {
-            return 'You can add 1 more option.';
+            return 'You can add 1 more option.'
         }
 
-        return `You can add ${POLL_OPTIONS_MAX_COUNT - options.length} more options.`;
-    };
+        return `You can add ${POLL_OPTIONS_MAX_COUNT - options.length} more options.`
+    }
 
     handleClose = () => {
-        const { poll } = this.state;
+        const { poll } = this.state
 
         if (hasPollData(poll)) {
-            this.setState({ confirm: true });
+            this.setState({ confirm: true })
         } else {
-            this.handleConfirmationDone();
+            this.handleConfirmationDone()
         }
-    };
+    }
 
     handleSend = () => {
-        const { onSend } = this.props;
+        const { onSend } = this.props
 
-        const inputMessagePoll = PollStore.getInputMessagePoll();
-        if (!inputMessagePoll) return;
+        const inputMessagePoll = PollStore.getInputMessagePoll()
+        if (!inputMessagePoll) return
 
-        onSend(inputMessagePoll);
+        onSend(inputMessagePoll)
 
-        this.handleConfirmationDone();
-    };
+        this.handleConfirmationDone()
+    }
 
     handleConfirmationClose = () => {
-        this.setState({ confirm: false });
-    };
+        this.setState({ confirm: false })
+    }
 
     handleConfirmationDone = () => {
-        this.handleConfirmationClose();
+        this.handleConfirmationClose()
 
         TdLibController.clientUpdate({
-            '@type': 'clientUpdateDeletePoll'
-        });
-    };
+            '@type': 'clientUpdateDeletePoll',
+        })
+    }
 
     render() {
-        const { classes, t } = this.props;
-        const { remainLength, confirm, poll } = this.state;
-        if (!poll) return null;
+        const { classes, t } = this.props
+        const { remainLength, confirm, poll } = this.state
+        if (!poll) return null
 
-        const options = poll ? poll.options : [];
+        const options = poll ? poll.options : []
 
-        this.optionsRefMap.clear();
+        this.optionsRefMap.clear()
         const items = options.map((x, i) => (
             <CreatePollOption
                 ref={el => this.optionsRefMap.set(i, el)}
@@ -416,10 +422,10 @@ class CreatePollDialog extends React.Component {
                 onFocusPrev={this.handleFocusPrevOption}
                 onFocusNext={this.handleFocusNextOption}
             />
-        ));
+        ))
 
-        const canAddOption = POLL_OPTIONS_MAX_COUNT - options.length > 0;
-        const hint = this.getHint();
+        const canAddOption = POLL_OPTIONS_MAX_COUNT - options.length > 0
+        const hint = this.getHint()
 
         return (
             <>
@@ -436,7 +442,9 @@ class CreatePollDialog extends React.Component {
                                 {t('Question')}
                             </Typography>
                             {remainLength <= POLL_QUESTION_LENGTH - POLL_QUESTION_HINT_LENGTH && (
-                                <Typography color={remainLength >= 0 ? 'textSecondary' : 'error'} variant='subtitle1'>
+                                <Typography
+                                    color={remainLength >= 0 ? 'textSecondary' : 'error'}
+                                    variant='subtitle1'>
                                     {remainLength}
                                 </Typography>
                             )}
@@ -489,7 +497,9 @@ class CreatePollDialog extends React.Component {
                     onClose={this.handleConfirmationClose}
                     aria-labelledby='dialog-title'>
                     <DialogTitle id='dialog-title'>{t('CancelPollAlertTitle')}</DialogTitle>
-                    <DialogContent classes={{ root: classes.contentRoot }}>{t('CancelPollAlertText')}</DialogContent>
+                    <DialogContent classes={{ root: classes.contentRoot }}>
+                        {t('CancelPollAlertText')}
+                    </DialogContent>
                     <DialogActions>
                         <Button color='primary' onClick={this.handleConfirmationClose}>
                             {t('Cancel')}
@@ -500,19 +510,19 @@ class CreatePollDialog extends React.Component {
                     </DialogActions>
                 </Dialog>
             </>
-        );
+        )
     }
 }
 
 CreatePollDialog.propTypes = {
-    onSend: PropTypes.func.isRequired
-};
+    onSend: PropTypes.func.isRequired,
+}
 
 const enhance = compose(
     withSaveRef(),
     withStyles(styles),
     withTranslation(),
     withRestoreRef()
-);
+)
 
-export default enhance(CreatePollDialog);
+export default enhance(CreatePollDialog)

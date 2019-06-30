@@ -5,19 +5,19 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import ChatTileControl from './ChatTileControl';
-import MessageAuthor from '../Message/MessageAuthor';
-import './MediaViewerControl.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import ChatTileControl from './ChatTileControl'
+import MessageAuthor from '../Message/MessageAuthor'
+import './MediaViewerControl.css'
 
 class ProfileMediaViewerControl extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
     }
 
     render() {
-        const { chatId, date } = this.props;
+        const { chatId, date } = this.props
 
         return (
             <div className='media-viewer-control'>
@@ -35,13 +35,13 @@ class ProfileMediaViewerControl extends React.Component {
                     </div>
                 </div>
             </div>
-        );
+        )
     }
 }
 
 ProfileMediaViewerControl.propTypes = {
     chatId: PropTypes.number.isRequired,
-    date: PropTypes.string
-};
+    date: PropTypes.string,
+}
 
-export default ProfileMediaViewerControl;
+export default ProfileMediaViewerControl

@@ -5,48 +5,48 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { EventEmitter } from 'events';
-import TdLibController from '../Controllers/TdLibController';
+import { EventEmitter } from 'events'
+import TdLibController from '../Controllers/TdLibController'
 
 class OptionStore extends EventEmitter {
     constructor() {
-        super();
+        super()
 
-        this.items = new Map();
+        this.items = new Map()
 
-        this.addTdLibListener();
-        this.setMaxListeners(Infinity);
+        this.addTdLibListener()
+        this.setMaxListeners(Infinity)
     }
 
     onUpdate = update => {
         switch (update['@type']) {
             case 'updateOption':
-                this.items.set(update.name, update.value);
+                this.items.set(update.name, update.value)
 
-                this.emit('updateOption', update);
-                break;
+                this.emit('updateOption', update)
+                break
             default:
-                break;
+                break
         }
-    };
+    }
 
-    onClientUpdate = update => {};
+    onClientUpdate = update => {}
 
     addTdLibListener = () => {
-        TdLibController.addListener('update', this.onUpdate);
-        TdLibController.addListener('clientUpdate', this.onClientUpdate);
-    };
+        TdLibController.addListener('update', this.onUpdate)
+        TdLibController.addListener('clientUpdate', this.onClientUpdate)
+    }
 
     removeTdLibListener = () => {
-        TdLibController.removeListener('update', this.onUpdate);
-        TdLibController.removeListener('clientUpdate', this.onClientUpdate);
-    };
+        TdLibController.removeListener('update', this.onUpdate)
+        TdLibController.removeListener('clientUpdate', this.onClientUpdate)
+    }
 
     get(name) {
-        return this.items.get(name);
+        return this.items.get(name)
     }
 }
 
-const store = new OptionStore();
-window.option = store;
-export default store;
+const store = new OptionStore()
+window.option = store
+export default store

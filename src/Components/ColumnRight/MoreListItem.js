@@ -5,96 +5,96 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import { compose } from 'recompose';
-import { withTranslation } from 'react-i18next';
-import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import MoreHorizIcon from '@material-ui/icons/MoreHoriz';
-import ListItemText from '@material-ui/core/ListItemText';
-import ExpandLess from '@material-ui/icons/ExpandLess';
-import ExpandMore from '@material-ui/icons/ExpandMore';
-import Collapse from '@material-ui/core/Collapse';
-import Typography from '@material-ui/core/Typography';
-import withStyles from '@material-ui/core/styles/withStyles';
-import { isUserBlocked } from '../../Utils/User';
-import { isChannelChat, isChatMember, isGroupChat } from '../../Utils/Chat';
-import ChatStore from '../../Stores/ChatStore';
-import TdLibController from '../../Controllers/TdLibController';
-import ApplicationStore from '../../Stores/ApplicationStore';
+import React from 'react'
+import { compose } from 'recompose'
+import { withTranslation } from 'react-i18next'
+import List from '@material-ui/core/List'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import MoreHorizIcon from '@material-ui/icons/MoreHoriz'
+import ListItemText from '@material-ui/core/ListItemText'
+import ExpandLess from '@material-ui/icons/ExpandLess'
+import ExpandMore from '@material-ui/icons/ExpandMore'
+import Collapse from '@material-ui/core/Collapse'
+import Typography from '@material-ui/core/Typography'
+import withStyles from '@material-ui/core/styles/withStyles'
+import { isUserBlocked } from '../../Utils/User'
+import { isChannelChat, isChatMember, isGroupChat } from '../../Utils/Chat'
+import ChatStore from '../../Stores/ChatStore'
+import TdLibController from '../../Controllers/TdLibController'
+import ApplicationStore from '../../Stores/ApplicationStore'
 
 const styles = {
     listItem: {
-        padding: '11px 22px'
-    }
-};
+        padding: '11px 22px',
+    },
+}
 
 class MoreListItem extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
-        const { chatId } = this.props;
+        const { chatId } = this.props
         this.state = {
             prevChatId: chatId,
-            openMore: false
-        };
+            openMore: false,
+        }
     }
 
     static getDerivedStateFromProps(props, state) {
         if (props.chatId !== state.prevChatId) {
             return {
                 prevChatId: props.chatId,
-                openMore: false
-            };
+                openMore: false,
+            }
         }
 
-        return null;
+        return null
     }
 
     handleMoreClick = () => {
-        this.setState({ openMore: !this.state.openMore });
-    };
+        this.setState({ openMore: !this.state.openMore })
+    }
 
     handleSendMessage = () => {
-        const currentChatId = ApplicationStore.getChatId();
-        const { chatId } = this.props;
+        const currentChatId = ApplicationStore.getChatId()
+        const { chatId } = this.props
         if (currentChatId === chatId) {
             //this.dialogDetails.current.scrollToBottom();
         } else {
-            TdLibController.setChatId(chatId);
+            TdLibController.setChatId(chatId)
         }
-    };
+    }
 
     handleBlock = () => {
-        const { chatId } = this.state;
+        const { chatId } = this.state
 
-        const chat = ChatStore.get(chatId);
-        if (!chat) return;
-        if (!chat.type) return;
+        const chat = ChatStore.get(chatId)
+        if (!chat) return
+        if (!chat.type) return
 
-        const { user_id } = chat.type;
-        if (!user_id) return;
+        const { user_id } = chat.type
+        if (!user_id) return
 
         TdLibController.send({
             '@type': isUserBlocked(user_id) ? 'unblockUser' : 'blockUser',
-            user_id: user_id
-        });
-    };
+            user_id: user_id,
+        })
+    }
 
     render() {
-        const { t, chatId, classes } = this.props;
-        const { openMore } = this.state;
+        const { t, chatId, classes } = this.props
+        const { openMore } = this.state
 
-        const chat = ChatStore.get(chatId);
+        const chat = ChatStore.get(chatId)
 
-        const isGroup = isGroupChat(chatId);
-        let isBlocked = false;
+        const isGroup = isGroupChat(chatId)
+        let isBlocked = false
         if (!isGroup && chat.type) {
-            isBlocked = isUserBlocked(chat.type.user_id);
+            isBlocked = isUserBlocked(chat.type.user_id)
         }
-        const isMember = isChatMember(chatId);
-        const isChannel = isChannelChat(chatId);
+        const isMember = isChatMember(chatId)
+        const isChannel = isChannelChat(chatId)
 
         return (
             <>
@@ -115,7 +115,10 @@ class MoreListItem extends React.Component {
                     <List component='div' disablePadding>
                         {!isGroup && (
                             <>
-                                <ListItem button className={classes.listItem} onClick={this.handleSendMessage}>
+                                <ListItem
+                                    button
+                                    className={classes.listItem}
+                                    onClick={this.handleSendMessage}>
                                     <ListItemText
                                         inset
                                         primary={
@@ -125,7 +128,10 @@ class MoreListItem extends React.Component {
                                         }
                                     />
                                 </ListItem>
-                                <ListItem button className={classes.listItem} onClick={this.handleBlock}>
+                                <ListItem
+                                    button
+                                    className={classes.listItem}
+                                    onClick={this.handleBlock}>
                                     <ListItemText
                                         inset
                                         primary={
@@ -164,13 +170,13 @@ class MoreListItem extends React.Component {
                     </List>
                 </Collapse>
             </>
-        );
+        )
     }
 }
 
 const enhance = compose(
     withTranslation(),
     withStyles(styles, { withTheme: true })
-);
+)
 
-export default enhance(MoreListItem);
+export default enhance(MoreListItem)

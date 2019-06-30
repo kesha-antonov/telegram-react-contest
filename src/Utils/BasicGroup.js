@@ -5,26 +5,29 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import ChatStore from '../Stores/ChatStore';
+import ChatStore from '../Stores/ChatStore'
 
 function getBasicGroupStatus(basicGroup, chatId) {
-    if (!basicGroup) return null;
+    if (!basicGroup) return null
 
-    const { status, member_count: count } = basicGroup;
+    const { status, member_count: count } = basicGroup
 
-    if (status && (status['@type'] === 'chatMemberStatusBanned' || status['@type'] === 'chatMemberStatusLeft')) {
-        return 'group is inaccessible';
+    if (
+        status &&
+        (status['@type'] === 'chatMemberStatusBanned' || status['@type'] === 'chatMemberStatusLeft')
+    ) {
+        return 'group is inaccessible'
     }
 
-    if (!count) return '0 members';
-    if (count === 1) return '1 member';
+    if (!count) return '0 members'
+    if (count === 1) return '1 member'
 
-    const onlineCount = ChatStore.getOnlineMemberCount(chatId);
+    const onlineCount = ChatStore.getOnlineMemberCount(chatId)
     if (onlineCount > 1) {
-        return `${count} members, ${onlineCount} online`;
+        return `${count} members, ${onlineCount} online`
     }
 
-    return `${count} members`;
+    return `${count} members`
 }
 
-export { getBasicGroupStatus };
+export { getBasicGroupStatus }

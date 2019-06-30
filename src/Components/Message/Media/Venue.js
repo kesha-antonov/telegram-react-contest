@@ -5,25 +5,30 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import Location from './Location';
-import './Venue.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import Location from './Location'
+import './Venue.css'
 
 class Venue extends React.Component {
     render() {
-        const { chatId, messageId, venue, openMedia } = this.props;
-        if (!venue) return null;
+        const { chatId, messageId, venue, openMedia } = this.props
+        if (!venue) return null
 
-        const { title, address, location } = venue;
-        if (!location) return null;
+        const { title, address, location } = venue
+        if (!location) return null
 
-        const { longitude, latitude } = location;
-        const source = `https://maps.google.com/?q=${latitude},${longitude}`;
+        const { longitude, latitude } = location
+        const source = `https://maps.google.com/?q=${latitude},${longitude}`
 
         return (
             <div className='venue'>
-                <Location chatId={chatId} messageId={messageId} location={location} openMedia={openMedia} />
+                <Location
+                    chatId={chatId}
+                    messageId={messageId}
+                    location={location}
+                    openMedia={openMedia}
+                />
                 <div className='venue-content'>
                     <a href={source} target='_blank' rel='noopener noreferrer'>
                         <div className='venue-title'>{title}</div>
@@ -31,7 +36,7 @@ class Venue extends React.Component {
                     <div className='venue-subtitle'>{address}</div>
                 </div>
             </div>
-        );
+        )
     }
 }
 
@@ -39,7 +44,7 @@ Venue.propTypes = {
     chatId: PropTypes.number.isRequired,
     messageId: PropTypes.number.isRequired,
     venue: PropTypes.object.isRequired,
-    openMedia: PropTypes.func.isRequired
-};
+    openMedia: PropTypes.func.isRequired,
+}
 
-export default Venue;
+export default Venue

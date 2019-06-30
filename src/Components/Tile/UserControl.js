@@ -5,34 +5,34 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import UserTileControl from './UserTileControl';
-import UserStatusControl from './UserStatusControl';
-import { getUserFullName } from '../../Utils/User';
-import UserStore from '../../Stores/UserStore';
-import './UserControl.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import UserTileControl from './UserTileControl'
+import UserStatusControl from './UserStatusControl'
+import { getUserFullName } from '../../Utils/User'
+import UserStore from '../../Stores/UserStore'
+import './UserControl.css'
 
 class UserControl extends React.Component {
     shouldComponentUpdate(nextProps, nextState) {
-        return nextProps.userId !== this.props.userId;
+        return nextProps.userId !== this.props.userId
     }
 
     handleClick = () => {
-        const { userId, onSelect } = this.props;
+        const { userId, onSelect } = this.props
 
-        const user = UserStore.get(userId);
-        if (!user) return;
-        if (!onSelect) return;
+        const user = UserStore.get(userId)
+        if (!user) return
+        if (!onSelect) return
 
-        onSelect(user);
-    };
+        onSelect(user)
+    }
 
     render() {
-        const { userId } = this.props;
-        const user = UserStore.get(userId);
+        const { userId } = this.props
+        const user = UserStore.get(userId)
 
-        const fullName = getUserFullName(user);
+        const fullName = getUserFullName(user)
 
         return (
             <div className='user' onClick={this.handleClick}>
@@ -48,13 +48,13 @@ class UserControl extends React.Component {
                     </div>
                 </div>
             </div>
-        );
+        )
     }
 }
 
 UserControl.propTypes = {
     userId: PropTypes.number.isRequired,
-    onSelect: PropTypes.func
-};
+    onSelect: PropTypes.func,
+}
 
-export default UserControl;
+export default UserControl

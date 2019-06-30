@@ -5,39 +5,39 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import ReplyIcon from '@material-ui/icons/Reply';
-import CloseIcon from '@material-ui/icons/Close';
-import IconButton from '@material-ui/core/IconButton';
-import withStyles from '@material-ui/core/styles/withStyles';
-import Reply from '../Message/Reply';
-import TdLibController from '../../Controllers/TdLibController';
-import './InputBoxHeader.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import ReplyIcon from '@material-ui/icons/Reply'
+import CloseIcon from '@material-ui/icons/Close'
+import IconButton from '@material-ui/core/IconButton'
+import withStyles from '@material-ui/core/styles/withStyles'
+import Reply from '../Message/Reply'
+import TdLibController from '../../Controllers/TdLibController'
+import './InputBoxHeader.css'
 
 const styles = theme => ({
     replyIcon: {
         padding: 12,
-        color: theme.palette.action.active
+        color: theme.palette.action.active,
     },
     closeIconButton: {
-        margin: 0
-    }
-});
+        margin: 0,
+    },
+})
 
 class InputBoxHeader extends React.Component {
     handleClose = () => {
         TdLibController.clientUpdate({
             '@type': 'clientUpdateReply',
             chatId: this.props.chatId,
-            messageId: 0
-        });
-    };
+            messageId: 0,
+        })
+    }
 
     render() {
-        const { classes, chatId, messageId } = this.props;
-        if (!chatId) return null;
-        if (!messageId) return null;
+        const { classes, chatId, messageId } = this.props
+        if (!chatId) return null
+        if (!messageId) return null
 
         return (
             <div className='inputbox-header'>
@@ -48,18 +48,21 @@ class InputBoxHeader extends React.Component {
                     <Reply chatId={chatId} messageId={messageId} />
                 </div>
                 <div className='inputbox-header-right-column'>
-                    <IconButton className={classes.closeIconButton} aria-label='Close' onClick={this.handleClose}>
+                    <IconButton
+                        className={classes.closeIconButton}
+                        aria-label='Close'
+                        onClick={this.handleClose}>
                         <CloseIcon />
                     </IconButton>
                 </div>
             </div>
-        );
+        )
     }
 }
 
 InputBoxHeader.propTypes = {
     chatId: PropTypes.number.isRequired,
-    messageId: PropTypes.number.isRequired
-};
+    messageId: PropTypes.number.isRequired,
+}
 
-export default withStyles(styles)(InputBoxHeader);
+export default withStyles(styles)(InputBoxHeader)

@@ -5,34 +5,34 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import { getDateHint, getSenderUserId } from '../../Utils/Message';
-import UserTileControl from './UserTileControl';
-import ChatTileControl from './ChatTileControl';
-import MessageAuthor from '../Message/MessageAuthor';
-import MessageStore from '../../Stores/MessageStore';
-import './MediaViewerControl.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import { getDateHint, getSenderUserId } from '../../Utils/Message'
+import UserTileControl from './UserTileControl'
+import ChatTileControl from './ChatTileControl'
+import MessageAuthor from '../Message/MessageAuthor'
+import MessageStore from '../../Stores/MessageStore'
+import './MediaViewerControl.css'
 
 class MediaViewerControl extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
     }
 
     render() {
-        const { chatId, messageId } = this.props;
+        const { chatId, messageId } = this.props
 
-        const message = MessageStore.get(chatId, messageId);
-        if (!message) return null;
+        const message = MessageStore.get(chatId, messageId)
+        if (!message) return null
 
-        const userId = getSenderUserId(message);
-        const dateHint = getDateHint(message);
+        const userId = getSenderUserId(message)
+        const dateHint = getDateHint(message)
 
         const tileControl = userId ? (
             <UserTileControl userId={userId} />
         ) : (
             <ChatTileControl chatId={chatId} />
-        );
+        )
 
         return (
             <div className='media-viewer-control'>
@@ -48,13 +48,13 @@ class MediaViewerControl extends React.Component {
                     </div>
                 </div>
             </div>
-        );
+        )
     }
 }
 
 MediaViewerControl.propTypes = {
     chatId: PropTypes.number.isRequired,
-    messageId: PropTypes.number.isRequired
-};
+    messageId: PropTypes.number.isRequired,
+}
 
-export default MediaViewerControl;
+export default MediaViewerControl

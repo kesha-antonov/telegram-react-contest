@@ -5,7 +5,7 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-let cyrillicInput = null;
+let cyrillicInput = null
 
 function getCyrillicInputMap() {
     return new Map([
@@ -41,29 +41,29 @@ function getCyrillicInputMap() {
         ['n', 'т'],
         ['m', 'ь'],
         [',', 'б'],
-        ['.', 'ю']
-    ]);
+        ['.', 'ю'],
+    ])
 }
 
 function getCyrillicInput(input) {
-    if (!input) return null;
-    if (!input.length) return null;
+    if (!input) return null
+    if (!input.length) return null
 
-    cyrillicInput = cyrillicInput || getCyrillicInputMap();
+    cyrillicInput = cyrillicInput || getCyrillicInputMap()
 
-    let output = '';
+    let output = ''
     for (let i = 0; i < input.length; i++) {
         if (cyrillicInput.has(input[i])) {
-            output += cyrillicInput.get(input[i]);
+            output += cyrillicInput.get(input[i])
         } else {
-            return null;
+            return null
         }
     }
 
-    return output === '' ? null : output;
+    return output === '' ? null : output
 }
 
-let latinInput = null;
+let latinInput = null
 
 function getLatinInputMap() {
     return new Map([
@@ -99,26 +99,26 @@ function getLatinInputMap() {
         ['т', 'n'],
         ['ь', 'm'],
         ['б', ','],
-        ['ю', '.']
-    ]);
+        ['ю', '.'],
+    ])
 }
 
 function getLatinInput(input) {
-    if (!input) return null;
-    if (!input.length) return null;
+    if (!input) return null
+    if (!input.length) return null
 
-    latinInput = latinInput || getLatinInputMap();
+    latinInput = latinInput || getLatinInputMap()
 
-    let output = '';
+    let output = ''
     for (let i = 0; i < input.length; i++) {
         if (latinInput.has(input[i])) {
-            output += latinInput.get(input[i]);
+            output += latinInput.get(input[i])
         } else {
-            return null;
+            return null
         }
     }
 
-    return output === '' ? null : output;
+    return output === '' ? null : output
 }
 
-export { getCyrillicInput, getLatinInput };
+export { getCyrillicInput, getLatinInput }

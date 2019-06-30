@@ -5,46 +5,46 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import RoomIcon from '@material-ui/icons/Room';
-import { getLocationId } from '../../../Utils/Message';
-import { getSrc } from '../../../Utils/File';
-import FileStore from '../../../Stores/FileStore';
-import './Location.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import RoomIcon from '@material-ui/icons/Room'
+import { getLocationId } from '../../../Utils/Message'
+import { getSrc } from '../../../Utils/File'
+import FileStore from '../../../Stores/FileStore'
+import './Location.css'
 
 class Location extends React.Component {
     componentDidMount() {
-        FileStore.on('clientUpdateLocationBlob', this.onClientUpdateLocationBlob);
+        FileStore.on('clientUpdateLocationBlob', this.onClientUpdateLocationBlob)
     }
 
     componentWillUnmount() {
-        FileStore.removeListener('clientUpdateLocationBlob', this.onClientUpdateLocationBlob);
+        FileStore.removeListener('clientUpdateLocationBlob', this.onClientUpdateLocationBlob)
     }
 
     onClientUpdateLocationBlob = update => {
-        const { fileId } = update;
-        const { location } = this.props;
+        const { fileId } = update
+        const { location } = this.props
 
-        const locationId = getLocationId(location);
-        const file = FileStore.getLocationFile(locationId);
-        if (!file) return;
+        const locationId = getLocationId(location)
+        const file = FileStore.getLocationFile(locationId)
+        if (!file) return
 
         if (file.id === fileId) {
-            this.forceUpdate();
+            this.forceUpdate()
         }
-    };
+    }
 
     render() {
-        const { location } = this.props;
-        if (!location) return null;
+        const { location } = this.props
+        if (!location) return null
 
-        const locationId = getLocationId(location);
-        const file = FileStore.getLocationFile(locationId);
-        const src = getSrc(file);
+        const locationId = getLocationId(location)
+        const file = FileStore.getLocationFile(locationId)
+        const src = getSrc(file)
 
-        const { longitude, latitude } = location;
-        const source = `https://maps.google.com/?q=${latitude},${longitude}`;
+        const { longitude, latitude } = location
+        const source = `https://maps.google.com/?q=${latitude},${longitude}`
 
         return (
             <a href={source} target='_blank' rel='noopener noreferrer'>
@@ -55,7 +55,7 @@ class Location extends React.Component {
                     </div>
                 </div>
             </a>
-        );
+        )
     }
 }
 
@@ -63,7 +63,7 @@ Location.propTypes = {
     chatId: PropTypes.number.isRequired,
     messageId: PropTypes.number.isRequired,
     location: PropTypes.object.isRequired,
-    openMedia: PropTypes.func.isRequired
-};
+    openMedia: PropTypes.func.isRequired,
+}
 
-export default Location;
+export default Location

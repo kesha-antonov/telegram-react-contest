@@ -5,18 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { PropTypes } from 'react';
+import React, { PropTypes } from 'react'
 
 class DocumentsTabControl extends React.Component {
-
-    render() {
-
-    }
-
+    render() {}
 }
 
-DocumentsTabControl.propTypes = {};
+DocumentsTabControl.propTypes = {}
 
-DocumentsTabControl.defaultProps = {};
+DocumentsTabControl.defaultProps = {}
 
-export default DocumentsTabControl;
+export default DocumentsTabControl

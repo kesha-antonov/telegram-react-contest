@@ -24,13 +24,13 @@ import { ANIMATION_DURATION_300MS } from '../../Constants'
 
 const styles = {
     iconButton: {
-        margin: '8px 0'
-    }
+        margin: '8px 0',
+    },
 }
 
 class AttachButton extends React.Component {
     state = {
-        anchorEl: null
+        anchorEl: null,
     }
 
     handleMenuClick = event => {
@@ -90,11 +90,11 @@ class AttachButton extends React.Component {
                     disableRestoreFocus={true}
                     anchorOrigin={{
                         vertical: 'top',
-                        horizontal: 'right'
+                        horizontal: 'right',
                     }}
                     transformOrigin={{
                         vertical: 'bottom',
-                        horizontal: 'left'
+                        horizontal: 'left',
                     }}
                     onClose={this.handleMenuClose}>
                     <MenuItem onClick={this.handleAttachPhoto} disabled={!canSendPhotos(chatId)}>
@@ -103,7 +103,9 @@ class AttachButton extends React.Component {
                         </ListItemIcon>
                         <ListItemText primary={t('AttachPhoto')} />
                     </MenuItem>
-                    <MenuItem onClick={this.handleAttachDocument} disabled={!canSendDocuments(chatId)}>
+                    <MenuItem
+                        onClick={this.handleAttachDocument}
+                        disabled={!canSendDocuments(chatId)}>
                         <ListItemIcon>
                             <InsertDriveFileIcon />
                         </ListItemIcon>
@@ -127,7 +129,7 @@ AttachButton.propTypes = {
     chatId: PropTypes.number.isRequired,
     onAttachDocument: PropTypes.func.isRequired,
     onAttachPhoto: PropTypes.func.isRequired,
-    onAttachPoll: PropTypes.func.isRequired
+    onAttachPoll: PropTypes.func.isRequired,
 }
 
 const enhance = compose(

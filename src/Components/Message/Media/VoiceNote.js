@@ -31,7 +31,7 @@ class VoiceNote extends React.Component {
             active: active,
             playing: active ? playing : false,
             currentTime: active && time ? time.currentTime : 0,
-            duration: active && time ? time.duration : 0
+            duration: active && time ? time.duration : 0,
         }
     }
 
@@ -78,7 +78,7 @@ class VoiceNote extends React.Component {
             this.setState({
                 active: false,
                 playing: false,
-                currentTime: 0
+                currentTime: 0,
             })
         }
     }
@@ -109,14 +109,14 @@ class VoiceNote extends React.Component {
                 this.setState({
                     active: true,
                     currentTime: 0,
-                    playing: true
+                    playing: true,
                 })
             }
         } else if (this.state.active) {
             this.setState({
                 active: false,
                 currentTime: 0,
-                playing: false
+                playing: false,
             })
         }
     }
@@ -140,9 +140,19 @@ class VoiceNote extends React.Component {
                     completeIcon={playing ? <PauseIcon /> : <PlayArrowIcon />}
                 />
                 <div className='voice-note-content'>
-                    <VoiceNoteSlider chatId={chatId} messageId={messageId} duration={duration} file={file} />
+                    <VoiceNoteSlider
+                        chatId={chatId}
+                        messageId={messageId}
+                        duration={duration}
+                        file={file}
+                    />
                     <div className='voice-note-meta'>
-                        <AudioAction chatId={chatId} messageId={messageId} duration={duration} file={file} />
+                        <AudioAction
+                            chatId={chatId}
+                            messageId={messageId}
+                            duration={duration}
+                            file={file}
+                        />
                         <MediaStatus chatId={chatId} messageId={messageId} icon={'\u00A0•'} />
                     </div>
                 </div>
@@ -155,7 +165,7 @@ VoiceNote.propTypes = {
     chatId: PropTypes.number.isRequired,
     messageId: PropTypes.number.isRequired,
     voiceNote: PropTypes.object.isRequired,
-    openMedia: PropTypes.func.isRequired
+    openMedia: PropTypes.func.isRequired,
 }
 
 export default VoiceNote

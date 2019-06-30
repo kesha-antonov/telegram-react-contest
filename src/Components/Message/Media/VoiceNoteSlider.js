@@ -17,17 +17,17 @@ import classNames from 'classnames'
 
 const styles = {
     slider: {
-        maxWidth: 216
+        maxWidth: 216,
     },
     sliderDisabled: {
-        pointerEvents: 'none'
+        pointerEvents: 'none',
     },
     trackDisabled: {
-        transition: 'width 0ms linear 0ms, height 0ms linear 0ms, transform 0ms linear 0ms'
+        transition: 'width 0ms linear 0ms, height 0ms linear 0ms, transform 0ms linear 0ms',
     },
     thumbDisabled: {
-        transition: 'transform 0ms linear 0ms, box-shadow 0ms linear 0ms'
-    }
+        transition: 'transform 0ms linear 0ms, box-shadow 0ms linear 0ms',
+    },
 }
 
 class VoiceNoteSlider extends React.Component {
@@ -45,7 +45,7 @@ class VoiceNoteSlider extends React.Component {
             active,
             currentTime,
             duration: audioDuration,
-            value: this.getValue(currentTime, audioDuration, active)
+            value: this.getValue(currentTime, audioDuration, active),
         }
 
         this.playAfterFinishDraggingCurrentTime = false
@@ -88,7 +88,7 @@ class VoiceNoteSlider extends React.Component {
         TdLibController.clientUpdate({
             '@type': 'clientUpdateMediaActive',
             chatId,
-            messageId
+            messageId,
         })
     }
 
@@ -98,7 +98,7 @@ class VoiceNoteSlider extends React.Component {
 
         let newState = {
             active: false,
-            currentTime: 0
+            currentTime: 0,
         }
 
         if (value === 1) {
@@ -108,7 +108,7 @@ class VoiceNoteSlider extends React.Component {
                 const { currentTime } = this.state
                 if (!currentTime) {
                     this.setState({
-                        value: this.getValue(0, duration, false)
+                        value: this.getValue(0, duration, false),
                     })
                 }
             }, PLAYER_PROGRESS_TIMEOUT_MS)
@@ -133,7 +133,7 @@ class VoiceNoteSlider extends React.Component {
         if (chatId === update.chatId && messageId === update.messageId) {
             let newState = {
                 currentTime: update.currentTime,
-                duration: update.duration || duration
+                duration: update.duration || duration,
             }
             if (PlayerStore.playing) {
                 const value = this.getValue(update.currentTime, update.duration || duration, active)
@@ -154,7 +154,7 @@ class VoiceNoteSlider extends React.Component {
                 this.setState({
                     active: true,
                     currentTime,
-                    value: this.getValue(currentTime, duration, true)
+                    value: this.getValue(currentTime, duration, true),
                 })
             }
         } else if (active) {
@@ -190,7 +190,7 @@ class VoiceNoteSlider extends React.Component {
                 messageId,
                 duration,
                 currentTime,
-                timestamp: Date.now()
+                timestamp: Date.now(),
             })
             this.tryPlay()
         })
@@ -228,15 +228,15 @@ class VoiceNoteSlider extends React.Component {
             <div className='voice-note-slider'>
                 <Slider
                     className={classNames(classes.slider, {
-                        [classes.sliderDisabled]: !active
+                        [classes.sliderDisabled]: !active,
                     })}
                     classes={{
                         track: classNames({
-                            [classes.trackDisabled]: !active
+                            [classes.trackDisabled]: !active,
                         }),
                         thumb: classNames({
-                            [classes.thumbDisabled]: !active
-                        })
+                            [classes.thumbDisabled]: !active,
+                        }),
                     }}
                     min={0}
                     max={1}
@@ -258,7 +258,7 @@ class VoiceNoteSlider extends React.Component {
 VoiceNoteSlider.propTypes = {
     chatId: PropTypes.number.isRequired,
     messageId: PropTypes.number.isRequired,
-    duration: PropTypes.number.isRequired
+    duration: PropTypes.number.isRequired,
 }
 
 export default withStyles(styles)(VoiceNoteSlider)

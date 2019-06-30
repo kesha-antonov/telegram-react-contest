@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import withStyles from '@material-ui/core/styles/withStyles';
-import Button from '@material-ui/core/Button';
-import ApplicationStore from '../../Stores/ApplicationStore';
+import React from 'react'
+import withStyles from '@material-ui/core/styles/withStyles'
+import Button from '@material-ui/core/Button'
+import ApplicationStore from '../../Stores/ApplicationStore'
 
 const styles = {
     root: {
@@ -17,52 +17,62 @@ const styles = {
         width: '100%',
         borderRadius: 0,
         color: 'white',
-        maxHeight: '65px'
-    }
-};
+        maxHeight: '65px',
+    },
+}
 
 class UpdatePanel extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         this.state = {
-            newContentAvailable: false
-        };
+            newContentAvailable: false,
+        }
     }
 
     componentDidMount() {
-        ApplicationStore.on('clientUpdateNewContentAvailable', this.onClientUpdateNewContentAvailable);
+        ApplicationStore.on(
+            'clientUpdateNewContentAvailable',
+            this.onClientUpdateNewContentAvailable
+        )
     }
 
     componentWillUnmount() {
-        ApplicationStore.removeListener('clientUpdateNewContentAvailable', this.onClientUpdateNewContentAvailable);
+        ApplicationStore.removeListener(
+            'clientUpdateNewContentAvailable',
+            this.onClientUpdateNewContentAvailable
+        )
     }
 
     onClientUpdateNewContentAvailable = () => {
-        this.setState({ newContentAvailable: true });
-    };
+        this.setState({ newContentAvailable: true })
+    }
 
     handleUpdate = () => {
-        if (this.handled) return;
+        if (this.handled) return
 
-        this.handled = true;
+        this.handled = true
         setTimeout(() => {
-            window.location.reload();
-        }, 250);
-    };
+            window.location.reload()
+        }, 250)
+    }
 
     render() {
-        const { newContentAvailable } = this.state;
-        const { classes } = this.props;
+        const { newContentAvailable } = this.state
+        const { classes } = this.props
 
         const content = newContentAvailable ? (
-            <Button variant='contained' color='primary' className={classes.root} onClick={this.handleUpdate}>
+            <Button
+                variant='contained'
+                color='primary'
+                className={classes.root}
+                onClick={this.handleUpdate}>
                 Update
             </Button>
-        ) : null;
+        ) : null
 
-        return <>{content}</>;
+        return <>{content}</>
     }
 }
 
-export default withStyles(styles)(UpdatePanel);
+export default withStyles(styles)(UpdatePanel)

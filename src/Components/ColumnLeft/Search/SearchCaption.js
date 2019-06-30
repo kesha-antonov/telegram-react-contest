@@ -5,24 +5,27 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import withStyles from '@material-ui/core/styles/withStyles';
-import './SearchCaption.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import classNames from 'classnames'
+import withStyles from '@material-ui/core/styles/withStyles'
+import './SearchCaption.css'
 
 const styles = theme => ({
     searchCaption: {
-        background: theme.palette.type === 'dark' ? theme.palette.grey[800] + '!important' : '#f0f4f7',
-        color: theme.palette.type === 'dark' ? theme.palette.text.primary + '!important' : '#8096a8'
+        background:
+            theme.palette.type === 'dark' ? theme.palette.grey[800] + '!important' : '#f0f4f7',
+        color:
+            theme.palette.type === 'dark' ? theme.palette.text.primary + '!important' : '#8096a8',
     },
     searchCaptionCommand: {
-        color: theme.palette.type === 'dark' ? theme.palette.text.primary + '!important' : '#8096a8'
-    }
-});
+        color:
+            theme.palette.type === 'dark' ? theme.palette.text.primary + '!important' : '#8096a8',
+    },
+})
 
 function SearchCaption(props) {
-    const { caption, command, onClick, classes } = props;
+    const { caption, command, onClick, classes } = props
 
     return (
         <div className={classNames('search-caption', classes.searchCaption)}>
@@ -33,13 +36,13 @@ function SearchCaption(props) {
                 </a>
             )}
         </div>
-    );
+    )
 }
 
 SearchCaption.propTypes = {
     caption: PropTypes.string.isRequired,
     command: PropTypes.string,
-    onClick: PropTypes.func
-};
+    onClick: PropTypes.func,
+}
 
-export default withStyles(styles, { withTheme: true })(SearchCaption);
+export default withStyles(styles, { withTheme: true })(SearchCaption)

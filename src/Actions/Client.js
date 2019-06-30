@@ -5,14 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import TdLibController from '../Controllers/TdLibController';
+import TdLibController from '../Controllers/TdLibController'
 
 export function openUser(userId, popup = false) {
     TdLibController.clientUpdate({
         '@type': 'clientUpdateOpenUser',
         userId,
-        popup
-    });
+        popup,
+    })
 }
 
 export function openChat(chatId, messageId = null, popup = false) {
@@ -20,16 +20,16 @@ export function openChat(chatId, messageId = null, popup = false) {
         '@type': 'clientUpdateOpenChat',
         chatId,
         messageId,
-        popup
-    });
+        popup,
+    })
 }
 
 export function highlightMessage(chatId, messageId) {
     TdLibController.clientUpdate({
         '@type': 'clientUpdateMessageHighlighted',
         chatId,
-        messageId
-    });
+        messageId,
+    })
 }
 
 export function selectMessage(chatId, messageId, selected) {
@@ -37,6 +37,6 @@ export function selectMessage(chatId, messageId, selected) {
         '@type': 'clientUpdateMessageSelected',
         chatId,
         messageId,
-        selected
-    });
+        selected,
+    })
 }

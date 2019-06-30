@@ -5,26 +5,26 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import IconButton from '@material-ui/core/IconButton';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import withStyles from '@material-ui/core/styles/withStyles';
-import './GroupsInCommonHeader.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import IconButton from '@material-ui/core/IconButton'
+import ArrowBackIcon from '@material-ui/icons/ArrowBack'
+import withStyles from '@material-ui/core/styles/withStyles'
+import './GroupsInCommonHeader.css'
 
 const styles = {
     backIconButton: {
-        margin: '8px -2px 8px 12px'
-    }
-};
+        margin: '8px -2px 8px 12px',
+    },
+}
 
 class GroupsInCommonHeader extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
     }
 
     render() {
-        const { classes, onClose } = this.props;
+        const { classes, onClose } = this.props
 
         return (
             <div className='header-master'>
@@ -35,12 +35,12 @@ class GroupsInCommonHeader extends React.Component {
                     <span className='header-status-content'>Groups in common</span>
                 </div>
             </div>
-        );
+        )
     }
 }
 
 GroupsInCommonHeader.propTypes = {
-    onClose: PropTypes.func.isRequired
-};
+    onClose: PropTypes.func.isRequired,
+}
 
-export default withStyles(styles)(GroupsInCommonHeader);
+export default withStyles(styles)(GroupsInCommonHeader)

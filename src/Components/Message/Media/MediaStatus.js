@@ -5,43 +5,43 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import { isContentOpened } from '../../../Utils/Message';
-import MessageStore from '../../../Stores/MessageStore';
+import React from 'react'
+import PropTypes from 'prop-types'
+import { isContentOpened } from '../../../Utils/Message'
+import MessageStore from '../../../Stores/MessageStore'
 
 class MediaStatus extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
-        const { chatId, messageId } = this.props;
+        const { chatId, messageId } = this.props
 
         this.state = {
-            isOpened: isContentOpened(chatId, messageId)
-        };
+            isOpened: isContentOpened(chatId, messageId),
+        }
     }
 
     componentDidMount() {
-        MessageStore.on('updateMessageContentOpened', this.onUpdateMessageContentOpened);
+        MessageStore.on('updateMessageContentOpened', this.onUpdateMessageContentOpened)
     }
 
     componentWillUnmount() {
-        MessageStore.removeListener('updateMessageContentOpened', this.onUpdateMessageContentOpened);
+        MessageStore.removeListener('updateMessageContentOpened', this.onUpdateMessageContentOpened)
     }
 
     onUpdateMessageContentOpened = update => {
-        const { chatId, messageId } = this.props;
+        const { chatId, messageId } = this.props
 
         if (chatId === update.chat_id && messageId === update.message_id) {
-            this.setState({ isOpened: isContentOpened(chatId, messageId) });
+            this.setState({ isOpened: isContentOpened(chatId, messageId) })
         }
-    };
+    }
 
     render() {
-        const { icon, openedIcon } = this.props;
-        const { isOpened } = this.state;
+        const { icon, openedIcon } = this.props
+        const { isOpened } = this.state
 
-        return isOpened ? openedIcon : icon;
+        return isOpened ? openedIcon : icon
     }
 }
 
@@ -49,12 +49,12 @@ MediaStatus.propTypes = {
     chatId: PropTypes.number.isRequired,
     messageId: PropTypes.number.isRequired,
     icon: PropTypes.node,
-    openedIcon: PropTypes.node
-};
+    openedIcon: PropTypes.node,
+}
 
 MediaStatus.defaultProps = {
     icon: null,
-    openedIcon: null
-};
+    openedIcon: null,
+}
 
-export default MediaStatus;
+export default MediaStatus

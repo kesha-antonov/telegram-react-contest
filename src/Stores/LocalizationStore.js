@@ -5,20 +5,20 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import { EventEmitter } from 'events';
-import Cookies from 'universal-cookie';
-import i18n from 'i18next';
-import LanguageDetector from 'i18next-browser-languagedetector';
-import LocalStorageBackend from 'i18next-localstorage-backend';
-import { initReactI18next } from 'react-i18next';
-import TdLibController from '../Controllers/TdLibController';
-import ru from './Translations/ru';
-import en from './Translations/en';
+import { EventEmitter } from 'events'
+import Cookies from 'universal-cookie'
+import i18n from 'i18next'
+import LanguageDetector from 'i18next-browser-languagedetector'
+import LocalStorageBackend from 'i18next-localstorage-backend'
+import { initReactI18next } from 'react-i18next'
+import TdLibController from '../Controllers/TdLibController'
+import ru from './Translations/ru'
+import en from './Translations/en'
 
-const defaultLanguage = 'en';
-const defaultNamespace = 'translation';
-const cookies = new Cookies();
-const language = cookies.get('i18next') || defaultLanguage;
+const defaultLanguage = 'en'
+const defaultNamespace = 'translation'
+const cookies = new Cookies()
+const language = cookies.get('i18next') || defaultLanguage
 
 // const detection = {
 //     // order and from where user language should be detected
@@ -43,53 +43,53 @@ i18n.use(initReactI18next) //.use(LanguageDetector) // passes i18n down to react
         fallbackNS: ['local', 'emoji'],
         resources: {
             en,
-            ru
+            ru,
         },
         lng: language,
         fallbackLng: defaultLanguage,
         interpolation: {
-            escapeValue: false
+            escapeValue: false,
         },
         react: {
-            wait: false
-        }
-    });
+            wait: false,
+        },
+    })
 
 const cache = new LocalStorageBackend(null, {
     enabled: true,
     prefix: 'i18next_res_',
-    expirationTime: Infinity
-});
+    expirationTime: Infinity,
+})
 
 const translationDefaultLng = cache.read(defaultLanguage, defaultNamespace, (err, data) => {
-    return data;
-});
+    return data
+})
 const translationCurrentLng = cache.read(language, defaultNamespace, (err, data) => {
-    return data;
-});
-i18n.addResourceBundle(defaultLanguage, defaultNamespace, translationDefaultLng);
-i18n.addResourceBundle(language, defaultNamespace, translationCurrentLng);
+    return data
+})
+i18n.addResourceBundle(defaultLanguage, defaultNamespace, translationDefaultLng)
+i18n.addResourceBundle(language, defaultNamespace, translationCurrentLng)
 
 class LocalizationStore extends EventEmitter {
     constructor() {
-        super();
+        super()
 
-        this.i18n = i18n;
-        this.cache = cache;
+        this.i18n = i18n
+        this.cache = cache
 
-        this.setMaxListeners(Infinity);
-        this.addTdLibListener();
+        this.setMaxListeners(Infinity)
+        this.addTdLibListener()
     }
 
     addTdLibListener = () => {
-        TdLibController.addListener('update', this.onUpdate);
-        TdLibController.addListener('clientUpdate', this.onClientUpdate);
-    };
+        TdLibController.addListener('update', this.onUpdate)
+        TdLibController.addListener('clientUpdate', this.onClientUpdate)
+    }
 
     removeTdLibListener = () => {
-        TdLibController.removeListener('update', this.onUpdate);
-        TdLibController.removeListener('clientUpdate', this.onClientUpdate);
-    };
+        TdLibController.removeListener('update', this.onUpdate)
+        TdLibController.removeListener('clientUpdate', this.onClientUpdate)
+    }
 
     onUpdate = update => {
         switch (update['@type']) {
@@ -99,112 +99,112 @@ class LocalizationStore extends EventEmitter {
                         TdLibController.send({
                             '@type': 'setOption',
                             name: 'localization_target',
-                            value: { '@type': 'optionValueString', value: 'android' }
-                        });
+                            value: { '@type': 'optionValueString', value: 'android' },
+                        })
                         TdLibController.send({
                             '@type': 'setOption',
                             name: 'language_pack_id',
-                            value: { '@type': 'optionValueString', value: language }
-                        });
+                            value: { '@type': 'optionValueString', value: language },
+                        })
                         TdLibController.send({
                             '@type': 'getLocalizationTargetInfo',
-                            only_local: false
+                            only_local: false,
                         }).then(result => {
-                            this.info = result;
+                            this.info = result
 
                             TdLibController.clientUpdate({
                                 '@type': 'clientUpdateLanguageChange',
-                                language: language
-                            });
-                        });
-                        break;
+                                language: language,
+                            })
+                        })
+                        break
                 }
-                break;
+                break
             }
             case 'updateLanguagePackStrings': {
                 // add/remove new strings
 
-                this.emit('updateLanguagePackStrings', update);
-                break;
+                this.emit('updateLanguagePackStrings', update)
+                break
             }
         }
-    };
+    }
 
     onClientUpdate = async update => {
         switch (update['@type']) {
             case 'clientUpdateLanguageChange': {
-                const { language } = update;
+                const { language } = update
 
                 TdLibController.send({
                     '@type': 'getLanguagePackStrings',
                     language_pack_id: language,
-                    keys: []
+                    keys: [],
                 }).then(async result => {
-                    const cookies = new Cookies();
-                    cookies.set('i18next', language);
+                    const cookies = new Cookies()
+                    cookies.set('i18next', language)
 
-                    const resources = this.processStrings(language, result);
+                    const resources = this.processStrings(language, result)
 
-                    this.cache.save(language, defaultNamespace, resources);
+                    this.cache.save(language, defaultNamespace, resources)
 
-                    i18n.addResourceBundle(language, defaultNamespace, resources);
+                    i18n.addResourceBundle(language, defaultNamespace, resources)
 
-                    await i18n.changeLanguage(language);
+                    await i18n.changeLanguage(language)
 
                     TdLibController.send({
                         '@type': 'setOption',
                         name: 'language_pack_id',
-                        value: { '@type': 'optionValueString', value: language }
-                    });
+                        value: { '@type': 'optionValueString', value: language },
+                    })
 
-                    this.emit('clientUpdateLanguageChange', update);
-                });
-                break;
+                    this.emit('clientUpdateLanguageChange', update)
+                })
+                break
             }
         }
-    };
+    }
 
     processStrings = (lng, languagePackStrings) => {
-        if (!languagePackStrings) return {};
-        const { strings } = languagePackStrings;
-        if (!strings) return {};
+        if (!languagePackStrings) return {}
+        const { strings } = languagePackStrings
+        if (!strings) return {}
 
-        let result = {};
+        let result = {}
         for (let i = 0; i < strings.length; i++) {
-            const { value } = strings[i];
+            const { value } = strings[i]
             switch (value['@type']) {
                 case 'languagePackStringValueOrdinary': {
-                    result[strings[i].key] = value.value;
-                    break;
+                    result[strings[i].key] = value.value
+                    break
                 }
                 case 'languagePackStringValuePluralized': {
                     //result[strings[i].key] = value.value;
-                    break;
+                    break
                 }
                 case 'languagePackStringValueDeleted': {
-                    break;
+                    break
                 }
             }
         }
 
-        return result;
-    };
+        return result
+    }
 
     loadLanguage = async language => {
         const result = await TdLibController.send({
             '@type': 'getLanguagePackStrings',
             language_pack_id: language,
-            keys: []
-        });
+            keys: [],
+        })
 
-        const resources = this.processStrings(language, result);
+        const resources = this.processStrings(language, result)
 
-        this.cache.save(language, defaultNamespace, resources);
+        this.cache.save(language, defaultNamespace, resources)
 
-        i18n.addResourceBundle(language, defaultNamespace, resources);
-    };
+        i18n.addResourceBundle(language, defaultNamespace, resources)
+    }
 }
 
-const store = new LocalizationStore();
-window.localization = store;
-export default store;
+const store = new LocalizationStore()
+window.localization = store
+export default store

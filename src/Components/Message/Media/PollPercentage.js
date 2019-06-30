@@ -5,46 +5,46 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { ANIMATION_DURATION_200MS } from './../../../Constants';
-import './PollPercentage.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import classNames from 'classnames'
+import { ANIMATION_DURATION_200MS } from './../../../Constants'
+import './PollPercentage.css'
 
 class PollPercentage extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
-        this.handle = null;
+        this.handle = null
 
-        const { value } = props;
+        const { value } = props
 
         this.state = {
             from: value,
             to: value,
             animated: value,
 
-            prevPropsValue: value
-        };
+            prevPropsValue: value,
+        }
     }
 
     shouldComponentUpdate(nextProps, nextState, nextContext) {
-        const { closed, value } = this.props;
-        const { animated } = this.state;
+        const { closed, value } = this.props
+        const { animated } = this.state
 
         if (closed !== nextProps.closed) {
-            return true;
+            return true
         }
 
         if (value !== nextProps.value) {
-            return true;
+            return true
         }
 
         if (animated !== nextState.animated) {
-            return true;
+            return true
         }
 
-        return false;
+        return false
     }
 
     static getDerivedStateFromProps(props, state) {
@@ -54,54 +54,55 @@ class PollPercentage extends React.Component {
                 from: state.animated,
                 to: props.value,
 
-                prevPropsValue: props.value
-            };
+                prevPropsValue: props.value,
+            }
         }
 
-        return null;
+        return null
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.value !== this.props.value) {
-            this.updateAnimation();
+            this.updateAnimation()
         }
     }
 
     componentWillUnmount() {
-        this.stopAnimation();
+        this.stopAnimation()
     }
 
     updateAnimation = () => {
-        this.stopAnimation();
+        this.stopAnimation()
 
-        this.handle = requestAnimationFrame(this.onAnimationFrame);
-    };
+        this.handle = requestAnimationFrame(this.onAnimationFrame)
+    }
 
     stopAnimation = () => {
-        if (!this.handle) return;
+        if (!this.handle) return
 
-        cancelAnimationFrame(this.handle);
-        this.handle = null;
-    };
+        cancelAnimationFrame(this.handle)
+        this.handle = null
+    }
 
     onAnimationFrame = () => {
-        const { startTime, from, to } = this.state;
+        const { startTime, from, to } = this.state
 
-        const timePassed = Date.now() - startTime;
+        const timePassed = Date.now() - startTime
 
         if (timePassed >= ANIMATION_DURATION_200MS) {
-            this.setState({ animated: to });
-            this.stopAnimation();
+            this.setState({ animated: to })
+            this.stopAnimation()
         } else {
-            const animated = from + Math.floor(((to - from) * timePassed) / ANIMATION_DURATION_200MS);
-            this.setState({ animated });
-            this.handle = requestAnimationFrame(this.onAnimationFrame);
+            const animated =
+                from + Math.floor(((to - from) * timePassed) / ANIMATION_DURATION_200MS)
+            this.setState({ animated })
+            this.handle = requestAnimationFrame(this.onAnimationFrame)
         }
-    };
+    }
 
     render() {
-        const { chosen, closed, onClick } = this.props;
-        const { animated } = this.state;
+        const { chosen, closed, onClick } = this.props
+        const { animated } = this.state
 
         return (
             <div className={classNames('poll-percentage', { 'poll-percentage-subtitle': !chosen })}>
@@ -113,7 +114,7 @@ class PollPercentage extends React.Component {
                     <>{animated + '%'}</>
                 )}
             </div>
-        );
+        )
     }
 }
 
@@ -121,7 +122,7 @@ PollPercentage.propTypes = {
     value: PropTypes.number.isRequired,
     chosen: PropTypes.bool,
     closed: PropTypes.bool,
-    onClick: PropTypes.func
-};
+    onClick: PropTypes.func,
+}
 
-export default PollPercentage;
+export default PollPercentage

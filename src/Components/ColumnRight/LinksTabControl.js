@@ -5,18 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { PropTypes } from 'react';
+import React, { PropTypes } from 'react'
 
 class LinksTabControl extends React.Component {
-
-    render() {
-
-    }
-
+    render() {}
 }
 
-LinksTabControl.propTypes = {};
+LinksTabControl.propTypes = {}
 
-LinksTabControl.defaultProps = {};
+LinksTabControl.defaultProps = {}
 
-export default LinksTabControl;
+export default LinksTabControl

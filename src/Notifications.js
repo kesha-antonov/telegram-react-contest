@@ -5,10 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import { SnackbarProvider } from 'notistack';
-import { getDisplayName } from './Utils/HOC';
-import { MAX_SNACK } from './Constants';
+import React from 'react'
+import { SnackbarProvider } from 'notistack'
+import { getDisplayName } from './Utils/HOC'
+import { MAX_SNACK } from './Constants'
 
 function withSnackbarNotifications(WrappedComponent) {
     class NotificationsWrapper extends React.Component {
@@ -17,12 +17,14 @@ function withSnackbarNotifications(WrappedComponent) {
                 <SnackbarProvider maxSnack={MAX_SNACK}>
                     <WrappedComponent {...this.props} />
                 </SnackbarProvider>
-            );
+            )
         }
     }
-    NotificationsWrapper.displayName = `WithSnackbarNotifications(${getDisplayName(WrappedComponent)})`;
+    NotificationsWrapper.displayName = `WithSnackbarNotifications(${getDisplayName(
+        WrappedComponent
+    )})`
 
-    return NotificationsWrapper;
+    return NotificationsWrapper
 }
 
-export default withSnackbarNotifications;
+export default withSnackbarNotifications

@@ -7,26 +7,26 @@
 
 const borderStyle = theme => ({
     borderColor: {
-        borderColor: theme.palette.divider
-    }
-});
+        borderColor: theme.palette.divider,
+    },
+})
 
 const accentStyles = theme => ({
     accentColorLight: {
-        color: theme.palette.primary.light
+        color: theme.palette.primary.light,
     },
     accentColorDark: {
-        color: theme.palette.primary.dark
+        color: theme.palette.primary.dark,
     },
     accentColorMain: {
-        color: theme.palette.primary.main
+        color: theme.palette.primary.main,
     },
     accentBackgroundLight: {
-        background: theme.palette.primary.light
+        background: theme.palette.primary.light,
     },
     accentBackgroundDark: {
-        background: theme.palette.primary.dark
-    }
-});
+        background: theme.palette.primary.dark,
+    },
+})
 
-export { borderStyle, accentStyles };
+export { borderStyle, accentStyles }

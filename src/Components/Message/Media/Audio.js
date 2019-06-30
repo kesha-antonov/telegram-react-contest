@@ -5,130 +5,130 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import PlayArrowIcon from '@material-ui/icons/PlayArrow';
-import PauseIcon from '@material-ui/icons/Pause';
-import DocumentTile from '../../Tile/DocumentTile';
-import AudioAction from './AudioAction';
-import FileProgress from '../../Viewer/FileProgress';
-import { getAudioTitle } from '../../../Utils/Media';
-import PlayerStore from '../../../Stores/PlayerStore';
-import './Audio.css';
-import InsertDriveFileIcon from './Document';
+import React from 'react'
+import PropTypes from 'prop-types'
+import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
+import PlayArrowIcon from '@material-ui/icons/PlayArrow'
+import PauseIcon from '@material-ui/icons/Pause'
+import DocumentTile from '../../Tile/DocumentTile'
+import AudioAction from './AudioAction'
+import FileProgress from '../../Viewer/FileProgress'
+import { getAudioTitle } from '../../../Utils/Media'
+import PlayerStore from '../../../Stores/PlayerStore'
+import './Audio.css'
+import InsertDriveFileIcon from './Document'
 
 class Audio extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
-        const { chatId, messageId } = props;
+        const { chatId, messageId } = props
 
-        const { time, message, playing } = PlayerStore;
-        const active = message && message.chat_id === chatId && message.id === messageId;
+        const { time, message, playing } = PlayerStore
+        const active = message && message.chat_id === chatId && message.id === messageId
 
         this.state = {
             active: active,
             playing: active ? playing : false,
             currentTime: active && time ? time.currentTime : 0,
-            duration: active && time ? time.duration : 0
-        };
+            duration: active && time ? time.duration : 0,
+        }
     }
 
     shouldComponentUpdate(nextProps, nextState, nextContext) {
-        const { active, playing, currentTime, duration } = this.state;
+        const { active, playing, currentTime, duration } = this.state
 
         if (nextState.active !== active) {
-            return true;
+            return true
         }
 
         if (nextState.playing !== playing) {
-            return true;
+            return true
         }
 
         if (nextState.currentTime !== currentTime) {
-            return true;
+            return true
         }
 
         if (nextState.duration !== duration) {
-            return true;
+            return true
         }
 
-        return false;
+        return false
     }
 
     componentDidMount() {
-        PlayerStore.on('clientUpdateMediaActive', this.onClientUpdateMediaActive);
-        PlayerStore.on('clientUpdateMediaPlay', this.onClientUpdateMediaPlay);
-        PlayerStore.on('clientUpdateMediaPause', this.onClientUpdateMediaPause);
-        PlayerStore.on('clientUpdateMediaEnd', this.onClientUpdateMediaEnd);
+        PlayerStore.on('clientUpdateMediaActive', this.onClientUpdateMediaActive)
+        PlayerStore.on('clientUpdateMediaPlay', this.onClientUpdateMediaPlay)
+        PlayerStore.on('clientUpdateMediaPause', this.onClientUpdateMediaPause)
+        PlayerStore.on('clientUpdateMediaEnd', this.onClientUpdateMediaEnd)
     }
 
     componentWillUnmount() {
-        PlayerStore.removeListener('clientUpdateMediaActive', this.onClientUpdateMediaActive);
-        PlayerStore.removeListener('clientUpdateMediaPlay', this.onClientUpdateMediaPlay);
-        PlayerStore.removeListener('clientUpdateMediaPause', this.onClientUpdateMediaPause);
-        PlayerStore.removeListener('clientUpdateMediaEnd', this.onClientUpdateMediaEnd);
+        PlayerStore.removeListener('clientUpdateMediaActive', this.onClientUpdateMediaActive)
+        PlayerStore.removeListener('clientUpdateMediaPlay', this.onClientUpdateMediaPlay)
+        PlayerStore.removeListener('clientUpdateMediaPause', this.onClientUpdateMediaPause)
+        PlayerStore.removeListener('clientUpdateMediaEnd', this.onClientUpdateMediaEnd)
     }
 
     onClientUpdateMediaEnd = update => {
-        const { chatId, messageId } = this.props;
+        const { chatId, messageId } = this.props
 
         if (chatId === update.chatId && messageId === update.messageId) {
             this.setState({
                 active: false,
                 playing: false,
-                currentTime: 0
-            });
+                currentTime: 0,
+            })
         }
-    };
+    }
 
     onClientUpdateMediaPlay = update => {
-        const { chatId, messageId, playing } = this.props;
+        const { chatId, messageId, playing } = this.props
 
         if (chatId === update.chatId && messageId === update.messageId) {
-            this.setState({ playing: true });
+            this.setState({ playing: true })
         } else {
-            this.setState({ playing: false });
+            this.setState({ playing: false })
         }
-    };
+    }
 
     onClientUpdateMediaPause = update => {
-        const { chatId, messageId } = this.props;
+        const { chatId, messageId } = this.props
 
         if (chatId === update.chatId && messageId === update.messageId) {
-            this.setState({ playing: false });
+            this.setState({ playing: false })
         }
-    };
+    }
 
     onClientUpdateMediaActive = update => {
-        const { chatId, messageId } = this.props;
+        const { chatId, messageId } = this.props
 
         if (chatId === update.chatId && messageId === update.messageId) {
             if (!this.state.active) {
                 this.setState({
                     active: true,
                     currentTime: 0,
-                    playing: true
-                });
+                    playing: true,
+                })
             }
         } else if (this.state.active) {
             this.setState({
                 active: false,
                 currentTime: 0,
-                playing: false
-            });
+                playing: false,
+            })
         }
-    };
+    }
 
     render() {
-        const { chatId, messageId, audio, openMedia } = this.props;
-        const { playing } = this.state;
-        if (!audio) return null;
+        const { chatId, messageId, audio, openMedia } = this.props
+        const { playing } = this.state
+        if (!audio) return null
 
-        const { album_cover_thumbnail, duration, audio: file } = audio;
+        const { album_cover_thumbnail, duration, audio: file } = audio
 
-        const title = getAudioTitle(audio);
+        const title = getAudioTitle(audio)
 
         return (
             <div className='document'>
@@ -145,10 +145,15 @@ class Audio extends React.Component {
                             {title}
                         </a>
                     </div>
-                    <AudioAction chatId={chatId} messageId={messageId} duration={duration} file={file} />
+                    <AudioAction
+                        chatId={chatId}
+                        messageId={messageId}
+                        duration={duration}
+                        file={file}
+                    />
                 </div>
             </div>
-        );
+        )
     }
 }
 
@@ -156,7 +161,7 @@ Audio.propTypes = {
     chatId: PropTypes.number.isRequired,
     messageId: PropTypes.number.isRequired,
     audio: PropTypes.object.isRequired,
-    openMedia: PropTypes.func.isRequired
-};
+    openMedia: PropTypes.func.isRequired,
+}
 
-export default Audio;
+export default Audio

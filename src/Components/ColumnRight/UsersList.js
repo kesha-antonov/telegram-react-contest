@@ -5,13 +5,10 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React from 'react'
 
 class UsersList extends React.Component {
-
-    render() {
-
-    }
+    render() {}
 }
 
-export default UsersList;
+export default UsersList

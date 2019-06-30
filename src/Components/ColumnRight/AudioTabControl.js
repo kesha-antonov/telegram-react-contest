@@ -5,18 +5,14 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { PropTypes } from 'react';
+import React, { PropTypes } from 'react'
 
 class AudioTabControl extends React.Component {
-
-    render() {
-
-    }
-
+    render() {}
 }
 
-AudioTabControl.propTypes = {};
+AudioTabControl.propTypes = {}
 
-AudioTabControl.defaultProps = {};
+AudioTabControl.defaultProps = {}
 
-export default AudioTabControl;
+export default AudioTabControl

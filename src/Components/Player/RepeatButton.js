@@ -5,90 +5,90 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import withStyles from '@material-ui/core/styles/withStyles';
-import IconButton from '@material-ui/core/IconButton';
-import RepeatIcon from '@material-ui/icons/Repeat';
-import RepeatOneIcon from '@material-ui/icons/RepeatOne';
-import PlayerStore, { RepeatEnum } from '../../Stores/PlayerStore';
-import TdLibController from '../../Controllers/TdLibController';
+import React from 'react'
+import withStyles from '@material-ui/core/styles/withStyles'
+import IconButton from '@material-ui/core/IconButton'
+import RepeatIcon from '@material-ui/icons/Repeat'
+import RepeatOneIcon from '@material-ui/icons/RepeatOne'
+import PlayerStore, { RepeatEnum } from '../../Stores/PlayerStore'
+import TdLibController from '../../Controllers/TdLibController'
 
 const styles = {
     iconButton: {
-        padding: 4
-    }
-};
+        padding: 4,
+    },
+}
 
 class RepeatButton extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
-        const { repeat } = PlayerStore;
+        const { repeat } = PlayerStore
 
         this.state = {
-            repeat
-        };
+            repeat,
+        }
     }
 
     componentDidMount() {
-        PlayerStore.on('clientUpdateMediaRepeat', this.onClientUpdateMediaRepeat);
+        PlayerStore.on('clientUpdateMediaRepeat', this.onClientUpdateMediaRepeat)
     }
 
     componentWillUnmount() {
-        PlayerStore.removeListener('clientUpdateMediaRepeat', this.onClientUpdateMediaRepeat);
+        PlayerStore.removeListener('clientUpdateMediaRepeat', this.onClientUpdateMediaRepeat)
     }
 
     onClientUpdateMediaRepeat = update => {
-        const { repeat } = update;
+        const { repeat } = update
 
-        this.setState({ repeat });
-    };
+        this.setState({ repeat })
+    }
 
     handleRepeat = () => {
-        const { repeat } = this.state;
+        const { repeat } = this.state
 
-        let nextRepeat = repeat;
+        let nextRepeat = repeat
         switch (repeat) {
             case RepeatEnum.NONE: {
-                nextRepeat = RepeatEnum.REPEAT;
-                break;
+                nextRepeat = RepeatEnum.REPEAT
+                break
             }
             case RepeatEnum.REPEAT: {
-                nextRepeat = RepeatEnum.REPEAT_ONE;
-                break;
+                nextRepeat = RepeatEnum.REPEAT_ONE
+                break
             }
             case RepeatEnum.REPEAT_ONE: {
-                nextRepeat = RepeatEnum.NONE;
-                break;
+                nextRepeat = RepeatEnum.NONE
+                break
             }
         }
 
         TdLibController.clientUpdate({
             '@type': 'clientUpdateMediaRepeat',
-            repeat: nextRepeat
-        });
-    };
+            repeat: nextRepeat,
+        })
+    }
 
     getIcon = repeat => {
         switch (repeat) {
             case RepeatEnum.NONE: {
-                return <RepeatIcon fontSize='small' />;
+                return <RepeatIcon fontSize='small' />
             }
             case RepeatEnum.REPEAT: {
-                return <RepeatIcon fontSize='small' />;
+                return <RepeatIcon fontSize='small' />
             }
             case RepeatEnum.REPEAT_ONE: {
-                return <RepeatOneIcon fontSize='small' />;
+                return <RepeatOneIcon fontSize='small' />
             }
             default: {
-                return <RepeatIcon fontSize='small' />;
+                return <RepeatIcon fontSize='small' />
             }
         }
-    };
+    }
 
     render() {
-        const { classes } = this.props;
-        const { repeat } = this.state;
+        const { classes } = this.props
+        const { repeat } = this.state
 
         return (
             <IconButton
@@ -97,8 +97,8 @@ class RepeatButton extends React.Component {
                 onClick={this.handleRepeat}>
                 {this.getIcon(repeat)}
             </IconButton>
-        );
+        )
     }
 }
 
-export default withStyles(styles)(RepeatButton);
+export default withStyles(styles)(RepeatButton)

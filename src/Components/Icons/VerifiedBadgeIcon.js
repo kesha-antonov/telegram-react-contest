@@ -6,8 +6,8 @@ import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
     primary: {
-        color: blue[400]
-    }
+        color: blue[400],
+    },
 }))
 
 function VerifiedBadgeIcon(props) {
@@ -19,7 +19,7 @@ function VerifiedBadgeIcon(props) {
             color={props.color}
             classes={{
                 colorPrimary: classes.primary,
-                ...props.classes
+                ...props.classes,
             }}
         />
     )
@@ -27,11 +27,11 @@ function VerifiedBadgeIcon(props) {
 
 VerifiedBadgeIcon.propTypes = {
     color: PropTypes.string.isRequired,
-    classes: PropTypes.object.isRequired
+    classes: PropTypes.object.isRequired,
 }
 VerifiedBadgeIcon.defaultProps = {
     color: 'primary',
-    classes: {}
+    classes: {},
 }
 
 export default VerifiedBadgeIcon

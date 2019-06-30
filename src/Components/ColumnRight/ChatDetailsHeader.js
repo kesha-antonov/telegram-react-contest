@@ -5,38 +5,38 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import { compose } from 'recompose';
-import withStyles from '@material-ui/core/styles/withStyles';
-import { withTranslation } from 'react-i18next';
-import IconButton from '@material-ui/core/IconButton';
-import CloseIcon from '@material-ui/icons/Close';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import './ChatDetailsHeader.css';
-import { isChannelChat, isPrivateChat } from '../../Utils/Chat';
+import React from 'react'
+import { compose } from 'recompose'
+import withStyles from '@material-ui/core/styles/withStyles'
+import { withTranslation } from 'react-i18next'
+import IconButton from '@material-ui/core/IconButton'
+import CloseIcon from '@material-ui/icons/Close'
+import ArrowBackIcon from '@material-ui/icons/ArrowBack'
+import './ChatDetailsHeader.css'
+import { isChannelChat, isPrivateChat } from '../../Utils/Chat'
 
 const styles = {
     leftIconButton: {
-        margin: '8px -2px 8px 12px'
+        margin: '8px -2px 8px 12px',
     },
     rightIconButton: {
-        margin: '8px 12px 8px -2px'
-    }
-};
+        margin: '8px 12px 8px -2px',
+    },
+}
 
 class ChatDetailsHeader extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
     }
 
     render() {
-        const { classes, chatId, t, backButton, onClick, onClose } = this.props;
+        const { classes, chatId, t, backButton, onClick, onClose } = this.props
 
-        let info = t('ChatInfo');
+        let info = t('ChatInfo')
         if (isPrivateChat(chatId)) {
-            info = t('Info');
+            info = t('Info')
         } else if (isChannelChat(chatId)) {
-            info = t('ChannelInfo');
+            info = t('ChannelInfo')
         }
 
         return (
@@ -55,13 +55,13 @@ class ChatDetailsHeader extends React.Component {
                     </IconButton>
                 )}
             </div>
-        );
+        )
     }
 }
 
 const enhance = compose(
     withTranslation(),
     withStyles(styles, { withTheme: true })
-);
+)
 
-export default enhance(ChatDetailsHeader);
+export default enhance(ChatDetailsHeader)

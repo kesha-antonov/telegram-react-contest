@@ -5,18 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, { Component } from 'react';
-import Message from './../Message/Message';
-import UserTileControl from './../Tile/UserTileControl';
-import { getTitle, getDate, getText, getMedia } from '../../Utils/Message';
-import UserStore from '../../Stores/UserStore';
-import ChatStore from '../../Stores/ChatStore';
-import TdLibController from '../../Controllers/TdLibController';
-import './MessageGroup.css';
+import React, { Component } from 'react'
+import Message from './../Message/Message'
+import UserTileControl from './../Tile/UserTileControl'
+import { getTitle, getDate, getText, getMedia } from '../../Utils/Message'
+import UserStore from '../../Stores/UserStore'
+import ChatStore from '../../Stores/ChatStore'
+import TdLibController from '../../Controllers/TdLibController'
+import './MessageGroup.css'
 
 class MessageGroup extends Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         //this.openForward = this.openForward.bind(this);
         //this.handleUpdateMessageEdited = this.handleUpdateMessageEdited.bind(this);
@@ -59,46 +59,46 @@ class MessageGroup extends Component {
 
     shouldComponentUpdate(nextProps, nextState) {
         if (nextProps.key !== this.props.key) {
-            return true;
+            return true
         }
 
-        return false;
+        return false
     }
 
     openForward() {
-        let message = this.props.message;
+        let message = this.props.message
 
-        if (!message) return;
-        if (!message.forward_info) return null;
+        if (!message) return
+        if (!message.forward_info) return null
 
         switch (message.forward_info['@type']) {
             case 'messageForwardedFromUser': {
-                let user = UserStore.get(message.forward_info.sender_user_id);
+                let user = UserStore.get(message.forward_info.sender_user_id)
                 if (user) {
                     TdLibController.send({
                         '@type': 'createPrivateChat',
                         user_id: message.forward_info.sender_user_id,
-                        force: true
+                        force: true,
                     }).then(chat => {
-                        this.props.onSelectChat(chat);
-                    });
+                        this.props.onSelectChat(chat)
+                    })
                 }
-                break;
+                break
             }
             case 'messageForwardedPost': {
-                let chat = ChatStore.get(message.forward_info.chat_id);
+                let chat = ChatStore.get(message.forward_info.chat_id)
 
-                this.props.onSelectChat(chat);
-                break;
+                this.props.onSelectChat(chat)
+                break
             }
         }
     }
 
     render() {
-        let messages = this.props.messages;
-        if (!messages) return <div>[empty group]</div>;
+        let messages = this.props.messages
+        if (!messages) return <div>[empty group]</div>
 
-        let user = UserStore.get(this.props.messages[0].sender_user_id);
+        let user = UserStore.get(this.props.messages[0].sender_user_id)
 
         const groupContent = this.props.messages.map(x => (
             <Message
@@ -107,7 +107,7 @@ class MessageGroup extends Component {
                 sendingState={x.sending_state}
                 message={x}
             />
-        ));
+        ))
 
         return (
             <div className='group-wrapper'>
@@ -120,8 +120,8 @@ class MessageGroup extends Component {
                 )}
                 <div className='group-content'>{groupContent}</div>
             </div>
-        );
+        )
     }
 }
 
-export default MessageGroup;
+export default MessageGroup

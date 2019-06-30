@@ -22,26 +22,26 @@ import './VolumeButton.css'
 
 const styles = theme => ({
     iconButton: {
-        padding: 4
+        padding: 4,
     },
     root: {
         display: 'flex',
         height: 100,
         width: 28,
         padding: '13px 0',
-        background: theme.palette.type === 'dark' ? theme.palette.background.default : '#FFFFFF'
+        background: theme.palette.type === 'dark' ? theme.palette.background.default : '#FFFFFF',
     },
     slider: {
-        padding: '0 13px'
+        padding: '0 13px',
     },
     track: {
-        transition: 'height linear 150ms'
+        transition: 'height linear 150ms',
     },
     thumb: {
         opacity: 0,
-        transition: 'bottom linear 150ms'
+        transition: 'bottom linear 150ms',
     },
-    ...borderStyle(theme)
+    ...borderStyle(theme),
 })
 
 class VolumeButton extends React.Component {
@@ -51,7 +51,7 @@ class VolumeButton extends React.Component {
         this.state = {
             anchorEl: null,
             value: PlayerStore.volume,
-            prevValue: PlayerStore.volume
+            prevValue: PlayerStore.volume,
         }
 
         this.dragging = false
@@ -116,7 +116,7 @@ class VolumeButton extends React.Component {
 
         TdLibController.clientUpdate({
             '@type': 'clientUpdateMediaVolume',
-            volume: nextValue
+            volume: nextValue,
         })
     }
 
@@ -128,7 +128,7 @@ class VolumeButton extends React.Component {
         this.setState({ prevValue: this.state.value, value }, () => {
             TdLibController.clientUpdate({
                 '@type': 'clientUpdateMediaVolume',
-                volume: value
+                volume: value,
             })
         })
     }
@@ -181,9 +181,12 @@ class VolumeButton extends React.Component {
                 onMouseLeave={this.handleMouseLeave}
                 style={{
                     position: 'relative',
-                    background: 'transparent'
+                    background: 'transparent',
                 }}>
-                <IconButton className={classes.iconButton} color='primary' onClick={this.handleVoiceClick}>
+                <IconButton
+                    className={classes.iconButton}
+                    color='primary'
+                    onClick={this.handleVoiceClick}>
                     {this.getVolumeIcon()}
                 </IconButton>
                 <div
@@ -191,7 +194,7 @@ class VolumeButton extends React.Component {
                         position: 'absolute',
                         background: 'transparent',
                         visibility: open ? 'visible' : 'hidden',
-                        zIndex: 1
+                        zIndex: 1,
                     }}
                     onMouseEnter={e => this.handleMouseEnter(e, false)}
                     onMouseLeave={this.handlePopupMouseLeave}>
@@ -200,13 +203,13 @@ class VolumeButton extends React.Component {
                         style={{
                             marginTop: 8,
                             borderWidth: 1,
-                            borderStyle: 'solid'
+                            borderStyle: 'solid',
                         }}>
                         <Slider
                             classes={{
                                 root: classes.slider,
                                 thumb: classes.thumb,
-                                track: classes.track
+                                track: classes.track,
                             }}
                             min={0}
                             max={1}

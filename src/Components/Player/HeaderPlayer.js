@@ -27,7 +27,11 @@ import { getSrc } from '../../Utils/File'
 import { openChat } from '../../Actions/Client'
 import { getDurationString } from '../../Utils/Common'
 import { getDate, getDateHint, getMediaTitle, hasAudio } from '../../Utils/Message'
-import { PLAYER_PLAYBACKRATE_FAST, PLAYER_PLAYBACKRATE_NORMAL, PLAYER_STARTTIME } from '../../Constants'
+import {
+    PLAYER_PLAYBACKRATE_FAST,
+    PLAYER_PLAYBACKRATE_NORMAL,
+    PLAYER_STARTTIME,
+} from '../../Constants'
 import PlayerStore from '../../Stores/PlayerStore'
 import FileStore from '../../Stores/FileStore'
 import ApplicationStore from '../../Stores/ApplicationStore'
@@ -36,9 +40,9 @@ import './HeaderPlayer.css'
 
 const styles = theme => ({
     iconButton: {
-        padding: 4
+        padding: 4,
     },
-    ...borderStyle(theme)
+    ...borderStyle(theme),
 })
 
 class HeaderPlayer extends React.Component {
@@ -57,7 +61,7 @@ class HeaderPlayer extends React.Component {
             message: message,
             playlist: playlist,
             playing: false,
-            src: this.getMediaSrc(message)
+            src: this.getMediaSrc(message),
         }
     }
 
@@ -112,14 +116,29 @@ class HeaderPlayer extends React.Component {
         PlayerStore.removeListener('clientUpdateMediaActive', this.onClientUpdateMediaActive)
         PlayerStore.removeListener('clientUpdateMediaClose', this.onClientUpdateMediaClose)
         PlayerStore.removeListener('clientUpdateMediaPlaylist', this.onClientUpdateMediaPlaylist)
-        PlayerStore.removeListener('clientUpdateMediaViewerPlay', this.onClientUpdateMediaViewerPlay)
-        PlayerStore.removeListener('clientUpdateMediaViewerPause', this.onClientUpdateMediaViewerPause)
-        PlayerStore.removeListener('clientUpdateMediaViewerEnded', this.onClientUpdateMediaViewerEnded)
+        PlayerStore.removeListener(
+            'clientUpdateMediaViewerPlay',
+            this.onClientUpdateMediaViewerPlay
+        )
+        PlayerStore.removeListener(
+            'clientUpdateMediaViewerPause',
+            this.onClientUpdateMediaViewerPause
+        )
+        PlayerStore.removeListener(
+            'clientUpdateMediaViewerEnded',
+            this.onClientUpdateMediaViewerEnded
+        )
         PlayerStore.removeListener('clientUpdateMediaVolume', this.onClientUpdateMediaVolume)
-        PlayerStore.removeListener('clientUpdateMediaPlaybackRate', this.onClientUpdateMediaPlaybackRate)
+        PlayerStore.removeListener(
+            'clientUpdateMediaPlaybackRate',
+            this.onClientUpdateMediaPlaybackRate
+        )
         PlayerStore.removeListener('clientUpdateMediaTime', this.onClientUpdateMediaTime)
 
-        ApplicationStore.removeListener('clientUpdateMediaViewerContent', this.onClientUpdateMediaViewerContent)
+        ApplicationStore.removeListener(
+            'clientUpdateMediaViewerContent',
+            this.onClientUpdateMediaViewerContent
+        )
     }
 
     onClientUpdateMediaPlaybackRate = update => {
@@ -166,7 +185,7 @@ class HeaderPlayer extends React.Component {
 
         this.setState(
             {
-                src: this.getMediaSrc(message)
+                src: this.getMediaSrc(message),
             },
             () => {
                 const player = this.videoRef.current
@@ -177,7 +196,7 @@ class HeaderPlayer extends React.Component {
                         TdLibController.clientUpdate({
                             '@type': 'clientUpdateMediaPause',
                             chatId: chat_id,
-                            messageId: id
+                            messageId: id,
                         })
                     }
                 }
@@ -276,7 +295,7 @@ class HeaderPlayer extends React.Component {
             message: null,
             playlist: null,
             playing: false,
-            src: null
+            src: null,
         })
     }
 
@@ -304,7 +323,7 @@ class HeaderPlayer extends React.Component {
                     message: PlayerStore.message,
                     playlist,
                     playing,
-                    src
+                    src,
                 },
                 () => {
                     const player = this.videoRef.current
@@ -327,7 +346,7 @@ class HeaderPlayer extends React.Component {
 
     handlePrev = () => {
         TdLibController.clientUpdate({
-            '@type': 'clientUpdateMediaPrev'
+            '@type': 'clientUpdateMediaPrev',
         })
     }
 
@@ -338,13 +357,13 @@ class HeaderPlayer extends React.Component {
         TdLibController.clientUpdate({
             '@type': 'clientUpdateMediaActive',
             chatId: message.chat_id,
-            messageId: message.id
+            messageId: message.id,
         })
     }
 
     handleNext = () => {
         TdLibController.clientUpdate({
-            '@type': 'clientUpdateMediaNext'
+            '@type': 'clientUpdateMediaNext',
         })
     }
 
@@ -411,7 +430,7 @@ class HeaderPlayer extends React.Component {
             '@type': 'clientUpdateMediaEnding',
             chatId: message.chat_id,
             messageId: message.id,
-            moveNext: moveNext
+            moveNext: moveNext,
         })
 
         this.setState(
@@ -425,7 +444,7 @@ class HeaderPlayer extends React.Component {
                     '@type': 'clientUpdateMediaEnd',
                     chatId: message.chat_id,
                     messageId: message.id,
-                    moveNext: moveNext
+                    moveNext: moveNext,
                 })
             }
         )
@@ -457,7 +476,7 @@ class HeaderPlayer extends React.Component {
             messageId: message.id,
             duration: player.duration,
             currentTime: player.currentTime,
-            timestamp: Date.now()
+            timestamp: Date.now(),
         })
     }
 
@@ -475,7 +494,7 @@ class HeaderPlayer extends React.Component {
         if (message.chat_id === update.chatId && message.id === update.messageId) {
             this.setState({
                 currentTime: update.currentTime,
-                currentTimeString: getDurationString(Math.floor(update.currentTime || 0))
+                currentTimeString: getDurationString(Math.floor(update.currentTime || 0)),
             })
 
             player.currentTime = update.currentTime
@@ -517,7 +536,7 @@ class HeaderPlayer extends React.Component {
             '@type': 'clientUpdateMediaCaptureStream',
             chatId: message.chat_id,
             messageId: message.id,
-            stream: stream
+            stream: stream,
         })
     }
 
@@ -526,7 +545,7 @@ class HeaderPlayer extends React.Component {
         if (!message) return
 
         this.setState({
-            playing: true
+            playing: true,
         })
 
         const player = this.videoRef.current
@@ -538,7 +557,7 @@ class HeaderPlayer extends React.Component {
             messageId: message.id,
             currentTime: player.currentTime,
             duration: player.duration,
-            timestamp: Date.now()
+            timestamp: Date.now(),
         })
     }
 
@@ -547,7 +566,7 @@ class HeaderPlayer extends React.Component {
         if (!message) return
 
         this.setState({
-            playing: false
+            playing: false,
         })
 
         const player = this.videoRef.current
@@ -556,7 +575,7 @@ class HeaderPlayer extends React.Component {
         TdLibController.clientUpdate({
             '@type': 'clientUpdateMediaPause',
             chatId: message.chat_id,
-            messageId: message.id
+            messageId: message.id,
         })
     }
 
@@ -564,11 +583,13 @@ class HeaderPlayer extends React.Component {
         const { playbackRate } = this.state
 
         const nextPlaybackRate =
-            playbackRate === PLAYER_PLAYBACKRATE_NORMAL ? PLAYER_PLAYBACKRATE_FAST : PLAYER_PLAYBACKRATE_NORMAL
+            playbackRate === PLAYER_PLAYBACKRATE_NORMAL
+                ? PLAYER_PLAYBACKRATE_FAST
+                : PLAYER_PLAYBACKRATE_NORMAL
 
         this.setState(
             {
-                playbackRate: nextPlaybackRate
+                playbackRate: nextPlaybackRate,
             },
             () => {
                 const player = this.videoRef.current
@@ -580,7 +601,7 @@ class HeaderPlayer extends React.Component {
 
         TdLibController.clientUpdate({
             '@type': 'clientUpdateMediaPlaybackRate',
-            playbackRate: nextPlaybackRate
+            playbackRate: nextPlaybackRate,
         })
     }
 
@@ -611,14 +632,14 @@ class HeaderPlayer extends React.Component {
     handleTitleMouseEnter = () => {
         TdLibController.clientUpdate({
             '@type': 'clientUpdateMediaTitleMouseOver',
-            over: true
+            over: true,
         })
     }
 
     handleTitleMouseLeave = () => {
         TdLibController.clientUpdate({
             '@type': 'clientUpdateMediaTitleMouseOver',
-            over: false
+            over: false,
         })
     }
 

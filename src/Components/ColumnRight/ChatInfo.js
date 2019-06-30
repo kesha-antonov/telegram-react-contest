@@ -5,18 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import withStyles from '@material-ui/core/styles/withStyles';
-import ChatDetails from './ChatDetails';
-import GroupsInCommon from './GroupsInCommon';
-import SharedMedia from './SharedMedia';
-import { borderStyle } from '../Theme';
-import ApplicationStore from '../../Stores/ApplicationStore';
-import ChatStore from '../../Stores/ChatStore';
-import TdLibController from '../../Controllers/TdLibController';
-import './ChatInfo.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import classNames from 'classnames'
+import withStyles from '@material-ui/core/styles/withStyles'
+import ChatDetails from './ChatDetails'
+import GroupsInCommon from './GroupsInCommon'
+import SharedMedia from './SharedMedia'
+import { borderStyle } from '../Theme'
+import ApplicationStore from '../../Stores/ApplicationStore'
+import ChatStore from '../../Stores/ChatStore'
+import TdLibController from '../../Controllers/TdLibController'
+import './ChatInfo.css'
 
 // const styles = (theme) => ({
 //     borderColor: {
@@ -26,91 +26,94 @@ import './ChatInfo.css';
 
 class ChatInfo extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
-        this.detailsRef = React.createRef();
+        this.detailsRef = React.createRef()
 
-        const { popup } = props;
+        const { popup } = props
 
         this.state = {
-            chatId: popup ? ApplicationStore.dialogChatId : ApplicationStore.chatId
-        };
+            chatId: popup ? ApplicationStore.dialogChatId : ApplicationStore.chatId,
+        }
     }
 
     componentDidMount() {
-        ApplicationStore.on('clientUpdateChatId', this.onClientUpdateChatId);
+        ApplicationStore.on('clientUpdateChatId', this.onClientUpdateChatId)
     }
 
     componentWillUnmount() {
-        ApplicationStore.removeListener('clientUpdateChatId', this.onClientUpdateChatId);
+        ApplicationStore.removeListener('clientUpdateChatId', this.onClientUpdateChatId)
     }
 
     onClientUpdateChatId = update => {
-        const { popup } = this.props;
-        if (popup) return;
+        const { popup } = this.props
+        if (popup) return
 
         this.setState({
             chatId: update.nextChatId,
             userChatId: null,
             openSharedMedia: false,
-            openGroupsInCommon: false
-        });
-    };
+            openGroupsInCommon: false,
+        })
+    }
 
     handelOpenSharedMedia = () => {
-        this.setState({ openSharedMedia: true });
-    };
+        this.setState({ openSharedMedia: true })
+    }
 
     handleCloseSharedMedia = () => {
-        this.setState({ openSharedMedia: false });
-    };
+        this.setState({ openSharedMedia: false })
+    }
 
     handleOpenGroupsInCommon = height => {
-        console.log('ChatInfo.handleOpenGroupsInCommon', height);
-        this.setState({ openGroupsInCommon: true });
-    };
+        console.log('ChatInfo.handleOpenGroupsInCommon', height)
+        this.setState({ openGroupsInCommon: true })
+    }
 
     handleCloseGroupsInCommon = () => {
-        this.setState({ openGroupsInCommon: false });
-    };
+        this.setState({ openGroupsInCommon: false })
+    }
 
     handleCloseChatDetails = () => {
-        const { popup } = this.props;
-        const { userChatId } = this.state;
+        const { popup } = this.props
+        const { userChatId } = this.state
         if (userChatId) {
-            this.setState({ userChatId: null });
+            this.setState({ userChatId: null })
         } else if (popup) {
             TdLibController.clientUpdate({
                 '@type': 'clientUpdateDialogChatId',
-                chatId: 0
-            });
+                chatId: 0,
+            })
         } else {
-            ApplicationStore.changeChatDetailsVisibility(false);
+            ApplicationStore.changeChatDetailsVisibility(false)
         }
-    };
+    }
 
     handleSelectUser = async user => {
-        if (!user) return;
+        if (!user) return
 
         let chat = await TdLibController.send({
             '@type': 'createPrivateChat',
             user_id: user.id,
-            force: true
-        });
+            force: true,
+        })
 
-        chat = ChatStore.get(chat.id) || chat;
-        if (!chat) return;
+        chat = ChatStore.get(chat.id) || chat
+        if (!chat) return
 
-        this.setState({ userChatId: chat.id });
-    };
+        this.setState({ userChatId: chat.id })
+    }
 
     render() {
-        const { classes, className, popup } = this.props;
-        const { chatId, userChatId, openSharedMedia, openGroupsInCommon } = this.state;
-        const currentChatId = chatId || userChatId;
-        const minHeight = this.detailsRef && this.detailsRef.current ? this.detailsRef.current.getContentHeight() : 0;
+        const { classes, className, popup } = this.props
+        const { chatId, userChatId, openSharedMedia, openGroupsInCommon } = this.state
+        const currentChatId = chatId || userChatId
+        const minHeight =
+            this.detailsRef && this.detailsRef.current
+                ? this.detailsRef.current.getContentHeight()
+                : 0
 
-        let content = null;
+        let content = null
         if (openSharedMedia) {
             content = (
                 <SharedMedia
@@ -119,7 +122,7 @@ class ChatInfo extends React.Component {
                     minHeight={minHeight}
                     onClose={this.handleCloseSharedMedia}
                 />
-            );
+            )
         } else if (openGroupsInCommon) {
             content = (
                 <GroupsInCommon
@@ -128,7 +131,7 @@ class ChatInfo extends React.Component {
                     minHeight={minHeight}
                     onClose={this.handleCloseGroupsInCommon}
                 />
-            );
+            )
         } else {
             content = (
                 <ChatDetails
@@ -140,27 +143,29 @@ class ChatInfo extends React.Component {
                     onOpenGroupsInCommon={this.handleOpenGroupsInCommon}
                     onClose={this.handleCloseChatDetails}
                 />
-            );
+            )
         }
 
         return popup ? (
             <>{content}</>
         ) : (
-            <div className={classNames(classes.borderColor, { 'right-column': !popup }, className)}>{content}</div>
-        );
+            <div className={classNames(classes.borderColor, { 'right-column': !popup }, className)}>
+                {content}
+            </div>
+        )
     }
 }
 
 ChatInfo.propTypes = {
     className: PropTypes.string,
     classes: PropTypes.object,
-    popup: PropTypes.bool
-};
+    popup: PropTypes.bool,
+}
 
 ChatInfo.defaultProps = {
     className: null,
     classes: null,
-    popup: false
-};
+    popup: false,
+}
 
-export default withStyles(borderStyle)(ChatInfo);
+export default withStyles(borderStyle)(ChatInfo)

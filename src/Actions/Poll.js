@@ -5,15 +5,15 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import TdLibController from '../Controllers/TdLibController';
+import TdLibController from '../Controllers/TdLibController'
 
 export function setPollAnswer(chatId, messageId, optionIds) {
     TdLibController.send({
         '@type': 'setPollAnswer',
         chat_id: chatId,
         message_id: messageId,
-        option_ids: optionIds
-    });
+        option_ids: optionIds,
+    })
 }
 
 export function cancelPollAnswer(chatId, messageId) {
@@ -21,8 +21,8 @@ export function cancelPollAnswer(chatId, messageId) {
         '@type': 'setPollAnswer',
         chat_id: chatId,
         message_id: messageId,
-        option_ids: []
-    });
+        option_ids: [],
+    })
 }
 
 export function stopPoll(chatId, messageId) {
@@ -30,6 +30,6 @@ export function stopPoll(chatId, messageId) {
         '@type': 'stopPoll',
         chat_id: chatId,
         message_id: messageId,
-        reply_markup: null
-    });
+        reply_markup: null,
+    })
 }

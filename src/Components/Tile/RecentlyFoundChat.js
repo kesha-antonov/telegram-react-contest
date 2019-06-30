@@ -5,23 +5,23 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import ListItem from '@material-ui/core/ListItem';
-import withStyles from '@material-ui/core/styles/withStyles';
-import ChatTileControl from './ChatTileControl';
-import DialogTitleControl from './DialogTitleControl';
-import './RecentlyFoundChat.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import ListItem from '@material-ui/core/ListItem'
+import withStyles from '@material-ui/core/styles/withStyles'
+import ChatTileControl from './ChatTileControl'
+import DialogTitleControl from './DialogTitleControl'
+import './RecentlyFoundChat.css'
 
 const styles = {
     listItem: {
-        padding: '0px'
-    }
-};
+        padding: '0px',
+    },
+}
 
 class RecentlyFoundChat extends React.PureComponent {
     render() {
-        const { chatId, onClick, classes } = this.props;
+        const { chatId, onClick, classes } = this.props
 
         return (
             <ListItem button className={classes.listItem} onClick={onClick}>
@@ -36,13 +36,13 @@ class RecentlyFoundChat extends React.PureComponent {
                     </div>
                 </div>
             </ListItem>
-        );
+        )
     }
 }
 
 RecentlyFoundChat.propTypes = {
     chatId: PropTypes.number.isRequired,
-    onSelect: PropTypes.func
-};
+    onSelect: PropTypes.func,
+}
 
-export default withStyles(styles)(RecentlyFoundChat);
+export default withStyles(styles)(RecentlyFoundChat)

@@ -5,31 +5,31 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import UserTileControl from '../../Tile/UserTileControl';
-import { formatPhoneNumber } from '../../../Utils/Common';
-import { getUserFullName } from '../../../Utils/User';
-import UserStore from '../../../Stores/UserStore';
-import './Contact.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import UserTileControl from '../../Tile/UserTileControl'
+import { formatPhoneNumber } from '../../../Utils/Common'
+import { getUserFullName } from '../../../Utils/User'
+import UserStore from '../../../Stores/UserStore'
+import './Contact.css'
 
 class Contact extends React.Component {
     render() {
-        const { contact, openMedia } = this.props;
-        if (!contact) return null;
+        const { contact, openMedia } = this.props
+        if (!contact) return null
 
-        const { user_id, first_name, last_name, phone_number } = contact;
+        const { user_id, first_name, last_name, phone_number } = contact
 
         const user = UserStore.get(user_id) || {
             '@type': 'user',
             type: { '@type': 'userTypeRegular' },
             id: user_id,
             first_name: first_name,
-            last_name: last_name
-        };
+            last_name: last_name,
+        }
 
-        const fullName = getUserFullName(user);
-        const number = formatPhoneNumber(phone_number);
+        const fullName = getUserFullName(user)
+        const number = formatPhoneNumber(phone_number)
 
         return (
             <div className='contact'>
@@ -38,12 +38,16 @@ class Contact extends React.Component {
                 </div>
                 <div className='contact-content'>
                     <div className='contact-name'>
-                        {user_id > 0 ? <a onClick={openMedia}>{fullName}</a> : <span>{fullName}</span>}
+                        {user_id > 0 ? (
+                            <a onClick={openMedia}>{fullName}</a>
+                        ) : (
+                            <span>{fullName}</span>
+                        )}
                     </div>
                     <div className='contact-phone'>{number}</div>
                 </div>
             </div>
-        );
+        )
     }
 }
 
@@ -51,7 +55,7 @@ Contact.propTypes = {
     chatId: PropTypes.number.isRequired,
     messageId: PropTypes.number.isRequired,
     contact: PropTypes.object.isRequired,
-    openMedia: PropTypes.func
-};
+    openMedia: PropTypes.func,
+}
 
-export default Contact;
+export default Contact

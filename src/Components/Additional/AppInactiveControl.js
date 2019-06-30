@@ -5,17 +5,17 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import Button from '@material-ui/core/Button/Button';
-import './AppInactiveControl.css';
+import React from 'react'
+import Button from '@material-ui/core/Button/Button'
+import './AppInactiveControl.css'
 
 class AppInactiveControl extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
     }
 
     static handleReload() {
-        window.location.reload();
+        window.location.reload()
     }
 
     render() {
@@ -36,8 +36,8 @@ class AppInactiveControl extends React.Component {
                     </div>
                 </div>
             </div>
-        );
+        )
     }
 }
 
-export default AppInactiveControl;
+export default AppInactiveControl

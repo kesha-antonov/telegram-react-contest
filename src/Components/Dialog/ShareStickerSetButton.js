@@ -5,88 +5,96 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import copy from 'copy-to-clipboard';
-import { compose } from 'recompose';
-import { withTranslation } from 'react-i18next';
-import { withSnackbar } from 'notistack';
-import withStyles from '@material-ui/core/styles/withStyles';
-import CloseIcon from '@material-ui/icons/Close';
-import LinkIcon from '@material-ui/icons/Link';
-import MoreIcon from '@material-ui/icons/MoreVert';
-import IconButton from '@material-ui/core/IconButton';
-import ShareIcon from '@material-ui/icons/Share';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import Menu from '@material-ui/core/Menu';
-import MenuItem from '@material-ui/core/MenuItem';
-import { NOTIFICATION_AUTO_HIDE_DURATION_MS } from '../../Constants';
-import OptionStore from '../../Stores/OptionStore';
-import StickerStore from '../../Stores/StickerStore';
-import ApplicationStore from '../../Stores/ApplicationStore';
-import TdLibController from '../../Controllers/TdLibController';
+import React from 'react'
+import PropTypes from 'prop-types'
+import copy from 'copy-to-clipboard'
+import { compose } from 'recompose'
+import { withTranslation } from 'react-i18next'
+import { withSnackbar } from 'notistack'
+import withStyles from '@material-ui/core/styles/withStyles'
+import CloseIcon from '@material-ui/icons/Close'
+import LinkIcon from '@material-ui/icons/Link'
+import MoreIcon from '@material-ui/icons/MoreVert'
+import IconButton from '@material-ui/core/IconButton'
+import ShareIcon from '@material-ui/icons/Share'
+import ListItemIcon from '@material-ui/core/ListItemIcon'
+import ListItemText from '@material-ui/core/ListItemText'
+import Menu from '@material-ui/core/Menu'
+import MenuItem from '@material-ui/core/MenuItem'
+import { NOTIFICATION_AUTO_HIDE_DURATION_MS } from '../../Constants'
+import OptionStore from '../../Stores/OptionStore'
+import StickerStore from '../../Stores/StickerStore'
+import ApplicationStore from '../../Stores/ApplicationStore'
+import TdLibController from '../../Controllers/TdLibController'
 
 const styles = theme => ({
     close: {
-        padding: theme.spacing(0.5)
-    }
-});
+        padding: theme.spacing(0.5),
+    },
+})
 
 class ShareStickerSetButton extends React.Component {
     state = {
-        anchorEl: null
-    };
+        anchorEl: null,
+    }
 
     handleMenuClick = event => {
-        this.handleOpen(event.currentTarget);
-    };
+        this.handleOpen(event.currentTarget)
+    }
 
     handleOpen = anchorEl => {
-        this.setState({ anchorEl });
-    };
+        this.setState({ anchorEl })
+    }
 
     handleClose = () => {
-        this.setState({ anchorEl: null });
-    };
+        this.setState({ anchorEl: null })
+    }
 
     handleCopyLink = () => {
-        this.handleClose();
+        this.handleClose()
 
-        const { t } = this.props;
+        const { t } = this.props
 
-        const link = this.getStickersLink(StickerStore.stickerSet);
-        if (!link) return;
+        const link = this.getStickersLink(StickerStore.stickerSet)
+        if (!link) return
 
-        copy(link);
+        copy(link)
 
-        const key = `${link}_copy_stickers_link`;
-        const message = t('LinkCopied');
-        const action = null;
+        const key = `${link}_copy_stickers_link`
+        const message = t('LinkCopied')
+        const action = null
 
-        this.handleScheduledAction(key, message, action);
-    };
+        this.handleScheduledAction(key, message, action)
+    }
 
     getStickersLink = stickerSet => {
-        if (!stickerSet) return '';
+        if (!stickerSet) return ''
 
-        const { name } = stickerSet;
-        if (!name) return '';
+        const { name } = stickerSet
+        if (!name) return ''
 
-        const telegramUrlOption = OptionStore.get('t_me_url');
+        const telegramUrlOption = OptionStore.get('t_me_url')
 
-        return (telegramUrlOption ? telegramUrlOption.value : 'https://telegram.org/') + 'addstickers/' + name;
-    };
+        return (
+            (telegramUrlOption ? telegramUrlOption.value : 'https://telegram.org/') +
+            'addstickers/' +
+            name
+        )
+    }
 
     handleScheduledAction = (key, message, action) => {
-        if (!key) return;
+        if (!key) return
 
-        const { enqueueSnackbar, classes, t } = this.props;
-        if (!enqueueSnackbar) return;
+        const { enqueueSnackbar, classes, t } = this.props
+        if (!enqueueSnackbar) return
 
-        const TRANSITION_DELAY = 150;
+        const TRANSITION_DELAY = 150
         if (
-            ApplicationStore.addScheduledAction(key, NOTIFICATION_AUTO_HIDE_DURATION_MS + 2 * TRANSITION_DELAY, action)
+            ApplicationStore.addScheduledAction(
+                key,
+                NOTIFICATION_AUTO_HIDE_DURATION_MS + 2 * TRANSITION_DELAY,
+                action
+            )
         ) {
             enqueueSnackbar(message, {
                 autoHideDuration: NOTIFICATION_AUTO_HIDE_DURATION_MS,
@@ -98,32 +106,32 @@ class ShareStickerSetButton extends React.Component {
                         className={classes.close}
                         onClick={() => ApplicationStore.removeScheduledAction(key)}>
                         <CloseIcon />
-                    </IconButton>
-                ]
-            });
+                    </IconButton>,
+                ],
+            })
         }
-    };
+    }
 
     handleShare = () => {
-        this.handleClose();
+        this.handleClose()
 
-        const link = this.getStickersLink(StickerStore.stickerSet);
-        if (!link) return;
+        const link = this.getStickersLink(StickerStore.stickerSet)
+        if (!link) return
 
         TdLibController.clientUpdate({
             '@type': 'clientUpdateStickerSet',
-            stickerSet: null
-        });
+            stickerSet: null,
+        })
 
         TdLibController.clientUpdate({
             '@type': 'clientUpdateForward',
-            info: { link }
-        });
-    };
+            info: { link },
+        })
+    }
 
     render() {
-        const { classes, t, className } = this.props;
-        const { anchorEl } = this.state;
+        const { classes, t, className } = this.props
+        const { anchorEl } = this.state
 
         return (
             <>
@@ -143,11 +151,11 @@ class ShareStickerSetButton extends React.Component {
                     disableRestoreFocus={true}
                     anchorOrigin={{
                         vertical: 'bottom',
-                        horizontal: 'right'
+                        horizontal: 'right',
                     }}
                     transformOrigin={{
                         vertical: 'top',
-                        horizontal: 'right'
+                        horizontal: 'right',
                     }}
                     onClose={this.handleClose}>
                     <MenuItem onClick={this.handleCopyLink}>
@@ -164,16 +172,16 @@ class ShareStickerSetButton extends React.Component {
                     </MenuItem>
                 </Menu>
             </>
-        );
+        )
     }
 }
 
-ShareStickerSetButton.propTypes = {};
+ShareStickerSetButton.propTypes = {}
 
 const enhance = compose(
     withStyles(styles, { withTheme: true }),
     withTranslation(),
     withSnackbar
-);
+)
 
-export default enhance(ShareStickerSetButton);
+export default enhance(ShareStickerSetButton)

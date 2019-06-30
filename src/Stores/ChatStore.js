@@ -44,7 +44,7 @@ class ChatStore extends EventEmitter {
                         TdLibController.parameters.fastUpdating = false
                         this.emitUpdate({
                             '@type': 'clientUpdateFastUpdatingComplete',
-                            updates: this.skippedUpdates
+                            updates: this.skippedUpdates,
                         })
                         this.skippedUpdates = []
                     }
@@ -68,7 +68,7 @@ class ChatStore extends EventEmitter {
                 if (chat) {
                     this.updateChat(chat, {
                         order: update.order === '0' ? chat.order : update.order,
-                        draft_message: update.draft_message
+                        draft_message: update.draft_message,
                     })
                 }
 
@@ -79,7 +79,7 @@ class ChatStore extends EventEmitter {
                 const chat = this.get(update.chat_id)
                 if (chat) {
                     this.updateChat(chat, {
-                        is_marked_as_unread: update.is_marked_as_unread
+                        is_marked_as_unread: update.is_marked_as_unread,
                     })
                 }
 
@@ -91,7 +91,7 @@ class ChatStore extends EventEmitter {
                 if (chat) {
                     this.updateChat(chat, {
                         order: update.order === '0' ? chat.order : update.order,
-                        is_pinned: update.is_pinned
+                        is_pinned: update.is_pinned,
                     })
                 }
 
@@ -103,7 +103,7 @@ class ChatStore extends EventEmitter {
                 if (chat) {
                     this.updateChat(chat, {
                         order: update.order === '0' ? chat.order : update.order,
-                        is_sponsored: update.is_sponsored
+                        is_sponsored: update.is_sponsored,
                     })
                 }
 
@@ -115,7 +115,7 @@ class ChatStore extends EventEmitter {
                 if (chat) {
                     this.updateChat(chat, {
                         order: update.order === '0' ? chat.order : update.order,
-                        last_message: update.last_message
+                        last_message: update.last_message,
                     })
                 }
 
@@ -126,7 +126,7 @@ class ChatStore extends EventEmitter {
                 const chat = this.get(update.chat_id)
                 if (chat) {
                     this.updateChat(chat, {
-                        notification_settings: update.notification_settings
+                        notification_settings: update.notification_settings,
                     })
                 }
 
@@ -182,7 +182,7 @@ class ChatStore extends EventEmitter {
                 if (chat) {
                     this.updateChat(chat, {
                         last_read_inbox_message_id: update.last_read_inbox_message_id,
-                        unread_count: update.unread_count
+                        unread_count: update.unread_count,
                     })
                 }
 
@@ -193,7 +193,7 @@ class ChatStore extends EventEmitter {
                 const chat = this.get(update.chat_id)
                 if (chat) {
                     this.updateChat(chat, {
-                        last_read_outbox_message_id: update.last_read_outbox_message_id
+                        last_read_outbox_message_id: update.last_read_outbox_message_id,
                     })
                 }
 
@@ -204,7 +204,7 @@ class ChatStore extends EventEmitter {
                 const chat = this.get(update.chat_id)
                 if (chat) {
                     this.updateChat(chat, {
-                        reply_markup_message_id: update.reply_markup_message_id
+                        reply_markup_message_id: update.reply_markup_message_id,
                     })
                 }
 
@@ -224,7 +224,7 @@ class ChatStore extends EventEmitter {
                 const chat = this.get(update.chat_id)
                 if (chat) {
                     this.updateChat(chat, {
-                        unread_mention_count: update.unread_mention_count
+                        unread_mention_count: update.unread_mention_count,
                     })
                 }
 
@@ -252,7 +252,9 @@ class ChatStore extends EventEmitter {
             case 'updateUserChatAction': {
                 let typingManager = this.getTypingManager(update.chat_id)
                 if (!typingManager) {
-                    typingManager = new InputTypingManager(update.chat_id, update => this.emitUpdate(update))
+                    typingManager = new InputTypingManager(update.chat_id, update =>
+                        this.emitUpdate(update)
+                    )
                     this.setTypingManager(update.chat_id, typingManager)
                 }
 
@@ -266,7 +268,7 @@ class ChatStore extends EventEmitter {
 
                         if (chat) {
                             this.updateChat(chat, {
-                                isTyping: false
+                                isTyping: false,
                             })
                         }
                         break
@@ -276,7 +278,7 @@ class ChatStore extends EventEmitter {
 
                         if (chat) {
                             this.updateChat(chat, {
-                                isTyping: true
+                                isTyping: true,
                             })
                         }
                 }
@@ -288,7 +290,7 @@ class ChatStore extends EventEmitter {
                 const chat = this.get(update.chat_id)
                 if (chat) {
                     this.updateChat(chat, {
-                        unread_mention_count: update.unread_mention_count
+                        unread_mention_count: update.unread_mention_count,
                     })
 
                     //chat.unread_mention_count = update.unread_mention_count;

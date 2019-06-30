@@ -5,24 +5,24 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import Button from '@material-ui/core/Button/Button';
-import classNames from 'classnames';
-import withStyles from '@material-ui/core/styles/withStyles';
-import { borderStyle } from '../Theme';
-import './FooterCommand.css';
+import React from 'react'
+import Button from '@material-ui/core/Button/Button'
+import classNames from 'classnames'
+import withStyles from '@material-ui/core/styles/withStyles'
+import { borderStyle } from '../Theme'
+import './FooterCommand.css'
 
 const styles = theme => ({
     button: {
         margin: '14px',
-        minWidth: '100px'
+        minWidth: '100px',
     },
-    ...borderStyle(theme)
-});
+    ...borderStyle(theme),
+})
 
 class FooterCommand extends React.Component {
     render() {
-        const { classes, command, onCommand } = this.props;
+        const { classes, command, onCommand } = this.props
 
         return (
             <div className={classNames(classes.borderColor, 'footer-command-wrapper')}>
@@ -32,8 +32,8 @@ class FooterCommand extends React.Component {
                     </Button>
                 </div>
             </div>
-        );
+        )
     }
 }
 
-export default withStyles(styles)(FooterCommand);
+export default withStyles(styles)(FooterCommand)

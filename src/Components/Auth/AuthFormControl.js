@@ -5,42 +5,42 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import withStyles from '@material-ui/core/styles/withStyles';
-import classNames from 'classnames';
-import SignInControl from './SignInControl';
-import ConfirmCodeControl from './ConfirmCodeControl';
-import PasswordControl from './PasswordControl';
-import AuthErrorDialog from './AuthErrorDialog';
-import './AuthFormControl.css';
+import React from 'react'
+import withStyles from '@material-ui/core/styles/withStyles'
+import classNames from 'classnames'
+import SignInControl from './SignInControl'
+import ConfirmCodeControl from './ConfirmCodeControl'
+import PasswordControl from './PasswordControl'
+import AuthErrorDialog from './AuthErrorDialog'
+import './AuthFormControl.css'
 
 const styles = theme => ({
     button: {
-        margin: '20px'
+        margin: '20px',
     },
     authorizationFormContent: {
         background: theme.palette.background.default,
-        color: theme.palette.text.primary
-    }
-});
+        color: theme.palette.text.primary,
+    },
+})
 
 class AuthFormControl extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
-        this.phone = null;
+        this.phone = null
 
-        this.handlePhoneEnter = this.handlePhoneEnter.bind(this);
+        this.handlePhoneEnter = this.handlePhoneEnter.bind(this)
     }
 
     handlePhoneEnter(phone) {
-        this.phone = phone;
+        this.phone = phone
     }
 
     render() {
-        const { classes, authorizationState } = this.props;
+        const { classes, authorizationState } = this.props
 
-        let control = null;
+        let control = null
         switch (authorizationState['@type']) {
             case 'authorizationStateWaitPhoneNumber':
                 // control = (
@@ -50,8 +50,8 @@ class AuthFormControl extends React.Component {
                 //         <PasswordControl passwordHint='hint' onPasswordEnter={this.handlePasswordEnter} onChangePhone={this.handleChangePhone}/>
                 //         <SignUpControl/>
                 //     </>);
-                control = <SignInControl phone={this.phone} onPhoneEnter={this.handlePhoneEnter} />;
-                break;
+                control = <SignInControl phone={this.phone} onPhoneEnter={this.handlePhoneEnter} />
+                break
             case 'authorizationStateWaitCode':
                 control = (
                     <ConfirmCodeControl
@@ -59,30 +59,36 @@ class AuthFormControl extends React.Component {
                         codeInfo={authorizationState.code_info}
                         onChangePhone={this.props.onChangePhone}
                     />
-                );
-                break;
+                )
+                break
             case 'authorizationStateWaitPassword':
                 control = (
                     <PasswordControl
                         passwordHint={authorizationState.password_hint}
                         hasRecoveryEmailAddress={authorizationState.has_recovery_email_address}
-                        recoveryEmailAddressPattern={authorizationState.recovery_email_address_pattern}
+                        recoveryEmailAddressPattern={
+                            authorizationState.recovery_email_address_pattern
+                        }
                         onChangePhone={this.props.onChangePhone}
                     />
-                );
-                break;
+                )
+                break
             default:
-                break;
+                break
         }
 
         return (
             <div className='sign-in-wrap'>
-                <div className={classNames(classes.authorizationFormContent, 'authorization-form-content')}>
+                <div
+                    className={classNames(
+                        classes.authorizationFormContent,
+                        'authorization-form-content'
+                    )}>
                     {control}
                 </div>
                 <AuthErrorDialog />
             </div>
-        );
+        )
     }
 }
-export default withStyles(styles)(AuthFormControl);
+export default withStyles(styles)(AuthFormControl)

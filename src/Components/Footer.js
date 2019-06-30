@@ -5,9 +5,9 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import packageJson from '../../package.json';
-import './Footer.css';
+import React from 'react'
+import packageJson from '../../package.json'
+import './Footer.css'
 
 class Footer extends React.PureComponent {
     render() {
@@ -15,8 +15,8 @@ class Footer extends React.PureComponent {
             <div className='footer-wrapper'>
                 <span>{packageJson.version}</span>
             </div>
-        );
+        )
     }
 }
 
-export default Footer;
+export default Footer

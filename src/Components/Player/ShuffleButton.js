@@ -5,56 +5,56 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import withStyles from '@material-ui/core/styles/withStyles';
-import IconButton from '@material-ui/core/IconButton';
-import ShuffleIcon from '@material-ui/icons/Shuffle';
-import PlayerStore from '../../Stores/PlayerStore';
-import TdLibController from '../../Controllers/TdLibController';
+import React from 'react'
+import withStyles from '@material-ui/core/styles/withStyles'
+import IconButton from '@material-ui/core/IconButton'
+import ShuffleIcon from '@material-ui/icons/Shuffle'
+import PlayerStore from '../../Stores/PlayerStore'
+import TdLibController from '../../Controllers/TdLibController'
 
 const styles = {
     iconButton: {
-        padding: 4
-    }
-};
+        padding: 4,
+    },
+}
 
 class ShuffleButton extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
-        const { shuffle } = PlayerStore;
+        const { shuffle } = PlayerStore
 
         this.state = {
-            shuffle
-        };
+            shuffle,
+        }
     }
 
     componentDidMount() {
-        PlayerStore.on('clientUpdateMediaShuffle', this.onClientUpdateMediaShuffle);
+        PlayerStore.on('clientUpdateMediaShuffle', this.onClientUpdateMediaShuffle)
     }
 
     componentWillUnmount() {
-        PlayerStore.removeListener('clientUpdateMediaShuffle', this.onClientUpdateMediaShuffle);
+        PlayerStore.removeListener('clientUpdateMediaShuffle', this.onClientUpdateMediaShuffle)
     }
 
     onClientUpdateMediaShuffle = update => {
-        const { shuffle } = update;
+        const { shuffle } = update
 
-        this.setState({ shuffle });
-    };
+        this.setState({ shuffle })
+    }
 
     handleShuffle = () => {
-        const { shuffle } = this.state;
+        const { shuffle } = this.state
 
         TdLibController.clientUpdate({
             '@type': 'clientUpdateMediaShuffle',
-            shuffle: !shuffle
-        });
-    };
+            shuffle: !shuffle,
+        })
+    }
 
     render() {
-        const { classes } = this.props;
-        const { shuffle } = this.state;
+        const { classes } = this.props
+        const { shuffle } = this.state
 
         return (
             <IconButton
@@ -63,8 +63,8 @@ class ShuffleButton extends React.Component {
                 onClick={this.handleShuffle}>
                 <ShuffleIcon fontSize='small' />
             </IconButton>
-        );
+        )
     }
 }
 
-export default withStyles(styles)(ShuffleButton);
+export default withStyles(styles)(ShuffleButton)

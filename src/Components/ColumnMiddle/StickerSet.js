@@ -5,18 +5,18 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import withStyles from '@material-ui/core/styles/withStyles';
-import Sticker from '../Message/Media/Sticker';
-import { STICKER_SMALL_DISPLAY_SIZE } from '../../Constants';
-import './StickerSet.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import classNames from 'classnames'
+import withStyles from '@material-ui/core/styles/withStyles'
+import Sticker from '../Message/Media/Sticker'
+import { STICKER_SMALL_DISPLAY_SIZE } from '../../Constants'
+import './StickerSet.css'
 
 const styles = theme => ({
     title: {
         backgroundColor: theme.palette.background.paper,
-        color: theme.palette.text.primary
+        color: theme.palette.text.primary,
     },
     stickerSetItem: {
         width: STICKER_SMALL_DISPLAY_SIZE,
@@ -25,31 +25,31 @@ const styles = theme => ({
         boxSizing: 'border-box',
         '&:hover': {
             background: theme.palette.type === 'dark' ? '#303030' : '#f4f4f4',
-            borderRadius: 6
-        }
-    }
-});
+            borderRadius: 6,
+        },
+    },
+})
 
 class StickerSet extends React.Component {
     shouldComponentUpdate(nextProps, nextState, nextContext) {
-        const { info, theme } = this.props;
+        const { info, theme } = this.props
 
         if (theme !== nextProps.theme) {
-            return true;
+            return true
         }
 
         if (info !== nextProps.info) {
-            return true;
+            return true
         }
 
-        return false;
+        return false
     }
 
     render() {
-        const { classes, info, onSelect, onMouseDown, onMouseOver } = this.props;
-        if (!info) return null;
+        const { classes, info, onSelect, onMouseDown, onMouseOver } = this.props
+        if (!info) return null
 
-        const { title, stickers } = info;
+        const { title, stickers } = info
 
         const items = stickers.map((x, i) => (
             <div
@@ -68,7 +68,7 @@ class StickerSet extends React.Component {
                     blur={false}
                 />
             </div>
-        ));
+        ))
 
         return (
             <div className='sticker-set'>
@@ -77,14 +77,14 @@ class StickerSet extends React.Component {
                 </div>
                 <div className='sticker-set-content'>{items}</div>
             </div>
-        );
+        )
     }
 }
 
 StickerSet.propTypes = {
     info: PropTypes.object.isRequired,
     onSelect: PropTypes.func.isRequired,
-    onMouseDown: PropTypes.func.isRequired
-};
+    onMouseDown: PropTypes.func.isRequired,
+}
 
-export default withStyles(styles, { withTheme: true })(StickerSet);
+export default withStyles(styles, { withTheme: true })(StickerSet)

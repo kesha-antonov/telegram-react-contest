@@ -5,138 +5,160 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { withTranslation } from 'react-i18next';
-import FileProgress from '../../Viewer/FileProgress';
-import { getFitSize } from '../../../Utils/Common';
-import { isBlurredThumbnail } from '../../../Utils/Media';
-import { getFileSize, getSrc, isGifMimeType } from '../../../Utils/File';
-import { PHOTO_DISPLAY_SIZE, PHOTO_SIZE } from '../../../Constants';
-import FileStore from '../../../Stores/FileStore';
-import MessageStore from '../../../Stores/MessageStore';
-import ApplicationStore from '../../../Stores/ApplicationStore';
-import './Animation.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import classNames from 'classnames'
+import { withTranslation } from 'react-i18next'
+import FileProgress from '../../Viewer/FileProgress'
+import { getFitSize } from '../../../Utils/Common'
+import { isBlurredThumbnail } from '../../../Utils/Media'
+import { getFileSize, getSrc, isGifMimeType } from '../../../Utils/File'
+import { PHOTO_DISPLAY_SIZE, PHOTO_SIZE } from '../../../Constants'
+import FileStore from '../../../Stores/FileStore'
+import MessageStore from '../../../Stores/MessageStore'
+import ApplicationStore from '../../../Stores/ApplicationStore'
+import './Animation.css'
 
 class Animation extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
-        this.videoRef = React.createRef();
+        this.videoRef = React.createRef()
 
-        this.focused = window.hasFocus;
-        this.inView = false;
-        this.openMediaViewer = Boolean(ApplicationStore.mediaViewerContent);
-        this.openProfileMediaViewer = Boolean(ApplicationStore.profileMediaViewerContent);
+        this.focused = window.hasFocus
+        this.inView = false
+        this.openMediaViewer = Boolean(ApplicationStore.mediaViewerContent)
+        this.openProfileMediaViewer = Boolean(ApplicationStore.profileMediaViewerContent)
     }
 
     componentDidMount() {
-        FileStore.on('clientUpdateAnimationThumbnailBlob', this.onClientUpdateAnimationThumbnailBlob);
-        FileStore.on('clientUpdateAnimationBlob', this.onClientUpdateAnimationBlob);
-        ApplicationStore.on('clientUpdateFocusWindow', this.onClientUpdateFocusWindow);
-        ApplicationStore.on('clientUpdateMediaViewerContent', this.onClientUpdateMediaViewerContent);
-        ApplicationStore.on('clientUpdateProfileMediaViewerContent', this.onClientUpdateProfileMediaViewerContent);
-        MessageStore.on('clientUpdateMessagesInView', this.onClientUpdateMessagesInView);
+        FileStore.on(
+            'clientUpdateAnimationThumbnailBlob',
+            this.onClientUpdateAnimationThumbnailBlob
+        )
+        FileStore.on('clientUpdateAnimationBlob', this.onClientUpdateAnimationBlob)
+        ApplicationStore.on('clientUpdateFocusWindow', this.onClientUpdateFocusWindow)
+        ApplicationStore.on('clientUpdateMediaViewerContent', this.onClientUpdateMediaViewerContent)
+        ApplicationStore.on(
+            'clientUpdateProfileMediaViewerContent',
+            this.onClientUpdateProfileMediaViewerContent
+        )
+        MessageStore.on('clientUpdateMessagesInView', this.onClientUpdateMessagesInView)
     }
 
     componentWillUnmount() {
-        FileStore.removeListener('clientUpdateAnimationThumbnailBlob', this.onClientUpdateAnimationThumbnailBlob);
-        FileStore.removeListener('clientUpdateAnimationBlob', this.onClientUpdateAnimationBlob);
-        ApplicationStore.removeListener('clientUpdateFocusWindow', this.onClientUpdateFocusWindow);
-        ApplicationStore.removeListener('clientUpdateMediaViewerContent', this.onClientUpdateMediaViewerContent);
+        FileStore.removeListener(
+            'clientUpdateAnimationThumbnailBlob',
+            this.onClientUpdateAnimationThumbnailBlob
+        )
+        FileStore.removeListener('clientUpdateAnimationBlob', this.onClientUpdateAnimationBlob)
+        ApplicationStore.removeListener('clientUpdateFocusWindow', this.onClientUpdateFocusWindow)
+        ApplicationStore.removeListener(
+            'clientUpdateMediaViewerContent',
+            this.onClientUpdateMediaViewerContent
+        )
         ApplicationStore.removeListener(
             'clientUpdateProfileMediaViewerContent',
             this.onClientUpdateProfileMediaViewerContent
-        );
-        MessageStore.removeListener('clientUpdateMessagesInView', this.onClientUpdateMessagesInView);
+        )
+        MessageStore.removeListener('clientUpdateMessagesInView', this.onClientUpdateMessagesInView)
     }
 
     startStopPlayer = () => {
-        const player = this.videoRef.current;
+        const player = this.videoRef.current
         if (player) {
-            if (this.inView && this.focused && !this.openMediaViewer && !this.openProfileMediaViewer) {
+            if (
+                this.inView &&
+                this.focused &&
+                !this.openMediaViewer &&
+                !this.openProfileMediaViewer
+            ) {
                 //console.log('clientUpdate player play message_id=' + this.props.messageId);
-                player.play();
+                player.play()
             } else {
                 //console.log('clientUpdate player pause message_id=' + this.props.messageId);
-                player.pause();
+                player.pause()
             }
         }
-    };
+    }
 
     onClientUpdateProfileMediaViewerContent = update => {
-        this.openProfileMediaViewer = Boolean(ApplicationStore.profileMediaViewerContent);
+        this.openProfileMediaViewer = Boolean(ApplicationStore.profileMediaViewerContent)
 
-        this.startStopPlayer();
-    };
+        this.startStopPlayer()
+    }
 
     onClientUpdateMediaViewerContent = update => {
-        this.openMediaViewer = Boolean(ApplicationStore.mediaViewerContent);
+        this.openMediaViewer = Boolean(ApplicationStore.mediaViewerContent)
 
-        this.startStopPlayer();
-    };
+        this.startStopPlayer()
+    }
 
     onClientUpdateFocusWindow = update => {
-        this.focused = update.focused;
+        this.focused = update.focused
 
-        this.startStopPlayer();
-    };
+        this.startStopPlayer()
+    }
 
     onClientUpdateMessagesInView = update => {
-        const { chatId, messageId } = this.props;
-        const key = `${chatId}_${messageId}`;
+        const { chatId, messageId } = this.props
+        const key = `${chatId}_${messageId}`
 
-        this.inView = update.messages.has(key);
+        this.inView = update.messages.has(key)
 
-        this.startStopPlayer();
-    };
+        this.startStopPlayer()
+    }
 
     onClientUpdateAnimationBlob = update => {
-        const { animation } = this.props.animation;
-        const { fileId } = update;
+        const { animation } = this.props.animation
+        const { fileId } = update
 
-        if (!animation) return;
+        if (!animation) return
 
         if (animation.id === fileId) {
-            this.forceUpdate();
+            this.forceUpdate()
         }
-    };
+    }
 
     onClientUpdateAnimationThumbnailBlob = update => {
-        const { thumbnail } = this.props.animation;
-        if (!thumbnail) return;
+        const { thumbnail } = this.props.animation
+        if (!thumbnail) return
 
-        const { fileId } = update;
+        const { fileId } = update
 
         if (thumbnail.photo && thumbnail.photo.id === fileId) {
-            this.forceUpdate();
+            this.forceUpdate()
         }
-    };
+    }
 
     render() {
-        const { displaySize, openMedia, t } = this.props;
-        const { thumbnail, animation, mime_type, width, height } = this.props.animation;
+        const { displaySize, openMedia, t } = this.props
+        const { thumbnail, animation, mime_type, width, height } = this.props.animation
 
-        const fitPhotoSize = getFitSize(thumbnail || { width: width, height: height }, displaySize);
-        if (!fitPhotoSize) return null;
+        const fitPhotoSize = getFitSize(thumbnail || { width: width, height: height }, displaySize)
+        if (!fitPhotoSize) return null
 
         const style = {
             width: fitPhotoSize.width,
-            height: fitPhotoSize.height
-        };
+            height: fitPhotoSize.height,
+        }
 
-        const thumbnailSrc = getSrc(thumbnail ? thumbnail.photo : null);
-        const src = getSrc(animation);
+        const thumbnailSrc = getSrc(thumbnail ? thumbnail.photo : null)
+        const src = getSrc(animation)
 
-        const isBlurred = isBlurredThumbnail(thumbnail);
-        const isGif = isGifMimeType(mime_type);
+        const isBlurred = isBlurredThumbnail(thumbnail)
+        const isGif = isGifMimeType(mime_type)
 
         return (
             <div className='animation' style={style} onClick={openMedia}>
                 {src ? (
                     isGif ? (
-                        <img className='media-viewer-content-image' style={style} src={src} alt='' />
+                        <img
+                            className='media-viewer-content-image'
+                            style={style}
+                            src={src}
+                            alt=''
+                        />
                     ) : (
                         <video
                             ref={this.videoRef}
@@ -154,7 +176,9 @@ class Animation extends React.Component {
                 ) : (
                     <>
                         <img
-                            className={classNames('animation-preview', { 'media-blurred': isBlurred })}
+                            className={classNames('animation-preview', {
+                                'media-blurred': isBlurred,
+                            })}
                             style={style}
                             src={thumbnailSrc}
                             alt=''
@@ -170,7 +194,7 @@ class Animation extends React.Component {
                     icon={<div className='animation-play'>{t('AttachGif')}</div>}
                 />
             </div>
-        );
+        )
     }
 }
 
@@ -180,12 +204,12 @@ Animation.propTypes = {
     animation: PropTypes.object.isRequired,
     openMedia: PropTypes.func.isRequired,
     size: PropTypes.number,
-    displaySize: PropTypes.number
-};
+    displaySize: PropTypes.number,
+}
 
 Animation.defaultProps = {
     size: PHOTO_SIZE,
-    displaySize: PHOTO_DISPLAY_SIZE
-};
+    displaySize: PHOTO_DISPLAY_SIZE,
+}
 
-export default withTranslation()(Animation);
+export default withTranslation()(Animation)

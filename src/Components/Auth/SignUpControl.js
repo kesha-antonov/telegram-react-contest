@@ -5,18 +5,16 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React, {PropTypes} from 'react';
+import React, { PropTypes } from 'react'
 
 class SignUpControl extends React.Component {
-
     render() {
-        return null;
+        return null
     }
-
 }
 
-SignUpControl.propTypes = {};
+SignUpControl.propTypes = {}
 
-SignUpControl.defaultProps = {};
+SignUpControl.defaultProps = {}
 
-export default SignUpControl;
+export default SignUpControl

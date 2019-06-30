@@ -5,80 +5,96 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import classNames from 'classnames';
-import { isBlurredThumbnail } from '../../../Utils/Media';
-import { getFitSize } from '../../../Utils/Common';
-import { getSrc } from '../../../Utils/File';
-import { STICKER_DISPLAY_SIZE } from '../../../Constants';
-import FileStore from '../../../Stores/FileStore';
-import './Sticker.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import classNames from 'classnames'
+import { isBlurredThumbnail } from '../../../Utils/Media'
+import { getFitSize } from '../../../Utils/Common'
+import { getSrc } from '../../../Utils/File'
+import { STICKER_DISPLAY_SIZE } from '../../../Constants'
+import FileStore from '../../../Stores/FileStore'
+import './Sticker.css'
 
 class Sticker extends React.Component {
     componentDidMount() {
-        FileStore.on('clientUpdateStickerThumbnailBlob', this.onClientUpdateStickerThumbnailBlob);
-        FileStore.on('clientUpdateStickerBlob', this.onClientUpdateStickerBlob);
+        FileStore.on('clientUpdateStickerThumbnailBlob', this.onClientUpdateStickerThumbnailBlob)
+        FileStore.on('clientUpdateStickerBlob', this.onClientUpdateStickerBlob)
     }
 
     componentWillUnmount() {
-        FileStore.removeListener('clientUpdateStickerThumbnailBlob', this.onClientUpdateStickerThumbnailBlob);
-        FileStore.removeListener('clientUpdateStickerBlob', this.onClientUpdateStickerBlob);
+        FileStore.removeListener(
+            'clientUpdateStickerThumbnailBlob',
+            this.onClientUpdateStickerThumbnailBlob
+        )
+        FileStore.removeListener('clientUpdateStickerBlob', this.onClientUpdateStickerBlob)
     }
 
     onClientUpdateStickerBlob = update => {
-        const { sticker } = this.props.sticker;
-        const { fileId } = update;
+        const { sticker } = this.props.sticker
+        const { fileId } = update
 
-        if (!sticker) return;
+        if (!sticker) return
 
         if (sticker.id === fileId) {
-            this.forceUpdate();
+            this.forceUpdate()
         }
-    };
+    }
 
     onClientUpdateStickerThumbnailBlob = update => {
-        const { thumbnail } = this.props.sticker;
-        if (!thumbnail) return;
+        const { thumbnail } = this.props.sticker
+        if (!thumbnail) return
 
-        const { fileId } = update;
+        const { fileId } = update
 
         if (thumbnail.photo && thumbnail.photo.id === fileId) {
-            this.forceUpdate();
+            this.forceUpdate()
         }
-    };
+    }
 
     render() {
-        const { className, displaySize, blur, sticker: source, style, openMedia, preview } = this.props;
-        const { thumbnail, sticker, width, height } = source;
+        const {
+            className,
+            displaySize,
+            blur,
+            sticker: source,
+            style,
+            openMedia,
+            preview,
+        } = this.props
+        const { thumbnail, sticker, width, height } = source
 
-        const thumbnailSrc = getSrc(thumbnail ? thumbnail.photo : null);
-        const src = getSrc(sticker);
-        const isBlurred = isBlurredThumbnail(thumbnail);
+        const thumbnailSrc = getSrc(thumbnail ? thumbnail.photo : null)
+        const src = getSrc(sticker)
+        const isBlurred = isBlurredThumbnail(thumbnail)
 
-        const fitSize = getFitSize({ width: width, height: height }, displaySize);
-        if (!fitSize) return null;
+        const fitSize = getFitSize({ width: width, height: height }, displaySize)
+        if (!fitSize) return null
 
         const stickerStyle = {
             width: fitSize.width,
             height: fitSize.height,
-            ...style
-        };
+            ...style,
+        }
 
         return (
-            <div className={classNames('sticker', className)} style={stickerStyle} onClick={openMedia}>
+            <div
+                className={classNames('sticker', className)}
+                style={stickerStyle}
+                onClick={openMedia}>
                 {src && !preview ? (
                     <img className='sticker-image' draggable={false} src={src} alt='' />
                 ) : (
                     <img
-                        className={classNames('sticker-image', { 'media-blurred': isBlurred && blur })}
+                        className={classNames('sticker-image', {
+                            'media-blurred': isBlurred && blur,
+                        })}
                         draggable={false}
                         src={thumbnailSrc}
                         alt=''
                     />
                 )}
             </div>
-        );
+        )
     }
 }
 
@@ -88,15 +104,15 @@ Sticker.propTypes = {
     sticker: PropTypes.object.isRequired,
     openMedia: PropTypes.func,
     blur: PropTypes.bool,
-    displaySize: PropTypes.number
-};
+    displaySize: PropTypes.number,
+}
 
 Sticker.defaultProps = {
     chatId: 0,
     messageId: 0,
     openMedia: () => {},
     blur: true,
-    displaySize: STICKER_DISPLAY_SIZE
-};
+    displaySize: STICKER_DISPLAY_SIZE,
+}
 
-export default Sticker;
+export default Sticker

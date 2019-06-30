@@ -5,22 +5,22 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import PropTypes from 'prop-types';
-import InsertDriveFileIcon from '@material-ui/icons/InsertDriveFile';
-import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
-import DocumentTile from '../../Tile/DocumentTile';
-import DocumentAction from './DocumentAction';
-import { getExtension } from '../../../Utils/File';
-import './Document.css';
+import React from 'react'
+import PropTypes from 'prop-types'
+import InsertDriveFileIcon from '@material-ui/icons/InsertDriveFile'
+import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward'
+import DocumentTile from '../../Tile/DocumentTile'
+import DocumentAction from './DocumentAction'
+import { getExtension } from '../../../Utils/File'
+import './Document.css'
 
 class Document extends React.Component {
     render() {
-        const { document, openMedia } = this.props;
-        if (!document) return null;
+        const { document, openMedia } = this.props
+        if (!document) return null
 
-        const { thumbnail, file_name } = document;
-        const file = document.document;
+        const { thumbnail, file_name } = document
+        const file = document.document
 
         return (
             <div className='document'>
@@ -45,7 +45,7 @@ class Document extends React.Component {
                     <DocumentAction file={file} />
                 </div>
             </div>
-        );
+        )
     }
 }
 
@@ -53,7 +53,7 @@ Document.propTypes = {
     chatId: PropTypes.number.isRequired,
     messageId: PropTypes.number.isRequired,
     document: PropTypes.object.isRequired,
-    openMedia: PropTypes.func.isRequired
-};
+    openMedia: PropTypes.func.isRequired,
+}
 
-export default Document;
+export default Document

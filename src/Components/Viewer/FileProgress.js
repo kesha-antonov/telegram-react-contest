@@ -24,7 +24,7 @@ class FileProgress extends React.Component {
         this.state = {
             prevPropsFile: file,
             prevFile: null,
-            file: FileStore.get(file.id) || file
+            file: FileStore.get(file.id) || file,
         }
     }
 
@@ -36,7 +36,7 @@ class FileProgress extends React.Component {
             return {
                 prevPropsFile: file,
                 prevFile: null,
-                file: FileStore.get(file.id) || file
+                file: FileStore.get(file.id) || file,
             }
         }
 
@@ -67,7 +67,10 @@ class FileProgress extends React.Component {
         const prevLocal = this.state.prevFile ? this.state.prevFile.local : null
         const prevIdbKey = this.state.prevFile ? this.state.prevFile.idb_key : null
         const isDownloadingCompleted =
-            prevLocal && nextLocal && !prevLocal.is_downloading_completed && nextLocal.is_downloading_completed
+            prevLocal &&
+            nextLocal &&
+            !prevLocal.is_downloading_completed &&
+            nextLocal.is_downloading_completed
         const receiveIdbKey = nextIdbKey && !prevIdbKey
 
         if (nextState.file.id === this.state.file.id && isDownloadingCompleted && receiveIdbKey) {
@@ -174,7 +177,10 @@ class FileProgress extends React.Component {
         const { file, prevFile } = this.state
         if (!file) return null
 
-        const [wasActive, isActive, isCompleted, progressSize, size] = this.getProgressParams(file, prevFile)
+        const [wasActive, isActive, isCompleted, progressSize, size] = this.getProgressParams(
+            file,
+            prevFile
+        )
 
         let inProgress = isActive
         let progress = 0
@@ -199,13 +205,16 @@ class FileProgress extends React.Component {
 
         const style = {
             zIndex: zIndex,
-            background: !thumbnailSrc && typeof thumbnailSrc !== 'undefined' ? null : 'rgba(0, 0, 0, 0.25)'
+            background:
+                !thumbnailSrc && typeof thumbnailSrc !== 'undefined' ? null : 'rgba(0, 0, 0, 0.25)',
         }
 
         const isDownloadingCompleted =
             file &&
             file.local &&
-            (file.local.is_downloading_completed || file.idb_key || file.local.is_uploading_completed) &&
+            (file.local.is_downloading_completed ||
+                file.idb_key ||
+                file.local.is_uploading_completed) &&
             !this.completeAnimation &&
             !isActive
 
@@ -279,13 +288,13 @@ FileProgress.propTypes = {
     zIndex: PropTypes.number,
 
     icon: PropTypes.node,
-    completeIcon: PropTypes.node
+    completeIcon: PropTypes.node,
 }
 
 FileProgress.defaultProps = {
     cancelButton: false,
     download: true,
-    upload: false
+    upload: false,
 }
 
 export default FileProgress

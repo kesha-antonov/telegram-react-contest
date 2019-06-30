@@ -5,123 +5,123 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import classNames from 'classnames';
-import withStyles from '@material-ui/core/styles/withStyles';
-import IconButton from '@material-ui/core/IconButton';
-import InputAdornment from '@material-ui/core/InputAdornment';
-import InputLabel from '@material-ui/core/InputLabel';
-import Input from '@material-ui/core/Input';
-import FormControl from '@material-ui/core/FormControl';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import Button from '@material-ui/core/Button';
-import Visibility from '@material-ui/icons/Visibility';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
-import TdLibController from '../../Controllers/TdLibController';
-import './PasswordControl.css';
+import React from 'react'
+import classNames from 'classnames'
+import withStyles from '@material-ui/core/styles/withStyles'
+import IconButton from '@material-ui/core/IconButton'
+import InputAdornment from '@material-ui/core/InputAdornment'
+import InputLabel from '@material-ui/core/InputLabel'
+import Input from '@material-ui/core/Input'
+import FormControl from '@material-ui/core/FormControl'
+import FormHelperText from '@material-ui/core/FormHelperText'
+import Button from '@material-ui/core/Button'
+import Visibility from '@material-ui/icons/Visibility'
+import VisibilityOff from '@material-ui/icons/VisibilityOff'
+import TdLibController from '../../Controllers/TdLibController'
+import './PasswordControl.css'
 
 const styles = theme => ({
     root: {
         display: 'flex',
-        flexWrap: 'wrap'
+        flexWrap: 'wrap',
     },
     margin: {
-        margin: '16px 0 8px 0'
+        margin: '16px 0 8px 0',
     },
     withoutLabel: {
-        marginTop: theme.spacing(3)
+        marginTop: theme.spacing(3),
     },
     textField: {
-        flexBasis: 200
+        flexBasis: 200,
     },
     buttonLeft: {
         marginRight: '8px',
-        marginTop: '16px'
+        marginTop: '16px',
     },
     buttonRight: {
         marginLeft: '8px',
-        marginTop: '16px'
-    }
-});
+        marginTop: '16px',
+    },
+})
 
 class PasswordControl extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
         this.state = {
             password: '',
             showPassword: false,
-            error: ''
-        };
+            error: '',
+        }
 
-        this.handleClickShowPassword = this.handleClickShowPassword.bind(this);
-        this.handleMouseDownPassword = this.handleMouseDownPassword.bind(this);
-        this.handleChange = this.handleChange.bind(this);
-        this.handleKeyPress = this.handleKeyPress.bind(this);
-        this.handleBack = this.handleBack.bind(this);
-        this.handleNext = this.handleNext.bind(this);
-        this.handleDone = this.handleDone.bind(this);
+        this.handleClickShowPassword = this.handleClickShowPassword.bind(this)
+        this.handleMouseDownPassword = this.handleMouseDownPassword.bind(this)
+        this.handleChange = this.handleChange.bind(this)
+        this.handleKeyPress = this.handleKeyPress.bind(this)
+        this.handleBack = this.handleBack.bind(this)
+        this.handleNext = this.handleNext.bind(this)
+        this.handleDone = this.handleDone.bind(this)
     }
 
     handleNext() {
         if (this.password) {
-            this.setState({ error: '' });
-            this.handleDone();
+            this.setState({ error: '' })
+            this.handleDone()
         } else {
-            this.setState({ error: 'Invalid password. Please try again.' });
+            this.setState({ error: 'Invalid password. Please try again.' })
         }
     }
 
     handleBack() {
-        this.props.onChangePhone();
+        this.props.onChangePhone()
     }
 
     handleDone() {
-        const password = this.password;
+        const password = this.password
 
-        this.setState({ loading: true });
+        this.setState({ loading: true })
         TdLibController.send({
             '@type': 'checkAuthenticationPassword',
-            password: password
+            password: password,
         })
             .then(result => {})
             .catch(error => {
-                let errorString = null;
+                let errorString = null
                 if (error && error['@type'] === 'error' && error.message) {
-                    errorString = error.message;
+                    errorString = error.message
                 } else {
-                    errorString = JSON.stringify(error);
+                    errorString = JSON.stringify(error)
                 }
 
-                this.setState({ error: errorString });
+                this.setState({ error: errorString })
             })
             .finally(() => {
-                this.setState({ loading: false });
-            });
+                this.setState({ loading: false })
+            })
     }
 
     handleMouseDownPassword = event => {
-        event.preventDefault();
-    };
+        event.preventDefault()
+    }
 
     handleClickShowPassword = () => {
-        this.setState({ showPassword: !this.state.showPassword });
-    };
+        this.setState({ showPassword: !this.state.showPassword })
+    }
 
     handleChange(e) {
-        this.password = e.target.value;
+        this.password = e.target.value
     }
 
     handleKeyPress(e) {
         if (e.key === 'Enter') {
-            e.preventDefault();
-            this.handleNext();
+            e.preventDefault()
+            this.handleNext()
         }
     }
 
     render() {
-        const { loading, error, showPassword } = this.state;
-        const { passwordHint, classes } = this.props;
+        const { loading, error, showPassword } = this.state
+        const { passwordHint, classes } = this.props
 
         return (
             <div>
@@ -162,7 +162,11 @@ class PasswordControl extends React.Component {
                 )}
                 <FormHelperText id='password-error-text'>{error}</FormHelperText>
                 <div className='authorization-actions'>
-                    <Button fullWidth className={classes.buttonLeft} onClick={this.handleBack} disabled={loading}>
+                    <Button
+                        fullWidth
+                        className={classes.buttonLeft}
+                        onClick={this.handleBack}
+                        disabled={loading}>
                         Back
                     </Button>
                     <Button
@@ -175,8 +179,8 @@ class PasswordControl extends React.Component {
                     </Button>
                 </div>
             </div>
-        );
+        )
     }
 }
 
-export default withStyles(styles)(PasswordControl);
+export default withStyles(styles)(PasswordControl)

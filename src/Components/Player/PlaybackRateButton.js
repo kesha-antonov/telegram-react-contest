@@ -5,58 +5,63 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
-import withStyles from '@material-ui/core/styles/withStyles';
-import IconButton from '@material-ui/core/IconButton';
-import PlayerStore from '../../Stores/PlayerStore';
-import TdLibController from '../../Controllers/TdLibController';
-import { PLAYER_PLAYBACKRATE_FAST, PLAYER_PLAYBACKRATE_NORMAL } from '../../Constants';
+import React from 'react'
+import withStyles from '@material-ui/core/styles/withStyles'
+import IconButton from '@material-ui/core/IconButton'
+import PlayerStore from '../../Stores/PlayerStore'
+import TdLibController from '../../Controllers/TdLibController'
+import { PLAYER_PLAYBACKRATE_FAST, PLAYER_PLAYBACKRATE_NORMAL } from '../../Constants'
 
 const styles = {
     iconButton: {
-        padding: 4
-    }
-};
+        padding: 4,
+    },
+}
 class PlaybackRateButton extends React.Component {
     constructor(props) {
-        super(props);
+        super(props)
 
-        const { playbackRate } = PlayerStore;
+        const { playbackRate } = PlayerStore
 
         this.state = {
-            playbackRate
-        };
+            playbackRate,
+        }
     }
 
     componentDidMount() {
-        PlayerStore.on('clientUpdateMediaPlaybackRate', this.onClientUpdateMediaPlaybackRate);
+        PlayerStore.on('clientUpdateMediaPlaybackRate', this.onClientUpdateMediaPlaybackRate)
     }
 
     componentWillUnmount() {
-        PlayerStore.removeListener('clientUpdateMediaPlaybackRate', this.onClientUpdateMediaPlaybackRate);
+        PlayerStore.removeListener(
+            'clientUpdateMediaPlaybackRate',
+            this.onClientUpdateMediaPlaybackRate
+        )
     }
 
     onClientUpdateMediaPlaybackRate = update => {
-        const { playbackRate } = update;
+        const { playbackRate } = update
 
-        this.setState({ playbackRate });
-    };
+        this.setState({ playbackRate })
+    }
 
     handlePlaybackRate = () => {
-        const { playbackRate } = this.state;
+        const { playbackRate } = this.state
 
         const nextPlaybackRate =
-            playbackRate === PLAYER_PLAYBACKRATE_NORMAL ? PLAYER_PLAYBACKRATE_FAST : PLAYER_PLAYBACKRATE_NORMAL;
+            playbackRate === PLAYER_PLAYBACKRATE_NORMAL
+                ? PLAYER_PLAYBACKRATE_FAST
+                : PLAYER_PLAYBACKRATE_NORMAL
 
         TdLibController.clientUpdate({
             '@type': 'clientUpdateMediaPlaybackRate',
-            playbackRate: nextPlaybackRate
-        });
-    };
+            playbackRate: nextPlaybackRate,
+        })
+    }
 
     render() {
-        const { classes } = this.props;
-        const { playbackRate } = this.state;
+        const { classes } = this.props
+        const { playbackRate } = this.state
 
         return (
             <IconButton
@@ -65,8 +70,8 @@ class PlaybackRateButton extends React.Component {
                 onClick={this.handlePlaybackRate}>
                 <div className='header-player-playback-icon'>2X</div>
             </IconButton>
-        );
+        )
     }
 }
 
-export default withStyles(styles)(PlaybackRateButton);
+export default withStyles(styles)(PlaybackRateButton)

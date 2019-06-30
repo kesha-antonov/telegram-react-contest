@@ -5,26 +5,26 @@
  * LICENSE file in the root directory of this source tree.
  */
 
-import React from 'react';
+import React from 'react'
 
 export function withSaveRef() {
     return Component => {
-        return React.forwardRef((props, ref) => <Component {...props} forwardedRef={ref} />);
-    };
+        return React.forwardRef((props, ref) => <Component {...props} forwardedRef={ref} />)
+    }
 }
 
 export function withRestoreRef() {
     return Component => {
         return class extends React.Component {
             render() {
-                const { forwardedRef, ...rest } = this.props;
+                const { forwardedRef, ...rest } = this.props
 
-                return <Component {...rest} ref={forwardedRef} />;
+                return <Component {...rest} ref={forwardedRef} />
             }
-        };
-    };
+        }
+    }
 }
 
 export function getDisplayName(WrappedComponent) {
-    return WrappedComponent.displayName || WrappedComponent.name || 'Component';
+    return WrappedComponent.displayName || WrappedComponent.name || 'Component'
 }
